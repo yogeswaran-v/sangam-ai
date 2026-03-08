@@ -15,7 +15,7 @@ export async function createStripeCheckoutSession(
   cancelUrl: string
 ): Promise<string> {
   const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-01-27.acacia' })
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' })
 
   const planConfig = STRIPE_PLANS[plan]
 
@@ -37,7 +37,7 @@ export async function handleStripeWebhook(
   signature: string
 ): Promise<{ customerId: string; plan: string; event: string } | null> {
   const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-01-27.acacia' })
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-02-24.acacia' })
 
   let event
   try {
