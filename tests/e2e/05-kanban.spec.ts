@@ -1,24 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { createTestUser, cleanupTestUser, injectSession, seedOnboardedUser } from '../helpers/auth'
-
-const TEST_EMAIL = 'test-kanban@sangam-test.ai'
-const TEST_PASSWORD = 'Test1234!'
+import { injectSession } from '../helpers/auth'
+import { SHARED_EMAIL, SHARED_PASSWORD } from '../helpers/global-setup'
 
 test.describe('Kanban board', () => {
-  let userId: string
-
-  test.beforeAll(async () => {
-    const user = await createTestUser(TEST_EMAIL, TEST_PASSWORD)
-    userId = user!.id
-    await seedOnboardedUser(userId)
-  })
-
-  test.afterAll(async () => {
-    await cleanupTestUser(TEST_EMAIL)
-  })
-
   test('renders all 4 columns', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     await expect(page.getByText(/backlog/i)).toBeVisible()
@@ -28,7 +14,7 @@ test.describe('Kanban board', () => {
   })
 
   test('displays seeded kanban cards', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     await expect(page.getByText(/Define MVP scope/i)).toBeVisible({ timeout: 8000 })
@@ -37,7 +23,7 @@ test.describe('Kanban board', () => {
   })
 
   test('cards show assigned agent', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     await expect(page.getByText(/Product Agent/i)).toBeVisible({ timeout: 8000 })
@@ -46,7 +32,7 @@ test.describe('Kanban board', () => {
   })
 
   test('cards show priority badges', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     await expect(page.getByText(/high/i).first()).toBeVisible({ timeout: 8000 })
@@ -54,7 +40,7 @@ test.describe('Kanban board', () => {
   })
 
   test('card counts match column', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     // Backlog has 1 card (Define MVP scope)
@@ -70,7 +56,7 @@ test.describe('Kanban board', () => {
   })
 
   test('board title is visible', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
     await expect(page.getByText(/kanban|task board/i).first()).toBeVisible()
   })

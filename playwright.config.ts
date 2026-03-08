@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 import { config } from 'dotenv'
 config({ path: '.env.test' })
-config({ path: '.env.local' }) // fallback
+config({ path: '.env.local' })
 
 const isCI = !!process.env.CI
 const baseURL = process.env.BASE_URL || 'http://localhost:3000'
@@ -10,22 +10,27 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: false,
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
+  retries: isCI ? 1 : 0,
   workers: 1,
   outputDir: 'test-results/',
+  timeout: 30000,       // 30s per test
+  expect: { timeout: 10000 }, // 10s for assertions
+
+  globalSetup: './tests/helpers/global-setup.ts',
+  globalTeardown: './tests/helpers/global-setup.ts',
+
   reporter: [
-    // Always emit list output to terminal
     ['list'],
-    // HTML report — viewable locally via `npm run test:report`, published to GitHub Pages in CI
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    // GitHub Actions summary — shows pass/fail inline in the Actions UI
     ...(isCI ? [['github'] as ['github']] : []),
   ],
   use: {
     baseURL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'on-first-retry',
+    video: 'retain-on-failure',
+    actionTimeout: 10000,
+    navigationTimeout: 15000,
   },
   projects: [
     {

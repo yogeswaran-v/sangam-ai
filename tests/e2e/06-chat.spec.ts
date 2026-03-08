@@ -1,24 +1,10 @@
 import { test, expect } from '@playwright/test'
-import { createTestUser, cleanupTestUser, injectSession, seedOnboardedUser } from '../helpers/auth'
-
-const TEST_EMAIL = 'test-chat@sangam-test.ai'
-const TEST_PASSWORD = 'Test1234!'
+import { injectSession } from '../helpers/auth'
+import { SHARED_EMAIL, SHARED_PASSWORD } from '../helpers/global-setup'
 
 test.describe('Team chat', () => {
-  let userId: string
-
-  test.beforeAll(async () => {
-    const user = await createTestUser(TEST_EMAIL, TEST_PASSWORD)
-    userId = user!.id
-    await seedOnboardedUser(userId)
-  })
-
-  test.afterAll(async () => {
-    await cleanupTestUser(TEST_EMAIL)
-  })
-
   test('renders channel list with all 6 channels', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await expect(page.getByText('CEO Updates')).toBeVisible({ timeout: 8000 })
@@ -30,7 +16,7 @@ test.describe('Team chat', () => {
   })
 
   test('CEO Updates channel has welcome message from agent', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('CEO Updates').click()
@@ -38,7 +24,7 @@ test.describe('Team chat', () => {
   })
 
   test('clicking a channel loads its messages', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('Engineering').click()
@@ -47,7 +33,7 @@ test.describe('Team chat', () => {
   })
 
   test('message input is present when channel is selected', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('CEO Updates').click()
@@ -56,7 +42,7 @@ test.describe('Team chat', () => {
   })
 
   test('can type and send a message', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('CEO Updates').click()
@@ -70,7 +56,7 @@ test.describe('Team chat', () => {
   })
 
   test('send button is disabled when input is empty', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('CEO Updates').click()
@@ -83,7 +69,7 @@ test.describe('Team chat', () => {
   })
 
   test('agent messages show sender name', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
     await page.getByText('CEO Updates').click()

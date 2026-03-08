@@ -1,24 +1,11 @@
 import { test, expect } from '@playwright/test'
-import { createTestUser, cleanupTestUser, injectSession, seedOnboardedUser } from '../helpers/auth'
-
-const TEST_EMAIL = 'test-nav@sangam-test.ai'
-const TEST_PASSWORD = 'Test1234!'
+import { injectSession } from '../helpers/auth'
+import { SHARED_EMAIL, SHARED_PASSWORD } from '../helpers/global-setup'
+import { createTestUser, cleanupTestUser } from '../helpers/global-setup'
 
 test.describe('Navigation and routing', () => {
-  let userId: string
-
-  test.beforeAll(async () => {
-    const user = await createTestUser(TEST_EMAIL, TEST_PASSWORD)
-    userId = user!.id
-    await seedOnboardedUser(userId)
-  })
-
-  test.afterAll(async () => {
-    await cleanupTestUser(TEST_EMAIL)
-  })
-
   test('sidebar links navigate to correct pages', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
 
     const navItems = [
@@ -38,7 +25,7 @@ test.describe('Navigation and routing', () => {
   })
 
   test('active sidebar link is highlighted', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/kanban')
 
     // The kanban link should have an active/selected class or aria-current
@@ -52,7 +39,7 @@ test.describe('Navigation and routing', () => {
   })
 
   test('browser back button works correctly', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
     await page.goto('/dashboard/kanban')
     await page.goBack()
@@ -60,7 +47,7 @@ test.describe('Navigation and routing', () => {
   })
 
   test('all dashboard pages load without 500 errors', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
 
     const pages = [
       '/dashboard',
@@ -82,15 +69,15 @@ test.describe('Navigation and routing', () => {
 
   test('onboarding route is accessible when not onboarded', async ({ page, context }) => {
     // New user without customer record — should see onboarding
-    const freshUser = await createTestUser('fresh-nav@sangam-test.ai', TEST_PASSWORD)
-    await injectSession(context, 'fresh-nav@sangam-test.ai', TEST_PASSWORD)
+    const freshUser = await createTestUser('fresh-nav@sangam-test.ai', SHARED_PASSWORD)
+    await injectSession(context, 'fresh-nav@sangam-test.ai', SHARED_PASSWORD)
     await page.goto('/dashboard')
     await expect(page).toHaveURL(/\/onboarding/)
     await cleanupTestUser('fresh-nav@sangam-test.ai')
   })
 
   test('onboarded user cannot access /onboarding (redirects to dashboard)', async ({ page, context }) => {
-    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     // Onboarding page redirects unauthenticated to /login — but authenticated onboarded
     // users going to /onboarding should see the wizard (not crash)
     const response = await page.goto('/onboarding')
