@@ -101,19 +101,67 @@ export function PixelWorld() {
   return (
     <div className="flex h-[calc(100vh-8rem)] border border-[#1e1e2e] rounded-2xl overflow-hidden">
       {/* Canvas */}
-      <div className="flex-1 relative bg-[#0a0a0f] overflow-hidden">
-        {/* Grid background */}
+      <div className="flex-1 relative bg-[#0d0d18] overflow-hidden">
+        {/* Grid floor */}
         <div
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0"
           style={{
-            backgroundImage: 'linear-gradient(#6366f1 1px, transparent 1px), linear-gradient(to right, #6366f1 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
+            backgroundImage: 'linear-gradient(rgba(99,102,241,0.08) 1px, transparent 1px), linear-gradient(to right, rgba(99,102,241,0.08) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
           }}
         />
 
+        {/* Ambient glow spots */}
+        <div className="absolute top-[-10%] left-[20%] w-64 h-64 rounded-full bg-[#6366f1]/5 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[30%] w-48 h-48 rounded-full bg-[#3b82f6]/5 blur-3xl pointer-events-none" />
+
+        {/* Department zone labels */}
+        <div className="absolute top-4 left-4 text-[10px] text-[#6366f1]/40 uppercase tracking-widest font-mono">Leadership</div>
+        <div className="absolute top-4 right-36 text-[10px] text-[#3b82f6]/40 uppercase tracking-widest font-mono">Engineering</div>
+        <div className="absolute bottom-16 left-4 text-[10px] text-[#ec4899]/40 uppercase tracking-widest font-mono">Marketing</div>
+        <div className="absolute bottom-16 right-36 text-[10px] text-[#10b981]/40 uppercase tracking-widest font-mono">Sales</div>
+
+        {/* Desks — pixel art style divs */}
+        {/* CEO desk */}
+        <div className="absolute" style={{ left: '16%', top: '22%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#6366f1]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#6366f1]/20 rounded mt-0.5 mx-auto" />
+        </div>
+        {/* Product desk */}
+        <div className="absolute" style={{ left: '36%', top: '12%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#f59e0b]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#f59e0b]/20 rounded mt-0.5 mx-auto" />
+        </div>
+        {/* Engineering desk */}
+        <div className="absolute" style={{ left: '56%', top: '26%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#3b82f6]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#3b82f6]/20 rounded mt-0.5 mx-auto" />
+        </div>
+        {/* Marketing desk */}
+        <div className="absolute" style={{ left: '22%', top: '58%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#ec4899]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#ec4899]/20 rounded mt-0.5 mx-auto" />
+        </div>
+        {/* Sales desk */}
+        <div className="absolute" style={{ left: '64%', top: '52%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#10b981]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#10b981]/20 rounded mt-0.5 mx-auto" />
+        </div>
+        {/* Finance desk */}
+        <div className="absolute" style={{ left: '44%', top: '68%' }}>
+          <div className="w-14 h-8 bg-[#1e1e2e] border border-[#f97316]/30 rounded-sm" />
+          <div className="w-8 h-1 bg-[#f97316]/20 rounded mt-0.5 mx-auto" />
+        </div>
+
+        {/* Meeting table in center */}
+        <div className="absolute" style={{ left: '42%', top: '40%', transform: 'translate(-50%, -50%)' }}>
+          <div className="w-20 h-12 bg-[#12121a] border border-[#1e1e2e] rounded-lg flex items-center justify-center">
+            <span className="text-[8px] text-[#4b5563] uppercase tracking-widest">HQ</span>
+          </div>
+        </div>
+
         {/* Corner labels */}
-        <div className="absolute top-3 left-3 text-xs text-[#4b5563]">Operations Floor</div>
-        <div className="absolute bottom-3 right-3 text-xs text-[#4b5563]">Sangam HQ</div>
+        <div className="absolute bottom-3 right-3 text-[10px] text-[#4b5563] font-mono">Sangam HQ v0.1</div>
 
         {/* Agent sprites */}
         {agents.map(agent => (
@@ -121,7 +169,7 @@ export function PixelWorld() {
         ))}
 
         {/* Legend */}
-        <div className="absolute bottom-4 left-4 flex items-center gap-4 text-xs text-[#6b7280]">
+        <div className="absolute bottom-4 left-4 flex items-center gap-4 text-[10px] text-[#6b7280]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#4b5563]" /> Idle
           </div>
@@ -129,7 +177,7 @@ export function PixelWorld() {
             <span className="w-2 h-2 rounded-full bg-[#6366f1] animate-pulse" /> Working
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Complete
+            <span className="w-2 h-2 rounded-full bg-[#10b981]" /> Done
           </div>
         </div>
       </div>

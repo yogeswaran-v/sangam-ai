@@ -121,6 +121,71 @@ export function OnboardingWizard() {
         onboarding_complete: true,
       }, { onConflict: 'customer_id' })
 
+    // Create kanban board
+    const { data: kanbanBoard } = await supabase
+      .from('kanban_boards')
+      .upsert({ customer_id: customer!.id }, { onConflict: 'customer_id' })
+      .select('id')
+      .single()
+
+    // Create chat channels
+    const CHANNELS = [
+      { name: 'CEO Updates', department: 'leadership' },
+      { name: 'Engineering', department: 'engineering' },
+      { name: 'Product', department: 'product' },
+      { name: 'Marketing', department: 'marketing' },
+      { name: 'Sales', department: 'sales' },
+      { name: 'Finance', department: 'finance' },
+    ]
+    for (const ch of CHANNELS) {
+      const { data: existing } = await supabase
+        .from('chat_channels')
+        .select('id')
+        .eq('customer_id', customer!.id)
+        .eq('name', ch.name)
+        .single()
+      if (!existing) {
+        await supabase.from('chat_channels').insert({
+          customer_id: customer!.id,
+          name: ch.name,
+          department: ch.department,
+        })
+      }
+    }
+
+    // Seed 3 starter kanban cards
+    if (kanbanBoard) {
+      const starterCards = [
+        { title: 'Define MVP feature scope', description: 'CEO Agent: Break down product requirements into a prioritised MVP feature list', priority: 'high', assigned_agent: 'Product Agent' },
+        { title: 'Set up project architecture', description: 'Engineering Agent: Define tech stack, repo structure, and development workflow', priority: 'high', assigned_agent: 'Engineering Agent' },
+        { title: 'Create go-to-market strategy', description: 'Marketing Agent: Identify target audience, messaging, and launch channels', priority: 'medium', assigned_agent: 'Marketing Agent' },
+      ]
+      for (const card of starterCards) {
+        await supabase.from('kanban_cards').insert({
+          board_id: kanbanBoard.id,
+          ...card,
+          column_name: 'backlog',
+        })
+      }
+
+      // Post a welcome message to CEO Updates channel
+      const { data: ceoChannel } = await supabase
+        .from('chat_channels')
+        .select('id')
+        .eq('customer_id', customer!.id)
+        .eq('name', 'CEO Updates')
+        .single()
+
+      if (ceoChannel) {
+        await supabase.from('chat_messages').insert({
+          channel_id: ceoChannel.id,
+          sender_name: 'CEO Agent',
+          sender_type: 'agent',
+          content: `🚀 *Mission briefing received.*\n\nI've reviewed your vision and goals. Your AI team is now assembled and ready.\n\n**Today's priorities:**\n• Define the MVP scope with the Product team\n• Set up the engineering foundation\n• Begin market research\n\nI'll send daily briefings here. The team will post updates in their respective channels. Let's build something great.`,
+        })
+      }
+    }
+
     router.push('/dashboard')
   }
 
