@@ -1,9 +1,19 @@
 import 'dotenv/config'
 import { supabase } from './lib/supabase'
 import { CeoAgent } from './agents/CeoAgent'
+import { ProductAgent } from './agents/ProductAgent'
+import { EngineeringAgent } from './agents/EngineeringAgent'
+import { MarketingAgent } from './agents/MarketingAgent'
+import { SalesAgent } from './agents/SalesAgent'
+import { FinanceAgent } from './agents/FinanceAgent'
 import type { AgentContext } from './agents/BaseAgent'
 
 const ceoAgent = new CeoAgent()
+const productAgent = new ProductAgent()
+const engineeringAgent = new EngineeringAgent()
+const marketingAgent = new MarketingAgent()
+const salesAgent = new SalesAgent()
+const financeAgent = new FinanceAgent()
 
 async function getActiveCustomers(): Promise<AgentContext[]> {
   const { data: teams, error } = await supabase
@@ -67,8 +77,26 @@ export async function runOrchestrationCycle(): Promise<void> {
   for (const ctx of customers) {
     try {
       await ensureChatChannels(ctx.customerId)
+
+      // Run all agents in sequence
       await ceoAgent.runDailyBriefing(ctx)
-      console.log(`✓ CEO briefing sent for customer ${ctx.customerId}`)
+      console.log(`✓ CEO briefing — ${ctx.customerId}`)
+
+      await productAgent.runProductCycle(ctx)
+      console.log(`✓ Product cycle — ${ctx.customerId}`)
+
+      await engineeringAgent.runEngineeringUpdate(ctx)
+      console.log(`✓ Engineering update — ${ctx.customerId}`)
+
+      await marketingAgent.runMarketingBriefing(ctx)
+      console.log(`✓ Marketing briefing — ${ctx.customerId}`)
+
+      await salesAgent.runSalesUpdate(ctx)
+      console.log(`✓ Sales update — ${ctx.customerId}`)
+
+      await financeAgent.runFinanceBriefing(ctx)
+      console.log(`✓ Finance briefing — ${ctx.customerId}`)
+
     } catch (err) {
       console.error(`Error processing customer ${ctx.customerId}:`, err)
     }
