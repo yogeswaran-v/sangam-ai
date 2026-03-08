@@ -1,0 +1,12 @@
+# Supabase project configuration
+# Run: npx supabase init to generate full config
+# Apply migrations: npx supabase db push
+
+[api]
+port = 54321
+
+[db]
+port = 54322
+
+[studio]
+port = 54323
