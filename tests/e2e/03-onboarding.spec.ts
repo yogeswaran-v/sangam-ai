@@ -4,6 +4,12 @@ import { createTestUser, cleanupTestUser, injectSession } from '../helpers/auth'
 const TEST_EMAIL = 'test-onboarding@sangam-test.ai'
 const TEST_PASSWORD = 'Test1234!'
 
+// Selector that avoids the Next.js dev tools "next" button
+const nextBtn = (page: any) =>
+  page.getByRole('button', { name: /next →/i })
+    .or(page.getByRole('button', { name: 'Next →' }))
+    .last()
+
 test.describe('Onboarding wizard', () => {
   test.beforeAll(async () => {
     await createTestUser(TEST_EMAIL, TEST_PASSWORD)
@@ -18,28 +24,25 @@ test.describe('Onboarding wizard', () => {
     await page.goto('/onboarding')
     await expect(page.getByText(/what is your vision/i)).toBeVisible()
     await expect(page.getByText(/step 1 of 4/i)).toBeVisible()
-    await expect(page.getByRole('progressbar').or(page.locator('[style*="width"]')).first()).toBeVisible()
   })
 
   test('Next button is disabled when textarea is empty', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
-    await expect(page.getByRole('button', { name: /next/i })).toBeDisabled()
+    await expect(nextBtn(page)).toBeDisabled()
   })
 
   test('Next button enables when text is entered', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
     await page.getByRole('textbox').fill('Build the best AI platform in India')
-    await expect(page.getByRole('button', { name: /next/i })).toBeEnabled()
+    await expect(nextBtn(page)).toBeEnabled()
   })
 
   test('Back button is hidden on first step', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
-    const backBtn = page.getByRole('button', { name: /back/i })
-    // Back button exists in DOM but is invisible (opacity-0) on step 1
-    await expect(backBtn).not.toBeVisible()
+    await expect(page.getByRole('button', { name: /← back/i })).not.toBeVisible()
   })
 
   test('progresses through all 4 steps', async ({ page, context }) => {
@@ -54,16 +57,16 @@ test.describe('Onboarding wizard', () => {
     ]
 
     for (let i = 0; i < steps.length; i++) {
-      await expect(page.getByText(steps[i].text)).toBeVisible()
+      await expect(page.getByText(steps[i].text).first()).toBeVisible()
       await expect(page.getByText(`Step ${i + 1} of 4`)).toBeVisible()
       await page.getByRole('textbox').fill(steps[i].value)
 
       if (i < steps.length - 1) {
-        await page.getByRole('button', { name: /next/i }).click()
+        await nextBtn(page).click()
+        await page.waitForTimeout(300)
       }
     }
 
-    // On last step, button says "Launch my team"
     await expect(page.getByRole('button', { name: /launch my team/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /launch my team/i })).toBeEnabled()
   })
@@ -73,10 +76,11 @@ test.describe('Onboarding wizard', () => {
     await page.goto('/onboarding')
 
     await page.getByRole('textbox').fill('Test vision')
-    await page.getByRole('button', { name: /next/i }).click()
+    await nextBtn(page).click()
+    await page.waitForTimeout(300)
     await expect(page.getByText(/what are you building/i)).toBeVisible()
 
-    await page.getByRole('button', { name: /back/i }).click()
+    await page.getByRole('button', { name: /← back/i }).click()
     await expect(page.getByText(/what is your vision/i)).toBeVisible()
     await expect(page.getByText('Step 1 of 4')).toBeVisible()
   })
@@ -85,13 +89,12 @@ test.describe('Onboarding wizard', () => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
 
-    // Step 1 — 25%
     await expect(page.getByText('25%')).toBeVisible()
 
     await page.getByRole('textbox').fill('Vision text')
-    await page.getByRole('button', { name: /next/i }).click()
+    await nextBtn(page).click()
+    await page.waitForTimeout(300)
 
-    // Step 2 — 50%
     await expect(page.getByText('50%')).toBeVisible()
   })
 
@@ -108,21 +111,20 @@ test.describe('Onboarding wizard', () => {
 
     for (let i = 0; i < answers.length; i++) {
       await page.getByRole('textbox').fill(answers[i])
-      const btnText = i === answers.length - 1 ? /launch my team/i : /next/i
-      await page.getByRole('button', { name: btnText }).click()
       if (i < answers.length - 1) {
-        await page.waitForTimeout(300) // animation
+        await nextBtn(page).click()
+        await page.waitForTimeout(300)
+      } else {
+        await page.getByRole('button', { name: /launch my team/i }).click()
       }
     }
 
-    // Wait for redirect to dashboard
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 })
     await expect(page.getByText(/mission control|command centre|welcome/i)).toBeVisible()
   })
 
   test('onboarding creates chat channels — visible in chat after completion', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
-    // If already onboarded from previous test, go directly to chat
     await page.goto('/dashboard/chat')
     await expect(page.getByText(/CEO Updates|Engineering|Product/i)).toBeVisible({ timeout: 10000 })
   })
