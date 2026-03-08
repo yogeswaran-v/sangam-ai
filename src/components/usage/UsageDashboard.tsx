@@ -37,6 +37,46 @@ function fmt(n: number): string {
   return String(n)
 }
 
+async function handleUpgrade(targetPlan: string) {
+  const res = await fetch('/api/billing/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: targetPlan }),
+  })
+  const data = await res.json()
+  if (data.provider === 'stripe' && data.url) {
+    window.location.href = data.url
+  } else if (data.provider === 'razorpay') {
+    // Razorpay inline checkout — load script dynamically
+    const script = document.createElement('script')
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+    document.body.appendChild(script)
+    script.onload = () => {
+      const rzp = new (window as any).Razorpay({
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+        name: 'Sangam.ai',
+        description: `${targetPlan} plan subscription`,
+        handler: async (response: any) => {
+          await fetch('/api/billing/webhook/razorpay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...response,
+              plan: targetPlan,
+              customer_id: '', // will be resolved server-side from auth
+            }),
+          })
+          window.location.reload()
+        },
+      })
+      rzp.open()
+    }
+  }
+}
+
 export function UsageDashboard() {
   const [summary, setSummary] = useState<UsageSummary | null>(null)
   const [plan, setPlan] = useState<'starter' | 'pro' | 'scale'>('starter')
@@ -95,7 +135,7 @@ export function UsageDashboard() {
             <div className="text-2xl font-bold text-white">{planInfo.label}</div>
             <div className="text-[#6b7280] text-sm mt-1">{planPrice}</div>
           </div>
-          <button className="px-4 py-2 border border-[#6366f1]/50 text-[#6366f1] rounded-xl text-sm hover:bg-[#6366f1]/10 transition-colors">
+          <button onClick={() => handleUpgrade('pro')} className="px-4 py-2 border border-[#6366f1]/50 text-[#6366f1] rounded-xl text-sm hover:bg-[#6366f1]/10 transition-colors">
             Upgrade plan
           </button>
         </div>
