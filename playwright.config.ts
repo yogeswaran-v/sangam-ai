@@ -33,19 +33,10 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: isCI
-    ? {
-        // In CI: use the production build (faster, more stable)
-        command: 'npm run start',
-        url: baseURL,
-        reuseExistingServer: false,
-        timeout: 60000,
-      }
-    : {
-        // Locally: reuse running dev server if already up
-        command: 'npm run dev',
-        url: baseURL,
-        reuseExistingServer: true,
-        timeout: 30000,
-      },
+  webServer: {
+    command: 'npm run dev',
+    url: baseURL,
+    reuseExistingServer: !isCI,
+    timeout: 60000,
+  },
 })

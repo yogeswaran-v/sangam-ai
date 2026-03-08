@@ -30,9 +30,9 @@ jobs:
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      # Currents.dev (optional — add CURRENTS_RECORD_KEY secret to enable cloud dashboard)
       CURRENTS_RECORD_KEY: ${{ secrets.CURRENTS_RECORD_KEY }}
       CURRENTS_PROJECT_ID: ${{ secrets.CURRENTS_PROJECT_ID }}
+      NEXT_TELEMETRY_DISABLED: 1
 
     steps:
       - name: Checkout code
@@ -50,28 +50,21 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Build Next.js app
-        run: npm run build
-        env:
-          # Skip lint during CI build
-          NEXT_TELEMETRY_DISABLED: 1
-
-      - name: Run Playwright tests
+      - name: Run Playwright tests (dev server)
         run: npx playwright test
         env:
           CI: true
-          # Use production build server instead of dev server in CI
           BASE_URL: http://localhost:3000
 
       - name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
-        if: always() # Upload even if tests fail
+        if: always()
         with:
           name: playwright-report-${{ github.run_number }}
           path: playwright-report/
           retention-days: 30
 
-      - name: Upload test results (traces/screenshots/videos)
+      - name: Upload test results on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -83,7 +76,7 @@ jobs:
     name: Publish Report to GitHub Pages
     needs: test
     runs-on: ubuntu-latest
-    if: always() && github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
 
     environment:
       name: github-pages
