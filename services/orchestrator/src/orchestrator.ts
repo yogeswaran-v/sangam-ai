@@ -16,28 +16,35 @@ const salesAgent = new SalesAgent()
 const financeAgent = new FinanceAgent()
 
 async function getActiveCustomers(): Promise<AgentContext[]> {
+  // Get active teams
   const { data: teams, error } = await supabase
     .from('agent_teams')
-    .select(`
-      customer_id,
-      customers!inner(id, user_id),
-      mission_control!inner(vision, product_requirements, monetary_goals, timeline)
-    `)
+    .select('customer_id')
     .eq('status', 'active')
     .eq('onboarding_complete', true)
 
-  if (error || !teams) {
-    console.error('Error fetching customers:', error)
+  if (error || !teams || teams.length === 0) {
+    if (error) console.error('Error fetching teams:', error)
     return []
   }
 
-  return teams.map((team: any) => ({
-    customerId: team.customer_id,
-    vision: team.mission_control?.vision ?? '',
-    productRequirements: team.mission_control?.product_requirements ?? '',
-    monetaryGoals: team.mission_control?.monetary_goals ?? '',
-    timeline: team.mission_control?.timeline ?? '',
-  }))
+  const contexts: AgentContext[] = []
+  for (const team of teams) {
+    const { data: mc } = await supabase
+      .from('mission_control')
+      .select('vision, product_requirements, monetary_goals, timeline')
+      .eq('customer_id', team.customer_id)
+      .single()
+
+    contexts.push({
+      customerId: team.customer_id,
+      vision: mc?.vision ?? '',
+      productRequirements: mc?.product_requirements ?? '',
+      monetaryGoals: mc?.monetary_goals ?? '',
+      timeline: mc?.timeline ?? '',
+    })
+  }
+  return contexts
 }
 
 async function ensureChatChannels(customerId: string): Promise<void> {
