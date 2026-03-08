@@ -1,9 +1,6 @@
--- Enable UUID extension
-create extension if not exists "uuid-ossp";
-
 -- Customers (one per paying user)
 create table customers (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null unique,
   email text not null,
   name text,
@@ -20,7 +17,7 @@ create table customers (
 
 -- Agent teams
 create table agent_teams (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null,
   team_type text not null default 'startup_product',
   status text not null default 'onboarding' check (status in ('onboarding', 'active', 'paused')),
@@ -30,7 +27,7 @@ create table agent_teams (
 
 -- Mission Control HQ
 create table mission_control (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null unique,
   vision text,
   mission text,
@@ -67,3 +64,13 @@ create policy "Users can view own mission control"
 create policy "Users can update own mission control"
   on mission_control for update
   using (customer_id in (select id from customers where user_id = auth.uid()));
+
+-- Service role insert policies (needed for onboarding wizard)
+create policy "Service role insert customers"
+  on customers for insert with check (true);
+
+create policy "Service role upsert agent teams"
+  on agent_teams for insert with check (true);
+
+create policy "Service role upsert mission control"
+  on mission_control for insert with check (true);

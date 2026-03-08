@@ -1,11 +1,11 @@
 -- Kanban boards
 create table kanban_boards (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null unique
 );
 
 create table kanban_cards (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   board_id uuid references kanban_boards(id) on delete cascade not null,
   title text not null,
   description text,
@@ -22,14 +22,14 @@ create table kanban_cards (
 
 -- Chat channels
 create table chat_channels (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null,
   name text not null,
   department text not null
 );
 
 create table chat_messages (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   channel_id uuid references chat_channels(id) on delete cascade not null,
   sender_name text not null,
   sender_type text not null check (sender_type in ('agent', 'ceo')),
@@ -39,7 +39,7 @@ create table chat_messages (
 
 -- Agent events (drives Pixel World + audit log)
 create table agent_events (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null,
   agent_name text not null,
   event_type text not null,
@@ -49,7 +49,7 @@ create table agent_events (
 
 -- Token usage tracking
 create table token_usage (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null,
   agent_name text not null,
   input_tokens integer not null default 0,
@@ -60,7 +60,7 @@ create table token_usage (
 
 -- Approval requests
 create table approval_requests (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   customer_id uuid references customers(id) on delete cascade not null,
   card_id uuid references kanban_cards(id) on delete cascade,
   title text not null,
@@ -138,6 +138,15 @@ create policy "Customer can view own usage"
 create policy "Customer can view own approvals"
   on approval_requests for select
   using (customer_id in (select id from customers where user_id = auth.uid()));
+
+-- Service role insert policies
+create policy "Service role insert kanban boards" on kanban_boards for insert with check (true);
+create policy "Service role insert kanban cards" on kanban_cards for insert with check (true);
+create policy "Service role insert chat channels" on chat_channels for insert with check (true);
+create policy "Service role insert chat messages" on chat_messages for insert with check (true);
+create policy "Service role insert agent events" on agent_events for insert with check (true);
+create policy "Service role insert token usage" on token_usage for insert with check (true);
+create policy "Service role insert approval requests" on approval_requests for insert with check (true);
 
 -- Performance indexes
 create index idx_kanban_cards_board_id on kanban_cards(board_id);
