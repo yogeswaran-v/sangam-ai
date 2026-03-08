@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  # Shared orchestrator (dev mode — single instance)
+  orchestrator:
+    build: ..
+    image: sangam-orchestrator:latest
+    env_file: ../.env
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - NODE_ENV=production
+      - POLL_INTERVAL_MS=30000
+
+  # Per-customer containers are spawned dynamically by provision.ts
+  # They connect to the same Supabase instance with CUSTOMER_ID scoped queries

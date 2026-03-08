@@ -11,9 +11,11 @@
     "@anthropic-ai/sdk": "^0.37.0",
     "@supabase/supabase-js": "^2.49.4",
     "axios": "^1.8.4",
+    "dockerode": "^4.0.2",
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
+    "@types/dockerode": "^3.3.29",
     "@types/node": "^22.13.10",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
