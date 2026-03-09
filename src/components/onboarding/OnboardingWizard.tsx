@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 
 const STEPS = [
   {
@@ -45,7 +44,6 @@ export function OnboardingWizard() {
   const [submitProgress, setSubmitProgress] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   const current = STEPS[step]
   const isLast = step === STEPS.length - 1
@@ -78,157 +76,27 @@ export function OnboardingWizard() {
     setError(null)
 
     try {
-      setSubmitProgress('Authenticating...')
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        setError('Not authenticated. Please log in again.')
-        setLoading(false)
-        setSubmitting(false)
-        return
-      }
+      setSubmitProgress('Assembling your AI team...')
 
-      // Get or create customer record
-      setSubmitProgress('Setting up your account...')
-      let { data: customer } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('user_id', user.id)
-        .single()
-
-      if (!customer) {
-        const { data: newCustomer, error: createError } = await supabase
-          .from('customers')
-          .insert({ user_id: user.id, email: user.email ?? '' })
-          .select('id')
-          .single()
-
-        if (createError) {
-          setError('Failed to create your account. Please try again.')
-          setLoading(false)
-          setSubmitting(false)
-          return
-        }
-        customer = newCustomer
-      }
-
-      // Upsert mission control
-      setSubmitProgress('Saving your mission briefing...')
-      const { error: mcError } = await supabase
-        .from('mission_control')
-        .upsert({
-          customer_id: customer!.id,
+      const res = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           vision: values.vision ?? '',
           product_requirements: values.product_requirements ?? '',
           monetary_goals: values.monetary_goals ?? '',
           timeline: values.timeline ?? '',
-          updated_by: 'ceo',
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'customer_id' })
+        }),
+        credentials: 'include',
+      })
 
-      if (mcError) {
-        setError('Failed to save mission data. Please try again.')
+      const result = await res.json()
+
+      if (!res.ok || !result.success) {
+        setError(result.error ?? 'Something went wrong. Please try again.')
         setLoading(false)
         setSubmitting(false)
         return
-      }
-
-      // Mark onboarding complete on agent_teams
-      setSubmitProgress('Assembling your AI team...')
-      const { error: teamError } = await supabase
-        .from('agent_teams')
-        .upsert({
-          customer_id: customer!.id,
-          team_type: 'startup_product',
-          status: 'active',
-          onboarding_complete: true,
-        }, { onConflict: 'customer_id' })
-
-      if (teamError) {
-        setError('Failed to set up your team. Please try again.')
-        setLoading(false)
-        setSubmitting(false)
-        return
-      }
-
-      // Create kanban board
-      setSubmitProgress('Setting up your workspace...')
-      const { data: kanbanBoard, error: boardError } = await supabase
-        .from('kanban_boards')
-        .upsert({ customer_id: customer!.id }, { onConflict: 'customer_id' })
-        .select('id')
-        .single()
-
-      if (boardError) {
-        setError('Failed to create kanban board. Please try again.')
-        setLoading(false)
-        setSubmitting(false)
-        return
-      }
-
-      // Create chat channels
-      setSubmitProgress('Creating communication channels...')
-      const CHANNELS = [
-        { name: 'CEO Updates', department: 'leadership' },
-        { name: 'Engineering', department: 'engineering' },
-        { name: 'Product', department: 'product' },
-        { name: 'Marketing', department: 'marketing' },
-        { name: 'Sales', department: 'sales' },
-        { name: 'Finance', department: 'finance' },
-      ]
-      for (const ch of CHANNELS) {
-        const { data: existing } = await supabase
-          .from('chat_channels')
-          .select('id')
-          .eq('customer_id', customer!.id)
-          .eq('name', ch.name)
-          .single()
-        if (!existing) {
-          const { error: chError } = await supabase.from('chat_channels').insert({
-            customer_id: customer!.id,
-            name: ch.name,
-            department: ch.department,
-          })
-          if (chError) {
-            console.error(`Failed to create channel ${ch.name}:`, chError)
-          }
-        }
-      }
-
-      // Seed 3 starter kanban cards
-      setSubmitProgress('Preparing initial tasks...')
-      if (kanbanBoard) {
-        const starterCards = [
-          { title: 'Define MVP feature scope', description: 'CEO Agent: Break down product requirements into a prioritised MVP feature list', priority: 'high', assigned_agent: 'Product Agent' },
-          { title: 'Set up project architecture', description: 'Engineering Agent: Define tech stack, repo structure, and development workflow', priority: 'high', assigned_agent: 'Engineering Agent' },
-          { title: 'Create go-to-market strategy', description: 'Marketing Agent: Identify target audience, messaging, and launch channels', priority: 'medium', assigned_agent: 'Marketing Agent' },
-        ]
-        for (const card of starterCards) {
-          const { error: cardError } = await supabase.from('kanban_cards').insert({
-            board_id: kanbanBoard.id,
-            ...card,
-            column_name: 'backlog',
-          })
-          if (cardError) {
-            console.error(`Failed to create card ${card.title}:`, cardError)
-          }
-        }
-
-        // Post a welcome message to CEO Updates channel
-        const { data: ceoChannel } = await supabase
-          .from('chat_channels')
-          .select('id')
-          .eq('customer_id', customer!.id)
-          .eq('name', 'CEO Updates')
-          .single()
-
-        if (ceoChannel) {
-          await supabase.from('chat_messages').insert({
-            channel_id: ceoChannel.id,
-            sender_name: 'CEO Agent',
-            sender_type: 'agent',
-            content: `Mission briefing received.\n\nI've reviewed your vision and goals. Your AI team is now assembled and ready.\n\nToday's priorities:\n- Define the MVP scope with the Product team\n- Set up the engineering foundation\n- Begin market research\n\nI'll send daily briefings here. The team will post updates in their respective channels. Let's build something great.`,
-          })
-        }
       }
 
       setSubmitProgress('Launching your dashboard...')
