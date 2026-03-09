@@ -10,6 +10,34 @@ export interface AgentContext {
   timeline: string
 }
 
+// Demo environment hard cap — $2.00 total across all customers this month
+const DEMO_SPEND_CAP_USD = 2.00
+
+class SpendCapError extends Error {
+  constructor(spent: number) {
+    super(`Demo spend cap reached ($${spent.toFixed(4)} / $${DEMO_SPEND_CAP_USD}). Agents paused.`)
+    this.name = 'SpendCapError'
+  }
+}
+
+async function getMonthlySpend(): Promise<number> {
+  const monthStart = new Date()
+  monthStart.setDate(1)
+  monthStart.setHours(0, 0, 0, 0)
+
+  const { data, error } = await supabase
+    .from('token_usage')
+    .select('cost_usd')
+    .gte('recorded_at', monthStart.toISOString())
+
+  if (error) {
+    console.error('Could not check spend cap:', error.message)
+    return 0
+  }
+
+  return (data ?? []).reduce((sum, row) => sum + Number(row.cost_usd), 0)
+}
+
 export abstract class BaseAgent {
   abstract name: string
   abstract systemPrompt: string
@@ -19,6 +47,12 @@ export abstract class BaseAgent {
     userMessage: string,
     history: MessageParam[] = []
   ): Promise<string> {
+    // Check demo spend cap before every API call
+    const currentSpend = await getMonthlySpend()
+    if (currentSpend >= DEMO_SPEND_CAP_USD) {
+      throw new SpendCapError(currentSpend)
+    }
+
     const messages: MessageParam[] = [
       ...history,
       { role: 'user', content: userMessage },
@@ -26,7 +60,7 @@ export abstract class BaseAgent {
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 2048,
+      max_tokens: 1024,
       system: this.buildSystem(context),
       messages,
     })

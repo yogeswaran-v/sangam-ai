@@ -104,7 +104,11 @@ export async function runOrchestrationCycle(): Promise<void> {
       await financeAgent.runFinanceBriefing(ctx)
       console.log(`✓ Finance briefing — ${ctx.customerId}`)
 
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'SpendCapError') {
+        console.warn(`[SPEND CAP] ${err.message} — halting cycle.`)
+        break
+      }
       console.error(`Error processing customer ${ctx.customerId}:`, err)
     }
   }
