@@ -3,12 +3,54 @@ import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
 
 const AGENTS = [
-  { name: 'CEO Agent', role: 'Synthesises vision, delegates to team', color: '#6366f1', glyph: 'C' },
-  { name: 'Product Agent', role: 'Writes PRDs, manages kanban', color: '#22d3ee', glyph: 'P' },
-  { name: 'Engineer Agent', role: 'Writes & reviews code', color: '#10b981', glyph: 'E' },
-  { name: 'Marketing Agent', role: 'Content, SEO, campaigns', color: '#f59e0b', glyph: 'M' },
-  { name: 'Sales Agent', role: 'Outreach, follow-ups, CRM', color: '#818cf8', glyph: 'S' },
-  { name: 'Finance Agent', role: 'Budgets, P&L, forecasts', color: '#34d399', glyph: 'F' },
+  {
+    name: 'CEO Agent',
+    role: 'Synthesises vision, orchestrates the team, writes strategy memos',
+    color: '#a78bfa',
+    bg: 'rgba(124,58,237,0.08)',
+    border: 'rgba(167,139,250,0.25)',
+    glyph: 'C',
+  },
+  {
+    name: 'Product Agent',
+    role: 'Writes PRDs, grooms the backlog, runs the kanban',
+    color: '#38bdf8',
+    bg: 'rgba(56,189,248,0.08)',
+    border: 'rgba(56,189,248,0.25)',
+    glyph: 'P',
+  },
+  {
+    name: 'Engineer Agent',
+    role: 'Writes and reviews code, opens PRs, resolves issues',
+    color: '#4ade80',
+    bg: 'rgba(74,222,128,0.08)',
+    border: 'rgba(74,222,128,0.25)',
+    glyph: 'E',
+  },
+  {
+    name: 'Marketing Agent',
+    role: 'Content strategy, SEO, ad copy, launch campaigns',
+    color: '#fb923c',
+    bg: 'rgba(251,146,60,0.08)',
+    border: 'rgba(251,146,60,0.25)',
+    glyph: 'M',
+  },
+  {
+    name: 'Sales Agent',
+    role: 'Prospect outreach, follow-ups, CRM hygiene',
+    color: '#f472b6',
+    bg: 'rgba(244,114,182,0.08)',
+    border: 'rgba(244,114,182,0.25)',
+    glyph: 'S',
+  },
+  {
+    name: 'Finance Agent',
+    role: 'Budgets, P&L tracking, cash-flow forecasts',
+    color: '#14b8a6',
+    bg: 'rgba(20,184,166,0.08)',
+    border: 'rgba(20,184,166,0.25)',
+    glyph: 'F',
+  },
 ]
 
 const PLANS = [
@@ -17,181 +59,306 @@ const PLANS = [
     price: { usd: 49, inr: 3999 },
     features: ['1 Agent team', '5 agents', 'Telegram notifications', '100K tokens/mo'],
     highlighted: false,
+    badge: null,
   },
   {
     name: 'Pro',
     price: { usd: 149, inr: 11999 },
     features: ['3 Agent teams', '15 agents', 'WhatsApp + Telegram', '500K tokens/mo', 'CEO approval flows'],
     highlighted: true,
+    badge: 'Most popular',
   },
   {
     name: 'Scale',
     price: { usd: 399, inr: 32999 },
     features: ['Unlimited teams', 'Unlimited agents', 'All channels', 'Unlimited tokens', 'Priority support'],
     highlighted: false,
+    badge: null,
   },
 ]
 
-const CheckIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
+const FEATURES = [
+  {
+    title: '24/7 autonomous ops',
+    desc: 'Agents work continuously without supervision, executing tasks while you sleep.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Approval workflows',
+    desc: 'Critical decisions require your sign-off before agents proceed.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Real-time notifications',
+    desc: 'Receive updates via Telegram or WhatsApp whenever agents take action.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Powered by Claude 4',
+    desc: 'Every agent runs on Claude Sonnet 4.6 — the sharpest reasoning model available.',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    ),
+  },
+]
+
+function CheckIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  )
+}
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen text-[#eef2f8]" style={{ background: '#05080f' }}>
       <Navbar />
 
-      {/* Hero */}
-      <section className="pt-44 pb-24 px-6 text-center relative overflow-hidden">
-        {/* Background glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_40%_at_50%_-10%,rgba(99,102,241,0.12),transparent)] pointer-events-none" />
-        {/* Dot grid */}
-        <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
+      {/* ─── Hero ─── */}
+      <section className="pt-48 pb-28 px-6 text-center relative overflow-hidden">
+        {/* Ambient mesh */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse 90% 55% at 50% -5%, rgba(124,58,237,0.11) 0%, transparent 65%)',
+        }} />
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse 50% 30% at 80% 80%, rgba(20,184,166,0.05) 0%, transparent 60%)',
+        }} />
+        {/* Subtle grid lines */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{
+          backgroundImage: 'linear-gradient(rgba(167,139,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,1) 1px, transparent 1px)',
+          backgroundSize: '80px 80px',
+        }} />
 
-        <div className="max-w-4xl mx-auto relative">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#6366f1]/30 bg-[#6366f1]/10 text-[#818cf8] text-xs mb-8 font-medium">
+        <div className="max-w-4xl mx-auto relative z-10">
+          {/* Status pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-10"
+            style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)' }}>
             <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#6366f1] opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#6366f1]" />
+              <span className="animate-ping absolute inset-0 rounded-full bg-[#a78bfa] opacity-70" />
+              <span className="relative block h-1.5 w-1.5 rounded-full bg-[#a78bfa]" />
             </span>
-            Now in early access — limited spots
+            <span className="text-[12px] font-semibold text-[#a78bfa] tracking-wide">Early access — limited spots</span>
           </div>
 
-          <h1
-            className="text-5xl md:text-7xl font-bold tracking-tight mb-6 leading-[1.05]"
-            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-          >
+          {/* Headline */}
+          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 leading-none"
+            style={{ fontFamily: 'var(--font-bricolage, sans-serif)', letterSpacing: '-0.03em' }}>
             Your AI company,
             <br />
-            <span className="text-[#6366f1] [text-shadow:0_0_40px_rgba(99,102,241,0.5)]">assembled</span>
+            <span className="gradient-text">assembled.</span>
           </h1>
 
-          <p className="text-[#6b7280] text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-[17px] md:text-lg text-[#8b98b4] max-w-xl mx-auto mb-11 leading-relaxed">
             Sangam brings together specialised AI agents as your CEO, Product, Engineering, Marketing, Sales, and Finance team — working 24/7 on your vision.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/login"
-              className="px-8 py-4 bg-[#6366f1] text-white rounded-xl hover:bg-[#818cf8] transition-all duration-200 font-semibold text-base cursor-pointer shadow-[0_0_24px_rgba(99,102,241,0.4)] hover:shadow-[0_0_32px_rgba(99,102,241,0.6)]"
-            >
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link href="/login"
+              className="px-8 py-3.5 rounded-xl font-semibold text-[15px] text-white transition-all duration-200 cursor-pointer"
+              style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.3)' }}>
               Start building →
             </Link>
-            <Link
-              href="#features"
-              className="px-8 py-4 border border-[#1e1e2e] text-[#6b7280] rounded-xl hover:border-[#6366f1]/40 hover:text-white transition-all duration-200 text-base cursor-pointer"
-            >
+            <Link href="#features"
+              className="px-8 py-3.5 rounded-xl font-medium text-[15px] text-[#8b98b4] hover:text-[#eef2f8] transition-all duration-200 cursor-pointer"
+              style={{ border: '1px solid #1a2236' }}>
               See how it works
             </Link>
           </div>
-        </div>
-      </section>
 
-      {/* Agents grid */}
-      <section id="agents" className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h2
-            className="text-3xl font-bold text-center mb-4"
-            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-          >
-            Meet your team
-          </h2>
-          <p className="text-[#6b7280] text-center mb-16 max-w-xl mx-auto text-sm leading-relaxed">
-            Each agent is a specialist. Together, they form a full-stack company brain.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="features">
-            {AGENTS.map(agent => (
-              <div
-                key={agent.name}
-                className="p-6 bg-[#0d0d15] border border-[#1e1e2e] rounded-2xl hover:border-opacity-60 transition-all duration-200 cursor-default group"
-                style={{ ['--agent-color' as string]: agent.color }}
-              >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 text-sm font-bold transition-all duration-200 group-hover:scale-110"
-                  style={{
-                    backgroundColor: `${agent.color}18`,
-                    border: `1px solid ${agent.color}40`,
-                    color: agent.color,
-                    boxShadow: `0 0 0 rgba(${agent.color}, 0)`,
-                  }}
-                >
-                  {agent.glyph}
-                </div>
-                <div
-                  className="font-semibold text-white mb-1.5"
-                  style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-                >
-                  {agent.name}
-                </div>
-                <div className="text-[#4b5563] text-sm leading-relaxed">{agent.role}</div>
+          {/* Social proof bar */}
+          <div className="mt-14 flex items-center justify-center gap-6 flex-wrap">
+            {['Powered by Claude 4.6', 'No-code setup', 'Ships in 60 seconds'].map((item, i) => (
+              <div key={i} className="flex items-center gap-2 text-[12px] text-[#4a566e]">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                {item}
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-6 bg-[#0d0d15]">
+      {/* ─── Features strip ─── */}
+      <section id="features" className="py-20 px-6 border-y border-[#1a2236]" style={{ background: '#0b1018' }}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px" style={{ gap: '1px', background: '#1a2236' }}>
+          {FEATURES.map((f, i) => (
+            <div key={i} className="p-8" style={{ background: '#0b1018' }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-5 text-[#a78bfa]"
+                style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)' }}>
+                {f.icon}
+              </div>
+              <div className="font-bold text-[15px] text-[#eef2f8] mb-2"
+                style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
+                {f.title}
+              </div>
+              <p className="text-[13px] text-[#4a566e] leading-relaxed">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── Agents grid ─── */}
+      <section id="agents" className="py-28 px-6">
         <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-3xl font-bold text-center mb-4"
-            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-          >
-            Simple pricing
-          </h2>
-          <p className="text-[#6b7280] text-center mb-16 max-w-xl mx-auto text-sm leading-relaxed">
-            USD for global builders. INR for Indian founders. Same product, fair pricing.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center mb-16">
+            <div className="text-[11px] font-bold text-[#7c3aed] uppercase tracking-[0.15em] mb-4">The team</div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-[#eef2f8] mb-4"
+              style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
+              Meet your agents
+            </h2>
+            <p className="text-[15px] text-[#8b98b4] max-w-md mx-auto">
+              Each agent is a specialist. Together, they form a full-stack company brain.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {AGENTS.map(agent => (
+              <div
+                key={agent.name}
+                className="agent-card p-6 rounded-2xl cursor-default"
+                style={{
+                  background: '#0b1018',
+                  border: '1px solid #1a2236',
+                  ['--card-border-hover' as string]: agent.border,
+                }}
+              >
+                {/* Agent avatar */}
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 text-sm font-bold transition-transform duration-200"
+                  style={{ background: agent.bg, border: `1px solid ${agent.border}`, color: agent.color }}>
+                  {agent.glyph}
+                </div>
+                <div className="font-bold text-[15px] text-[#eef2f8] mb-2"
+                  style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
+                  {agent.name}
+                </div>
+                <p className="text-[13px] text-[#4a566e] leading-relaxed">{agent.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Pricing ─── */}
+      <section id="pricing" className="py-28 px-6 relative overflow-hidden" style={{ background: '#0b1018' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{
+          background: 'radial-gradient(ellipse 60% 40% at 50% 100%, rgba(124,58,237,0.06) 0%, transparent 70%)',
+        }} />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="text-center mb-16">
+            <div className="text-[11px] font-bold text-[#7c3aed] uppercase tracking-[0.15em] mb-4">Pricing</div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-[#eef2f8] mb-4"
+              style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
+              Simple pricing
+            </h2>
+            <p className="text-[15px] text-[#8b98b4]">
+              USD for global builders. INR for Indian founders. Fair pricing, always.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {PLANS.map(plan => (
               <div
                 key={plan.name}
-                className={`p-8 rounded-2xl border flex flex-col gap-6 transition-all duration-200 ${
-                  plan.highlighted
-                    ? 'bg-[#6366f1]/8 border-[#6366f1]/40 shadow-[0_0_40px_rgba(99,102,241,0.12)]'
-                    : 'bg-[#0a0a0f] border-[#1e1e2e] hover:border-[#6366f1]/20'
-                }`}
+                className="rounded-2xl p-7 flex flex-col gap-6 transition-all duration-200 relative"
+                style={plan.highlighted ? {
+                  background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(20,184,166,0.06) 100%)',
+                  border: '1px solid rgba(167,139,250,0.3)',
+                  boxShadow: '0 0 40px rgba(124,58,237,0.12), 0 8px 32px rgba(0,0,0,0.3)',
+                } : {
+                  background: '#05080f',
+                  border: '1px solid #1a2236',
+                }}
               >
-                {plan.highlighted && (
-                  <div className="text-[10px] font-bold text-[#6366f1] tracking-[0.15em] uppercase">Most popular</div>
+                {plan.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-bold text-[#a78bfa] tracking-wide"
+                      style={{ background: 'rgba(124,58,237,0.2)', border: '1px solid rgba(167,139,250,0.3)' }}>
+                      {plan.badge}
+                    </span>
+                  </div>
                 )}
+
                 <div>
-                  <div
-                    className="text-xl font-bold text-white"
-                    style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-                  >
-                    {plan.name}
+                  <div className="text-[13px] font-semibold text-[#8b98b4] mb-3">{plan.name}</div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-5xl font-extrabold text-[#eef2f8]"
+                      style={{ fontFamily: 'var(--font-bricolage, sans-serif)', letterSpacing: '-0.03em' }}>
+                      ${plan.price.usd}
+                    </span>
+                    <span className="text-[13px] text-[#4a566e]">/mo</span>
                   </div>
-                  <div
-                    className="text-3xl font-bold text-white mt-2"
-                    style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-                  >
-                    ${plan.price.usd}<span className="text-[#4b5563] text-base font-normal">/mo</span>
-                  </div>
-                  <div className="text-[#4b5563] text-sm mt-1">₹{plan.price.inr.toLocaleString('en-IN')}/mo</div>
+                  <div className="text-[12px] text-[#2e3b52] mt-1">₹{plan.price.inr.toLocaleString('en-IN')}/mo</div>
                 </div>
+
                 <ul className="flex flex-col gap-3 flex-1">
                   {plan.features.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-[#6b7280]">
-                      <span className="text-[#6366f1] flex-shrink-0"><CheckIcon /></span>
+                    <li key={f} className="flex items-center gap-2.5 text-[13px] text-[#8b98b4]">
+                      <span className="text-[#7c3aed] flex-shrink-0"><CheckIcon /></span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href="/login"
-                  className={`text-center py-3 rounded-xl font-semibold text-sm transition-all duration-200 cursor-pointer ${
-                    plan.highlighted
-                      ? 'bg-[#6366f1] text-white hover:bg-[#818cf8] shadow-[0_0_16px_rgba(99,102,241,0.3)]'
-                      : 'border border-[#1e1e2e] text-[#6b7280] hover:border-[#6366f1]/40 hover:text-white'
-                  }`}
-                >
+
+                <Link href="/login"
+                  className="text-center py-3 rounded-xl font-semibold text-[14px] transition-all duration-200 cursor-pointer block"
+                  style={plan.highlighted ? {
+                    background: '#7c3aed',
+                    color: 'white',
+                    boxShadow: '0 0 20px rgba(124,58,237,0.4)',
+                  } : {
+                    border: '1px solid #1a2236',
+                    color: '#8b98b4',
+                  }}>
                   Get started
                 </Link>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CTA banner ─── */}
+      <section className="py-28 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="rounded-3xl p-12 relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.1) 0%, rgba(20,184,166,0.06) 100%)',
+              border: '1px solid rgba(167,139,250,0.15)',
+            }}>
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,58,237,0.1) 0%, transparent 70%)',
+            }} />
+            <div className="relative z-10">
+              <h2 className="text-4xl md:text-5xl font-extrabold text-[#eef2f8] mb-4"
+                style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
+                Ready to assemble<br />your team?
+              </h2>
+              <p className="text-[15px] text-[#8b98b4] mb-8 max-w-md mx-auto">
+                Get started in under a minute. Your AI team will be operational before your next coffee.
+              </p>
+              <Link href="/login"
+                className="inline-block px-8 py-4 rounded-xl font-semibold text-[15px] text-white transition-all duration-200 cursor-pointer"
+                style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
+                Start for free →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
