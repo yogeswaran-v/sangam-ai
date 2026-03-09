@@ -35,10 +35,14 @@ const STEPS = [
   },
 ]
 
+const MAX_LENGTH = 2000
+
 export function OnboardingWizard() {
   const [step, setStep] = useState(0)
   const [values, setValues] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitProgress, setSubmitProgress] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
@@ -46,147 +50,218 @@ export function OnboardingWizard() {
   const current = STEPS[step]
   const isLast = step === STEPS.length - 1
   const progress = ((step + 1) / STEPS.length) * 100
+  const currentValue = values[current.field] ?? ''
 
   function handleChange(value: string) {
-    setValues(prev => ({ ...prev, [current.field]: value }))
+    if (value.length <= MAX_LENGTH) {
+      setValues(prev => ({ ...prev, [current.field]: value }))
+    }
+  }
+
+  function handleBack() {
+    setError(null)
+    setStep(s => s - 1)
   }
 
   async function handleNext() {
     if (isLast) {
       await handleSubmit()
     } else {
+      setError(null)
       setStep(s => s + 1)
     }
   }
 
   async function handleSubmit() {
     setLoading(true)
+    setSubmitting(true)
     setError(null)
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setError('Not authenticated')
-      setLoading(false)
-      return
-    }
-
-    // Get or create customer record
-    let { data: customer } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
-
-    if (!customer) {
-      const { data: newCustomer, error: createError } = await supabase
-        .from('customers')
-        .insert({ user_id: user.id, email: user.email ?? '' })
-        .select('id')
-        .single()
-
-      if (createError) {
-        setError(createError.message)
+    try {
+      setSubmitProgress('Authenticating...')
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setError('Not authenticated. Please log in again.')
         setLoading(false)
+        setSubmitting(false)
         return
       }
-      customer = newCustomer
-    }
 
-    // Upsert mission control
-    const { error: mcError } = await supabase
-      .from('mission_control')
-      .upsert({
-        customer_id: customer!.id,
-        vision: values.vision ?? '',
-        product_requirements: values.product_requirements ?? '',
-        monetary_goals: values.monetary_goals ?? '',
-        timeline: values.timeline ?? '',
-        updated_by: 'ceo',
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'customer_id' })
-
-    if (mcError) {
-      setError(mcError.message)
-      setLoading(false)
-      return
-    }
-
-    // Mark onboarding complete on agent_teams
-    await supabase
-      .from('agent_teams')
-      .upsert({
-        customer_id: customer!.id,
-        team_type: 'startup_product',
-        status: 'active',
-        onboarding_complete: true,
-      }, { onConflict: 'customer_id' })
-
-    // Create kanban board
-    const { data: kanbanBoard } = await supabase
-      .from('kanban_boards')
-      .upsert({ customer_id: customer!.id }, { onConflict: 'customer_id' })
-      .select('id')
-      .single()
-
-    // Create chat channels
-    const CHANNELS = [
-      { name: 'CEO Updates', department: 'leadership' },
-      { name: 'Engineering', department: 'engineering' },
-      { name: 'Product', department: 'product' },
-      { name: 'Marketing', department: 'marketing' },
-      { name: 'Sales', department: 'sales' },
-      { name: 'Finance', department: 'finance' },
-    ]
-    for (const ch of CHANNELS) {
-      const { data: existing } = await supabase
-        .from('chat_channels')
+      // Get or create customer record
+      setSubmitProgress('Setting up your account...')
+      let { data: customer } = await supabase
+        .from('customers')
         .select('id')
-        .eq('customer_id', customer!.id)
-        .eq('name', ch.name)
+        .eq('user_id', user.id)
         .single()
-      if (!existing) {
-        await supabase.from('chat_channels').insert({
+
+      if (!customer) {
+        const { data: newCustomer, error: createError } = await supabase
+          .from('customers')
+          .insert({ user_id: user.id, email: user.email ?? '' })
+          .select('id')
+          .single()
+
+        if (createError) {
+          setError('Failed to create your account. Please try again.')
+          setLoading(false)
+          setSubmitting(false)
+          return
+        }
+        customer = newCustomer
+      }
+
+      // Upsert mission control
+      setSubmitProgress('Saving your mission briefing...')
+      const { error: mcError } = await supabase
+        .from('mission_control')
+        .upsert({
           customer_id: customer!.id,
-          name: ch.name,
-          department: ch.department,
-        })
-      }
-    }
+          vision: values.vision ?? '',
+          product_requirements: values.product_requirements ?? '',
+          monetary_goals: values.monetary_goals ?? '',
+          timeline: values.timeline ?? '',
+          updated_by: 'ceo',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'customer_id' })
 
-    // Seed 3 starter kanban cards
-    if (kanbanBoard) {
-      const starterCards = [
-        { title: 'Define MVP feature scope', description: 'CEO Agent: Break down product requirements into a prioritised MVP feature list', priority: 'high', assigned_agent: 'Product Agent' },
-        { title: 'Set up project architecture', description: 'Engineering Agent: Define tech stack, repo structure, and development workflow', priority: 'high', assigned_agent: 'Engineering Agent' },
-        { title: 'Create go-to-market strategy', description: 'Marketing Agent: Identify target audience, messaging, and launch channels', priority: 'medium', assigned_agent: 'Marketing Agent' },
-      ]
-      for (const card of starterCards) {
-        await supabase.from('kanban_cards').insert({
-          board_id: kanbanBoard.id,
-          ...card,
-          column_name: 'backlog',
-        })
+      if (mcError) {
+        setError('Failed to save mission data. Please try again.')
+        setLoading(false)
+        setSubmitting(false)
+        return
       }
 
-      // Post a welcome message to CEO Updates channel
-      const { data: ceoChannel } = await supabase
-        .from('chat_channels')
+      // Mark onboarding complete on agent_teams
+      setSubmitProgress('Assembling your AI team...')
+      const { error: teamError } = await supabase
+        .from('agent_teams')
+        .upsert({
+          customer_id: customer!.id,
+          team_type: 'startup_product',
+          status: 'active',
+          onboarding_complete: true,
+        }, { onConflict: 'customer_id' })
+
+      if (teamError) {
+        setError('Failed to set up your team. Please try again.')
+        setLoading(false)
+        setSubmitting(false)
+        return
+      }
+
+      // Create kanban board
+      setSubmitProgress('Setting up your workspace...')
+      const { data: kanbanBoard, error: boardError } = await supabase
+        .from('kanban_boards')
+        .upsert({ customer_id: customer!.id }, { onConflict: 'customer_id' })
         .select('id')
-        .eq('customer_id', customer!.id)
-        .eq('name', 'CEO Updates')
         .single()
 
-      if (ceoChannel) {
-        await supabase.from('chat_messages').insert({
-          channel_id: ceoChannel.id,
-          sender_name: 'CEO Agent',
-          sender_type: 'agent',
-          content: `🚀 *Mission briefing received.*\n\nI've reviewed your vision and goals. Your AI team is now assembled and ready.\n\n**Today's priorities:**\n• Define the MVP scope with the Product team\n• Set up the engineering foundation\n• Begin market research\n\nI'll send daily briefings here. The team will post updates in their respective channels. Let's build something great.`,
-        })
+      if (boardError) {
+        setError('Failed to create kanban board. Please try again.')
+        setLoading(false)
+        setSubmitting(false)
+        return
       }
-    }
 
-    router.push('/dashboard')
+      // Create chat channels
+      setSubmitProgress('Creating communication channels...')
+      const CHANNELS = [
+        { name: 'CEO Updates', department: 'leadership' },
+        { name: 'Engineering', department: 'engineering' },
+        { name: 'Product', department: 'product' },
+        { name: 'Marketing', department: 'marketing' },
+        { name: 'Sales', department: 'sales' },
+        { name: 'Finance', department: 'finance' },
+      ]
+      for (const ch of CHANNELS) {
+        const { data: existing } = await supabase
+          .from('chat_channels')
+          .select('id')
+          .eq('customer_id', customer!.id)
+          .eq('name', ch.name)
+          .single()
+        if (!existing) {
+          const { error: chError } = await supabase.from('chat_channels').insert({
+            customer_id: customer!.id,
+            name: ch.name,
+            department: ch.department,
+          })
+          if (chError) {
+            console.error(`Failed to create channel ${ch.name}:`, chError)
+          }
+        }
+      }
+
+      // Seed 3 starter kanban cards
+      setSubmitProgress('Preparing initial tasks...')
+      if (kanbanBoard) {
+        const starterCards = [
+          { title: 'Define MVP feature scope', description: 'CEO Agent: Break down product requirements into a prioritised MVP feature list', priority: 'high', assigned_agent: 'Product Agent' },
+          { title: 'Set up project architecture', description: 'Engineering Agent: Define tech stack, repo structure, and development workflow', priority: 'high', assigned_agent: 'Engineering Agent' },
+          { title: 'Create go-to-market strategy', description: 'Marketing Agent: Identify target audience, messaging, and launch channels', priority: 'medium', assigned_agent: 'Marketing Agent' },
+        ]
+        for (const card of starterCards) {
+          const { error: cardError } = await supabase.from('kanban_cards').insert({
+            board_id: kanbanBoard.id,
+            ...card,
+            column_name: 'backlog',
+          })
+          if (cardError) {
+            console.error(`Failed to create card ${card.title}:`, cardError)
+          }
+        }
+
+        // Post a welcome message to CEO Updates channel
+        const { data: ceoChannel } = await supabase
+          .from('chat_channels')
+          .select('id')
+          .eq('customer_id', customer!.id)
+          .eq('name', 'CEO Updates')
+          .single()
+
+        if (ceoChannel) {
+          await supabase.from('chat_messages').insert({
+            channel_id: ceoChannel.id,
+            sender_name: 'CEO Agent',
+            sender_type: 'agent',
+            content: `Mission briefing received.\n\nI've reviewed your vision and goals. Your AI team is now assembled and ready.\n\nToday's priorities:\n- Define the MVP scope with the Product team\n- Set up the engineering foundation\n- Begin market research\n\nI'll send daily briefings here. The team will post updates in their respective channels. Let's build something great.`,
+          })
+        }
+      }
+
+      setSubmitProgress('Launching your dashboard...')
+      router.push('/dashboard')
+    } catch (err) {
+      setError('Something went wrong. Please try again.')
+      setLoading(false)
+      setSubmitting(false)
+    }
+  }
+
+  // Full-page loading overlay during submission
+  if (submitting) {
+    return (
+      <div className="w-full max-w-xl flex flex-col items-center gap-6 py-20">
+        <div className="w-16 h-16 border-4 border-[#1e1e2e] border-t-[#6366f1] rounded-full animate-spin" />
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-white mb-2">Setting up your team</h2>
+          <p className="text-[#6b7280] text-sm">{submitProgress}</p>
+        </div>
+        {error && (
+          <div className="px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm max-w-md text-center">
+            {error}
+            <button
+              onClick={() => { setSubmitting(false); setLoading(false) }}
+              className="block mx-auto mt-2 text-white underline text-xs"
+            >
+              Go back to form
+            </button>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -212,14 +287,20 @@ export function OnboardingWizard() {
           <p className="text-[#6b7280] text-sm">{current.subtitle}</p>
         </div>
 
-        <textarea
-          key={current.id}
-          value={values[current.field] ?? ''}
-          onChange={e => handleChange(e.target.value)}
-          placeholder={current.placeholder}
-          rows={6}
-          className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl text-white placeholder-[#4b5563] focus:border-[#6366f1] outline-none text-sm resize-none transition-colors"
-        />
+        <div className="relative">
+          <textarea
+            key={current.id}
+            value={currentValue}
+            onChange={e => handleChange(e.target.value)}
+            placeholder={current.placeholder}
+            rows={6}
+            maxLength={MAX_LENGTH}
+            className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl text-white placeholder-[#4b5563] focus:border-[#6366f1] outline-none text-sm resize-none transition-colors"
+          />
+          <span className="absolute bottom-3 right-3 text-xs text-[#4b5563]">
+            {currentValue.length}/{MAX_LENGTH}
+          </span>
+        </div>
 
         {error && (
           <div className="mt-3 px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm">
@@ -229,7 +310,7 @@ export function OnboardingWizard() {
 
         <div className="flex items-center justify-between mt-6">
           <button
-            onClick={() => setStep(s => s - 1)}
+            onClick={handleBack}
             disabled={step === 0}
             className="px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors disabled:opacity-0"
           >
@@ -237,10 +318,10 @@ export function OnboardingWizard() {
           </button>
           <button
             onClick={handleNext}
-            disabled={loading || !(values[current.field] ?? '').trim()}
+            disabled={loading || !currentValue.trim()}
             className="px-6 py-2.5 bg-[#6366f1] text-white rounded-xl hover:bg-[#818cf8] transition-colors disabled:opacity-50 text-sm font-medium"
           >
-            {loading ? 'Saving...' : isLast ? 'Launch my team →' : 'Next →'}
+            {loading ? 'Saving...' : isLast ? 'Launch my team' : 'Next →'}
           </button>
         </div>
       </div>

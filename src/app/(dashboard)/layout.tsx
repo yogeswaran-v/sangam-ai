@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/dashboard/Sidebar'
+import { ErrorBoundary } from '@/components/dashboard/ErrorBoundary'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -27,8 +28,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       <Sidebar />
-      <div className="ml-64">
-        {children}
+      <div className="lg:ml-64 pt-14 lg:pt-0">
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
     </div>
   )

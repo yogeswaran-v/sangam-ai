@@ -35,11 +35,12 @@ export function ChatInterface() {
 
     const chs = (data ?? []) as ChatChannel[]
     setChannels(chs)
-    if (chs.length > 0 && !activeChannelId) {
-      setActiveChannelId(chs[0].id)
-    }
+    setActiveChannelId(prev => {
+      if (prev) return prev
+      return chs.length > 0 ? chs[0].id : null
+    })
     setLoadingChannels(false)
-  }, [supabase, activeChannelId])
+  }, [supabase])
 
   const fetchMessages = useCallback(async (channelId: string) => {
     setLoadingMessages(true)

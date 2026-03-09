@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test'
-import { injectSession } from '../helpers/auth'
+import { injectSession, createTestUser, cleanupTestUser } from '../helpers/auth'
 import { SHARED_EMAIL, SHARED_PASSWORD } from '../helpers/global-setup'
-import { createTestUser, cleanupTestUser } from '../helpers/global-setup'
 
 test.describe('Navigation and routing', () => {
   test('sidebar links navigate to correct pages', async ({ page, context }) => {

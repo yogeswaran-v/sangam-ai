@@ -14,13 +14,13 @@ export function AgentSprite({ agent }: Props) {
   useEffect(() => {
     if (agent.status !== 'working') return
     const interval = setInterval(() => {
-      setPos({
-        x: Math.max(5, Math.min(85, pos.x + (Math.random() - 0.5) * 8)),
-        y: Math.max(5, Math.min(85, pos.y + (Math.random() - 0.5) * 8)),
-      })
+      setPos(prev => ({
+        x: Math.max(5, Math.min(85, prev.x + (Math.random() - 0.5) * 8)),
+        y: Math.max(5, Math.min(85, prev.y + (Math.random() - 0.5) * 8)),
+      }))
     }, 2000)
     return () => clearInterval(interval)
-  }, [agent.status, pos.x, pos.y])
+  }, [agent.status])
 
   const STATUS_RING = {
     idle: 'border-[#4b5563]',

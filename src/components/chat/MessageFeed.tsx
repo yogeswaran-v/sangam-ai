@@ -14,9 +14,19 @@ interface Props {
 
 export function MessageFeed({ messages, loading }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const container = containerRef.current
+    if (!container) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      return
+    }
+    // Only auto-scroll if user is near the bottom (within 150px)
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
+    if (isNearBottom) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   if (loading) {
@@ -36,7 +46,7 @@ export function MessageFeed({ messages, loading }: Props) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+    <div ref={containerRef} className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
       {messages.map(msg => (
         <div key={msg.id} className={`flex gap-3 ${msg.sender_type === 'ceo' ? 'flex-row-reverse' : ''}`}>
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
