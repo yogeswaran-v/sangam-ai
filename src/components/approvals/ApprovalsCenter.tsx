@@ -102,10 +102,10 @@ export function ApprovalsCenter() {
           <button
             key={f.value}
             onClick={() => setFilter(f.value)}
-            className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+            className={`px-4 py-2 rounded-xl text-sm transition-all duration-200 cursor-pointer font-medium ${
               filter === f.value
-                ? 'bg-[#6366f1]/15 text-white border border-[#6366f1]/30'
-                : 'text-[#6b7280] hover:text-white border border-transparent'
+                ? 'bg-[#6366f1]/15 text-white border border-[#6366f1]/30 shadow-[0_0_8px_rgba(99,102,241,0.1)]'
+                : 'text-[#4b5563] hover:text-white border border-transparent hover:bg-[#12121a]'
             }`}
           >
             {f.label}
@@ -123,7 +123,11 @@ export function ApprovalsCenter() {
         <div className="flex justify-center py-16 text-[#6b7280] text-sm">Loading...</div>
       ) : requests.length === 0 ? (
         <div className="text-center py-16">
-          <div className="text-4xl mb-4">✅</div>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 mb-4 text-emerald-400">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
           <p className="text-[#6b7280] text-sm">
             {filter === 'pending' ? 'No pending approvals. Your agents are operating autonomously.' : 'No requests found.'}
           </p>

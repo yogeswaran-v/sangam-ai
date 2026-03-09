@@ -36,6 +36,12 @@ const STEPS = [
 
 const MAX_LENGTH = 2000
 
+const SpinnerIcon = () => (
+  <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+)
+
 export function OnboardingWizard() {
   const [step, setStep] = useState(0)
   const [values, setValues] = useState<Record<string, string>>({})
@@ -101,28 +107,39 @@ export function OnboardingWizard() {
 
       setSubmitProgress('Launching your dashboard...')
       router.push('/dashboard')
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.')
       setLoading(false)
       setSubmitting(false)
     }
   }
 
-  // Full-page loading overlay during submission
   if (submitting) {
     return (
       <div className="w-full max-w-xl flex flex-col items-center gap-6 py-20">
-        <div className="w-16 h-16 border-4 border-[#1e1e2e] border-t-[#6366f1] rounded-full animate-spin" />
+        <div className="relative">
+          <div className="w-16 h-16 rounded-full border-2 border-[#6366f1]/20 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full border-2 border-t-[#6366f1] border-r-[#6366f1]/50 border-b-[#6366f1]/20 border-l-transparent animate-spin absolute inset-0" />
+            <div className="text-[#818cf8]">
+              <SpinnerIcon />
+            </div>
+          </div>
+        </div>
         <div className="text-center">
-          <h2 className="text-xl font-bold text-white mb-2">Setting up your team</h2>
-          <p className="text-[#6b7280] text-sm">{submitProgress}</p>
+          <h2
+            className="text-xl font-bold text-white mb-2"
+            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
+          >
+            Setting up your team
+          </h2>
+          <p className="text-[#6b7280] text-sm font-medium">{submitProgress}</p>
         </div>
         {error && (
-          <div className="px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm max-w-md text-center">
+          <div className="px-4 py-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm max-w-md text-center">
             {error}
             <button
               onClick={() => { setSubmitting(false); setLoading(false) }}
-              className="block mx-auto mt-2 text-white underline text-xs"
+              className="block mx-auto mt-2 text-white underline text-xs cursor-pointer"
             >
               Go back to form
             </button>
@@ -136,22 +153,38 @@ export function OnboardingWizard() {
     <div className="w-full max-w-xl">
       {/* Progress */}
       <div className="mb-10">
-        <div className="flex items-center justify-between text-xs text-[#6b7280] mb-3">
+        <div className="flex items-center justify-between text-xs text-[#6b7280] mb-3 font-medium">
           <span>Step {step + 1} of {STEPS.length}</span>
-          <span>{Math.round(progress)}%</span>
+          <span className="tabular-nums">{Math.round(progress)}%</span>
         </div>
-        <div className="h-1 bg-[#1e1e2e] rounded-full overflow-hidden">
+        <div className="h-0.5 bg-[#1e1e2e] rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#6366f1] rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[#6366f1] to-[#818cf8] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"
             style={{ width: `${progress}%` }}
           />
+        </div>
+        {/* Step dots */}
+        <div className="flex gap-2 mt-3">
+          {STEPS.map((_, i) => (
+            <div
+              key={i}
+              className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
+                i <= step ? 'bg-[#6366f1]' : 'bg-[#1e1e2e]'
+              }`}
+            />
+          ))}
         </div>
       </div>
 
       {/* Card */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl p-8">
+      <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-2xl p-8 hover:border-[#6366f1]/20 transition-colors duration-300">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-white mb-2">{current.title}</h2>
+          <h2
+            className="text-2xl font-bold text-white mb-2"
+            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
+          >
+            {current.title}
+          </h2>
           <p className="text-[#6b7280] text-sm">{current.subtitle}</p>
         </div>
 
@@ -163,15 +196,15 @@ export function OnboardingWizard() {
             placeholder={current.placeholder}
             rows={6}
             maxLength={MAX_LENGTH}
-            className="w-full px-4 py-3 bg-[#0a0a0f] border border-[#1e1e2e] rounded-xl text-white placeholder-[#4b5563] focus:border-[#6366f1] outline-none text-sm resize-none transition-colors"
+            className="w-full px-4 py-3 bg-[#070709] border border-[#1e1e2e] rounded-xl text-white placeholder-[#374151] focus:border-[#6366f1]/60 focus:shadow-[0_0_0_1px_rgba(99,102,241,0.2)] outline-none text-sm resize-none transition-all duration-200"
           />
-          <span className="absolute bottom-3 right-3 text-xs text-[#4b5563]">
+          <span className="absolute bottom-3 right-3 text-[11px] text-[#374151] tabular-nums">
             {currentValue.length}/{MAX_LENGTH}
           </span>
         </div>
 
         {error && (
-          <div className="mt-3 px-4 py-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-sm">
+          <div className="mt-3 px-4 py-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm">
             {error}
           </div>
         )}
@@ -179,21 +212,21 @@ export function OnboardingWizard() {
         <div className="flex items-center justify-between mt-6">
           <button
             onClick={handleBack}
-            className={`px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors ${step === 0 ? 'invisible' : ''}`}
+            className={`px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors duration-200 cursor-pointer ${step === 0 ? 'invisible' : ''}`}
           >
             ← Back
           </button>
           <button
             onClick={handleNext}
             disabled={loading || !currentValue.trim()}
-            className="px-6 py-2.5 bg-[#6366f1] text-white rounded-xl hover:bg-[#818cf8] transition-colors disabled:opacity-50 text-sm font-medium"
+            className="px-6 py-2.5 bg-[#6366f1] text-white rounded-xl hover:bg-[#818cf8] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-semibold cursor-pointer shadow-[0_0_16px_rgba(99,102,241,0.3)] hover:shadow-[0_0_20px_rgba(99,102,241,0.5)]"
           >
             {loading ? 'Saving...' : isLast ? 'Launch my team' : 'Next →'}
           </button>
         </div>
       </div>
 
-      <p className="text-center text-[#4b5563] text-xs mt-6">
+      <p className="text-center text-[#374151] text-xs mt-6">
         Your answers help the CEO Agent understand your mission.
       </p>
     </div>

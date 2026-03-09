@@ -7,8 +7,8 @@ export default function KanbanPage() {
       <TopBar title="Kanban Board" />
       <main className="p-6">
         <div className="mb-6">
-          <h2 className="text-xl font-bold text-white">Task Board</h2>
-          <p className="text-[#6b7280] text-sm mt-1">Agent tasks and work in progress</p>
+          <h2 className="text-xl font-bold text-white" style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}>Task Board</h2>
+          <p className="text-[#4b5563] text-sm mt-1">Agent tasks and work in progress</p>
         </div>
         <KanbanBoard />
       </main>

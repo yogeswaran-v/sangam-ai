@@ -9,12 +9,12 @@ const COLUMN_LABELS: Record<ColType, string> = {
   done: 'Done',
 }
 
-const COLUMN_COLORS: Record<ColType, string> = {
-  backlog: 'border-t-[#4b5563]',
-  in_progress: 'border-t-[#6366f1]',
-  review: 'border-t-[#f59e0b]',
-  pending_approval: 'border-t-[#ef4444]',
-  done: 'border-t-[#10b981]',
+const COLUMN_STYLES: Record<ColType, { accent: string; dot: string }> = {
+  backlog: { accent: 'border-t-[#374151]', dot: 'bg-[#374151]' },
+  in_progress: { accent: 'border-t-[#6366f1]', dot: 'bg-[#6366f1] shadow-[0_0_6px_rgba(99,102,241,0.8)]' },
+  review: { accent: 'border-t-[#f59e0b]', dot: 'bg-[#f59e0b] shadow-[0_0_6px_rgba(245,158,11,0.8)]' },
+  pending_approval: { accent: 'border-t-[#ef4444]', dot: 'bg-[#ef4444] shadow-[0_0_6px_rgba(239,68,68,0.8)]' },
+  done: { accent: 'border-t-[#10b981]', dot: 'bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.8)]' },
 }
 
 interface Props {
@@ -26,19 +26,31 @@ interface Props {
 const ALL_COLUMNS: ColType[] = ['backlog', 'in_progress', 'review', 'pending_approval', 'done']
 
 export function KanbanColumn({ column, cards, onMoveCard }: Props) {
+  const style = COLUMN_STYLES[column]
+
   return (
-    <div className={`flex-shrink-0 w-72 bg-[#12121a] border border-[#1e1e2e] border-t-2 ${COLUMN_COLORS[column]} rounded-xl flex flex-col`}>
+    <div className={`flex-shrink-0 w-72 bg-[#0d0d15] border border-[#1e1e2e] border-t-2 ${style.accent} rounded-xl flex flex-col`}>
       <div className="p-4 border-b border-[#1e1e2e]">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold text-white">{COLUMN_LABELS[column]}</span>
-          <span className="text-xs text-[#6b7280] bg-[#0a0a0f] px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-2">
+            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${style.dot}`} />
+            <span
+              className="text-sm font-semibold text-white"
+              style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
+            >
+              {COLUMN_LABELS[column]}
+            </span>
+          </div>
+          <span className="text-[10px] text-[#4b5563] font-bold tabular-nums bg-[#12121a] px-2 py-0.5 rounded-full border border-[#1e1e2e]">
             {cards.length}
           </span>
         </div>
       </div>
       <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-16rem)]">
         {cards.length === 0 && (
-          <div className="text-center text-[#4b5563] text-xs py-8">No tasks</div>
+          <div className="text-center text-[#374151] text-xs py-8 border border-dashed border-[#1e1e2e] rounded-lg">
+            Empty
+          </div>
         )}
         {cards.map(card => (
           <KanbanCardItem

@@ -10,13 +10,71 @@
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
+  --color-cyan: #22d3ee;
 
   --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --font-family-sans: 'Inter', sans-serif;
+  --font-family-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-family-display: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
 }
 
 body {
   background-color: var(--color-background);
   color: white;
   font-family: var(--font-family-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display);
+}
+
+/* Neon glow utilities */
+.glow-indigo {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(99, 102, 241, 0.1);
+}
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), 0 0 40px rgba(34, 211, 238, 0.1);
+}
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+}
+.text-glow-indigo {
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+}
+.text-glow-cyan {
+  text-shadow: 0 0 20px rgba(34, 211, 238, 0.8);
+}
+
+/* Dot-grid background */
+.dot-grid {
+  background-image: radial-gradient(circle, #1e1e2e 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Scanline overlay */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* HUD border effect */
+.hud-border {
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.05);
+}
+
+/* Glass card */
+.glass {
+  background: rgba(18, 18, 26, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }

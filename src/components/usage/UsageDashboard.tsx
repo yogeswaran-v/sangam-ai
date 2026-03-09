@@ -128,14 +128,14 @@ export function UsageDashboard() {
   return (
     <div className="space-y-8 max-w-5xl">
       {/* Plan card */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl p-6">
+      <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <div className="text-xs text-[#6b7280] uppercase tracking-widest mb-1">Current Plan</div>
             <div className="text-2xl font-bold text-white">{planInfo.label}</div>
             <div className="text-[#6b7280] text-sm mt-1">{planPrice}</div>
           </div>
-          <button onClick={() => handleUpgrade('pro')} className="px-4 py-2 border border-[#6366f1]/50 text-[#6366f1] rounded-xl text-sm hover:bg-[#6366f1]/10 transition-colors">
+          <button onClick={() => handleUpgrade('pro')} className="px-4 py-2 border border-[#6366f1]/50 text-[#6366f1] rounded-xl text-sm hover:bg-[#6366f1]/10 transition-colors cursor-pointer">
             Upgrade plan
           </button>
         </div>
@@ -163,21 +163,30 @@ export function UsageDashboard() {
       {/* Stats row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Input Tokens', value: fmt(summary?.totalInputTokens ?? 0), icon: '📥' },
-          { label: 'Output Tokens', value: fmt(summary?.totalOutputTokens ?? 0), icon: '📤' },
-          { label: 'Total Cost', value: `$${(summary?.totalCostUsd ?? 0).toFixed(4)}`, icon: '💰' },
+          {
+            label: 'Input Tokens', value: fmt(summary?.totalInputTokens ?? 0), color: 'text-[#22d3ee]',
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>,
+          },
+          {
+            label: 'Output Tokens', value: fmt(summary?.totalOutputTokens ?? 0), color: 'text-[#818cf8]',
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M19 12l-7 7-7-7" /></svg>,
+          },
+          {
+            label: 'Total Cost', value: `$${(summary?.totalCostUsd ?? 0).toFixed(4)}`, color: 'text-[#10b981]',
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>,
+          },
         ].map(stat => (
-          <div key={stat.label} className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5">
-            <div className="text-2xl mb-3">{stat.icon}</div>
-            <div className="text-2xl font-bold text-white">{stat.value}</div>
-            <div className="text-xs text-[#6b7280] mt-1">{stat.label} this month</div>
+          <div key={stat.label} className="bg-[#0d0d15] border border-[#1e1e2e] rounded-xl p-5">
+            <div className={`mb-3 ${stat.color}`}>{stat.icon}</div>
+            <div className="text-2xl font-bold text-white" style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}>{stat.value}</div>
+            <div className="text-xs text-[#4b5563] mt-1">{stat.label} this month</div>
           </div>
         ))}
       </div>
 
       {/* Per-agent breakdown */}
       {summary && Object.keys(summary.byAgent).length > 0 && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl overflow-hidden">
+        <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-2xl overflow-hidden">
           <div className="p-4 border-b border-[#1e1e2e]">
             <h3 className="text-sm font-semibold text-white">Usage by Agent</h3>
           </div>
