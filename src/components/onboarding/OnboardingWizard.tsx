@@ -179,8 +179,7 @@ export function OnboardingWizard() {
         <div className="flex items-center justify-between mt-6">
           <button
             onClick={handleBack}
-            disabled={step === 0}
-            className="px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors disabled:opacity-0"
+            className={`px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors ${step === 0 ? 'invisible' : ''}`}
           >
             ← Back
           </button>

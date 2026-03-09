@@ -12,6 +12,7 @@ const nextBtn = (page: any) =>
 
 test.describe('Onboarding wizard', () => {
   test.beforeAll(async () => {
+    await cleanupTestUser(TEST_EMAIL)
     await createTestUser(TEST_EMAIL, TEST_PASSWORD)
   })
 
@@ -43,6 +44,23 @@ test.describe('Onboarding wizard', () => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
     await expect(page.getByRole('button', { name: /← back/i })).not.toBeVisible()
+  })
+
+  test('shows character count', async ({ page, context }) => {
+    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await page.goto('/onboarding')
+    await expect(page.getByText('0/2000')).toBeVisible()
+    await page.getByRole('textbox').fill('Hello')
+    await expect(page.getByText('5/2000')).toBeVisible()
+  })
+
+  test('has navigation escape — logo and back-to-home link', async ({ page, context }) => {
+    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await page.goto('/onboarding')
+    await expect(page.getByText('Back to home')).toBeVisible()
+    // Logo should link to home
+    const logoLink = page.locator('header a').first()
+    await expect(logoLink).toHaveAttribute('href', '/')
   })
 
   test('progresses through all 4 steps', async ({ page, context }) => {
@@ -98,7 +116,7 @@ test.describe('Onboarding wizard', () => {
     await expect(page.getByText('50%')).toBeVisible()
   })
 
-  test('completes onboarding and redirects to dashboard', async ({ page, context }) => {
+  test('completes onboarding via API and redirects to dashboard', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/onboarding')
 
@@ -108,6 +126,11 @@ test.describe('Onboarding wizard', () => {
       '$10K MRR in 6 months, profitable in 12 months',
       'MVP in 4 weeks, beta launch in 8 weeks, GA in 3 months',
     ]
+
+    // Intercept the API call to verify it's made correctly
+    const apiPromise = page.waitForResponse(resp =>
+      resp.url().includes('/api/onboarding') && resp.request().method() === 'POST'
+    )
 
     for (let i = 0; i < answers.length; i++) {
       await page.getByRole('textbox').fill(answers[i])
@@ -119,14 +142,23 @@ test.describe('Onboarding wizard', () => {
       }
     }
 
+    // Verify the API call succeeds
+    const apiResponse = await apiPromise
+    expect(apiResponse.status()).toBe(200)
+    const apiBody = await apiResponse.json()
+    expect(apiBody.success).toBe(true)
+
+    // Verify redirect to dashboard
     await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 })
-    await expect(page.getByText(/mission control|command centre|welcome/i)).toBeVisible()
+    await expect(page.getByRole('heading', { name: /command centre|mission control/i }).first()).toBeVisible()
   })
 
   test('onboarding creates chat channels — visible in chat after completion', async ({ page, context }) => {
     await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
     await page.goto('/dashboard/chat')
-    await expect(page.getByText(/CEO Updates|Engineering|Product/i)).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: /CEO Updates/i })).toBeVisible({ timeout: 10000 })
+    await expect(page.getByRole('button', { name: /Engineering/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Product/i })).toBeVisible()
   })
 
   test('onboarding creates kanban cards — visible in kanban after completion', async ({ page, context }) => {
@@ -135,5 +167,12 @@ test.describe('Onboarding wizard', () => {
     await expect(
       page.getByText(/MVP|architecture|go-to-market/i).first()
     ).toBeVisible({ timeout: 10000 })
+  })
+
+  test('already-onboarded user is redirected away from /onboarding', async ({ page, context }) => {
+    // User completed onboarding in previous test — should redirect to dashboard
+    await injectSession(context, TEST_EMAIL, TEST_PASSWORD)
+    await page.goto('/onboarding')
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 })
   })
 })
