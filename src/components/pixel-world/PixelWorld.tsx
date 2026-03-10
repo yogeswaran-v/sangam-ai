@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import type { AgentPixel, AgentEvent } from '@/types/pixel'
 import { AgentSprite } from './AgentSprite'
 import { ActivityFeed } from './ActivityFeed'
+import { PART_TIME_AGENTS } from '@/lib/agents/registry'
 
 /* ─── Position mapping ─── */
 
@@ -16,6 +17,39 @@ const HOME: Record<string, { x: number; y: number }> = {
   marketing:   { x: 12, y: 64 },
   sales:       { x: 70, y: 61 },
   finance:     { x: 44, y: 74 },
+}
+
+const PART_TIME_HOME: Record<string, { x: number; y: number }> = {
+  'frontend-dev':   { x: 75, y: 28 },
+  'backend-arch':   { x: 80, y: 35 },
+  'devops':         { x: 87, y: 22 },
+  'security-eng':   { x: 70, y: 32 },
+  'mobile-builder': { x: 75, y: 40 },
+  'qa-tester':      { x: 65, y: 28 },
+  'data-engineer':  { x: 83, y: 42 },
+  'accessibility':  { x: 70, y: 42 },
+  'ui-designer':    { x: 30, y: 22 },
+  'ux-researcher':  { x: 36, y: 28 },
+  'brand-guardian': { x: 28, y: 32 },
+  'content-creator':  { x: 18, y: 70 },
+  'growth-hacker':    { x: 8,  y: 75 },
+  'social-media':     { x: 22, y: 65 },
+  'sprint-planner':   { x: 44, y: 20 },
+  'trend-researcher': { x: 50, y: 28 },
+  'feedback-synth':   { x: 36, y: 35 },
+  'analytics':         { x: 32, y: 75 },
+  'legal':             { x: 46, y: 80 },
+  'project-shepherd':  { x: 18, y: 40 },
+}
+
+const PART_TIME_COLORS: Record<string, string> = {
+  'frontend-dev': '#22d3ee', 'backend-arch': '#34d399', 'devops': '#a3e635',
+  'security-eng': '#f43f5e', 'mobile-builder': '#818cf8', 'qa-tester': '#fbbf24',
+  'data-engineer': '#67e8f9', 'ui-designer': '#e879f9', 'ux-researcher': '#c084fc',
+  'brand-guardian': '#fbbf24', 'content-creator': '#f97316', 'growth-hacker': '#ef4444',
+  'social-media': '#ec4899', 'sprint-planner': '#0ea5e9', 'trend-researcher': '#06b6d4',
+  'feedback-synth': '#2dd4bf', 'analytics': '#10b981', 'legal': '#6ee7b7',
+  'project-shepherd': '#a78bfa', 'accessibility': '#86efac',
 }
 
 // Named zones
@@ -78,12 +112,37 @@ function getWorkPosition(agentId: string, eventType: string): { x: number; y: nu
 
 function agentNameToId(name: string): string {
   const n = name.toLowerCase()
+  // Full-time agents
   if (n.includes('ceo'))        return 'ceo'
   if (n.includes('product'))    return 'product'
-  if (n.includes('engineer'))   return 'engineering'
-  if (n.includes('market'))     return 'marketing'
+  if (n.includes('engineer') && !n.includes('frontend') && !n.includes('backend') && !n.includes('mobile') && !n.includes('data') && !n.includes('security') && !n.includes('devops') && !n.includes('qa') && !n.includes('access'))
+    return 'engineering'
+  if (n.includes('market') && !n.includes('content') && !n.includes('growth') && !n.includes('social'))
+    return 'marketing'
   if (n.includes('sales'))      return 'sales'
-  if (n.includes('finance'))    return 'finance'
+  if (n.includes('finance') && !n.includes('analytics') && !n.includes('legal'))
+    return 'finance'
+  // Part-time agents — match by name fragments
+  if (n.includes('alex chen') || n.includes('frontend'))   return 'frontend-dev'
+  if (n.includes('ravi kumar') || n.includes('backend'))   return 'backend-arch'
+  if (n.includes('sam okafor') || n.includes('devops'))    return 'devops'
+  if (n.includes('priya nair') || n.includes('security'))  return 'security-eng'
+  if (n.includes('james park') || n.includes('mobile'))    return 'mobile-builder'
+  if (n.includes('lisa zhang') || n.includes('qa'))        return 'qa-tester'
+  if (n.includes('tatiana') || n.includes('data eng'))     return 'data-engineer'
+  if (n.includes('sofia reyes') || n.includes('ui design')) return 'ui-designer'
+  if (n.includes('maya iyer') || n.includes('ux research')) return 'ux-researcher'
+  if (n.includes('lena') || n.includes('brand'))           return 'brand-guardian'
+  if (n.includes('aisha') || n.includes('content'))        return 'content-creator'
+  if (n.includes('carlos') || n.includes('growth'))        return 'growth-hacker'
+  if (n.includes('yuki') || n.includes('social media'))    return 'social-media'
+  if (n.includes('arjun') || n.includes('sprint'))         return 'sprint-planner'
+  if (n.includes('nina') || n.includes('trend'))           return 'trend-researcher'
+  if (n.includes('omar') || n.includes('feedback'))        return 'feedback-synth'
+  if (n.includes('elena') || n.includes('analytics'))      return 'analytics'
+  if (n.includes('deepa') || n.includes('legal'))          return 'legal'
+  if (n.includes('marcus') || n.includes('shepherd'))      return 'project-shepherd'
+  if (n.includes('kwame') || n.includes('accessib'))       return 'accessibility'
   return 'ceo'
 }
 
@@ -356,6 +415,7 @@ function CeilingLight({ x, y, color = '#a78bfa' }: { x: string; y: string; color
 /* ─── Main PixelWorld component ─── */
 export function PixelWorld() {
   const [agents, setAgents] = useState<AgentPixel[]>(AGENT_DEFAULTS)
+  const [partTimeAgents, setPartTimeAgents] = useState<AgentPixel[]>([])
   const [events, setEvents] = useState<AgentEvent[]>([])
   const supabase = createClient()
 
@@ -388,6 +448,34 @@ export function PixelWorld() {
         return { ...a, status: 'working', currentTask: evt.event_type, ...pos }
       }))
     }
+
+    // Fetch active part-time deployments
+    const { data: deployments } = await supabase
+      .from('part_time_deployments')
+      .select('*')
+      .eq('customer_id', customer.id)
+      .eq('status', 'active')
+      .order('deployed_at', { ascending: false })
+
+    if (deployments && deployments.length > 0) {
+      const activePartTime: AgentPixel[] = deployments.map((dep: { agent_id: string; task_description?: string }) => {
+        const home = PART_TIME_HOME[dep.agent_id] ?? { x: 50, y: 50 }
+        const color = PART_TIME_COLORS[dep.agent_id] ?? '#a78bfa'
+        const agentInfo = PART_TIME_AGENTS.find(a => a.id === dep.agent_id)
+        return {
+          id: dep.agent_id,
+          name: agentInfo?.name ?? dep.agent_id,
+          emoji: '',
+          color,
+          status: 'working' as const,
+          currentTask: dep.task_description ?? 'working',
+          ...home,
+        }
+      })
+      setPartTimeAgents(activePartTime)
+    } else {
+      setPartTimeAgents([])
+    }
   }, [supabase])
 
   useEffect(() => { fetchRecentEvents() }, [fetchRecentEvents])
@@ -406,6 +494,13 @@ export function PixelWorld() {
       .subscribe()
     return () => { supabase.removeChannel(channel) }
   }, [supabase])
+
+  useEffect(() => {
+    const channel = supabase.channel('part_time_deployments_live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'part_time_deployments' }, () => fetchRecentEvents())
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [supabase, fetchRecentEvents])
 
   return (
     <div className="flex rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #1a2236' }}>
@@ -479,6 +574,9 @@ export function PixelWorld() {
         {/* ─── Agent sprites ─── */}
         {agents.map(agent => (
           <AgentSprite key={agent.id} agent={agent} />
+        ))}
+        {partTimeAgents.map(agent => (
+          <AgentSprite key={`pt_${agent.id}`} agent={agent} />
         ))}
 
         {/* ─── Legend ─── */}

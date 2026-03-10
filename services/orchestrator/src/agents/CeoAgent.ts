@@ -49,6 +49,89 @@ Keep it under 300 words. Format for Telegram (use *bold* and bullet points).`
 
     // Ask Claude if any decisions need founder approval today
     await this.generateApprovalRequests(context)
+
+    // Deploy specialist agents for today's priorities
+    await this.deploySpecialists(context)
+  }
+
+  async deploySpecialists(context: AgentContext): Promise<void> {
+    const raw = await this.chat(
+      context,
+      `Based on the current mission and today's priorities, which specialist agents (if any) should be deployed to help the team?
+
+Available specialists:
+- frontend-dev (Alex Chen): React/UI implementation
+- backend-arch (Ravi Kumar): API design, databases
+- devops (Sam Okafor): CI/CD, cloud infrastructure
+- security-eng (Priya Nair): Security audits, OWASP
+- mobile-builder (James Park): iOS/Android/React Native
+- qa-tester (Lisa Zhang): Test plans, quality assurance
+- data-engineer (Tatiana Volkov): Data pipelines, ETL
+- ui-designer (Sofia Reyes): Figma, design systems
+- ux-researcher (Maya Iyer): User testing, usability
+- brand-guardian (Lena Müller): Brand identity, guidelines
+- content-creator (Aisha Patel): Blog posts, SEO content
+- growth-hacker (Carlos Mendez): User acquisition, A/B tests
+- social-media (Yuki Tanaka): Instagram, LinkedIn, X
+- sprint-planner (Arjun Sharma): Agile sprint planning
+- trend-researcher (Nina Kovacs): Market research, competitive analysis
+- feedback-synth (Omar Hassan): User feedback analysis
+- analytics (Elena Vasquez): Data dashboards, BI reports
+- legal (Deepa Krishnan): Compliance, contracts, GDPR
+- project-shepherd (Marcus Johnson): Cross-functional coordination
+- accessibility (Kwame Asante): WCAG, a11y audits
+
+Select at most 2 specialists needed TODAY given the mission context. For each, provide a specific task.
+
+Return JSON array: [{"agent_id": "frontend-dev", "task": "Build the landing page hero section"}]
+If no specialists are needed today, return: []
+
+Output ONLY valid JSON. No markdown.`
+    )
+
+    let items: Array<{ agent_id: string; task: string }> = []
+    try {
+      const parsed = JSON.parse(raw.trim())
+      if (Array.isArray(parsed)) items = parsed
+    } catch {
+      return
+    }
+
+    const validIds = new Set([
+      'frontend-dev','backend-arch','devops','security-eng','mobile-builder','qa-tester',
+      'data-engineer','ui-designer','ux-researcher','brand-guardian','content-creator',
+      'growth-hacker','social-media','sprint-planner','trend-researcher','feedback-synth',
+      'analytics','legal','project-shepherd','accessibility',
+    ])
+
+    for (const item of items.slice(0, 2)) {
+      if (!item.agent_id || !validIds.has(item.agent_id)) continue
+
+      // Mark any existing active deployment for this agent as completed
+      await supabase
+        .from('part_time_deployments')
+        .update({ status: 'completed', completed_at: new Date().toISOString() })
+        .eq('customer_id', context.customerId)
+        .eq('agent_id', item.agent_id)
+        .eq('status', 'active')
+
+      // Create new deployment
+      await supabase.from('part_time_deployments').insert({
+        customer_id: context.customerId,
+        agent_id: item.agent_id,
+        task_description: item.task,
+        status: 'active',
+      })
+    }
+
+    // Auto-complete deployments older than 2 hours
+    const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    await supabase
+      .from('part_time_deployments')
+      .update({ status: 'completed', completed_at: new Date().toISOString() })
+      .eq('customer_id', context.customerId)
+      .eq('status', 'active')
+      .lt('deployed_at', twoHoursAgo)
   }
 
   private async generateApprovalRequests(context: AgentContext): Promise<void> {

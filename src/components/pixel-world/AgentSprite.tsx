@@ -138,9 +138,51 @@ const AVATARS: Record<string, AvatarConfig> = {
   },
 }
 
+// Generate a pseudo-unique avatar from agent ID
+function getAvatarConfig(agentId: string): AvatarConfig {
+  if (AVATARS[agentId]) return AVATARS[agentId]
+
+  // Deterministic skin tones
+  const skins = ['#f5c6a0', '#d4956a', '#c8a87a', '#a67c52', '#8d5524', '#6b4226', '#e8b59a', '#f0c49e']
+  const hairs = ['#1f2937', '#1c1917', '#5c3d2e', '#c8922a', '#0a0a0a', '#374151', '#6b3a1f', '#111827']
+  const shirts = ['#0c3a5e', '#1e1b4b', '#042024', '#0d2e0d', '#431407', '#1a0505', '#1a3a1a', '#2d1b4a']
+  const pants = ['#1e3a5f', '#1f2937', '#0c1f22', '#1c1917', '#0c0a09', '#111827', '#1e1b4b', '#1a2236']
+  const eyeColors = ['#4b5563', '#374151', '#7c4c3d', '#6b4c2a', '#6b4226', '#4a3728']
+
+  // hash the agent id to pick consistent values
+  let hash = 0
+  for (let i = 0; i < agentId.length; i++) hash = (hash * 31 + agentId.charCodeAt(i)) >>> 0
+
+  const skinColor = skins[hash % skins.length]
+  const hairColor = hairs[(hash >> 3) % hairs.length]
+  const shirtColor = shirts[(hash >> 6) % shirts.length]
+  const pantsColor = pants[(hash >> 9) % pants.length]
+  const eyeColor = eyeColors[(hash >> 12) % eyeColors.length]
+  const hasGlasses = (hash >> 15) % 5 === 0
+
+  // Pick a hair style based on hash
+  const hairStyle = (hash >> 18) % 3
+  let hair: React.ReactElement
+  if (hairStyle === 0) {
+    hair = <path d="M12 14 Q12 2 22 2 Q32 2 32 13 Q29 4 22 4 Q15 4 12 14Z" fill={hairColor} />
+  } else if (hairStyle === 1) {
+    hair = <path d="M13 16 Q14 1 22 1 Q30 1 31 14 Q27 4 22 4 Q17 4 13 16Z" fill={hairColor} />
+  } else {
+    hair = (
+      <>
+        <path d="M12 14 Q10 0 22 0 Q34 0 32 12 Q29 2 22 2 Q15 2 12 14Z" fill={hairColor} />
+        <path d="M11 13 Q8 18 9 24" stroke={hairColor} strokeWidth="4" fill="none" strokeLinecap="round" />
+        <path d="M33 13 Q36 18 35 24" stroke={hairColor} strokeWidth="4" fill="none" strokeLinecap="round" />
+      </>
+    )
+  }
+
+  return { skinColor, hairColor, hair, shirtColor, pantsColor, shoeColor: '#1a2236', eyeColor, accentColor: '#a78bfa', glasses: hasGlasses }
+}
+
 /* ─── Human SVG avatar ─── */
 function HumanAvatar({ agentId, color, status }: { agentId: string; color: string; status: string }) {
-  const c = AVATARS[agentId] ?? AVATARS.ceo
+  const c = getAvatarConfig(agentId)
   const isWorking = status === 'working'
 
   return (
