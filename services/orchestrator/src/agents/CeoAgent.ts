@@ -46,5 +46,36 @@ Keep it under 300 words. Format for Telegram (use *bold* and bullet points).`
 
     // Notify via Telegram
     await notifyCustomer(context.customerId, `*Daily Briefing from CEO Agent*\n\n${briefing}`)
+
+    // Ask Claude if any decisions need founder approval today
+    await this.generateApprovalRequests(context)
+  }
+
+  private async generateApprovalRequests(context: AgentContext): Promise<void> {
+    const raw = await this.chat(
+      context,
+      `Based on the current mission, what specific decisions require the founder's approval right now?
+
+Think about: major product pivots, significant budget commitments, hiring decisions, key partnerships, launch go/no-go decisions, architectural choices with major tradeoffs.
+
+Return a JSON array (max 2 items). Each item: {"title": "short decision title", "description": "1-2 sentence explanation of what the founder needs to decide and why it matters"}.
+
+If nothing critical needs approval today, return an empty array: []
+
+Output ONLY valid JSON. No markdown, no explanation.`
+    )
+
+    let items: Array<{ title: string; description: string }> = []
+    try {
+      const parsed = JSON.parse(raw.trim())
+      if (Array.isArray(parsed)) items = parsed
+    } catch {
+      return // LLM didn't return valid JSON — skip silently
+    }
+
+    for (const item of items.slice(0, 2)) {
+      if (!item.title || !item.description) continue
+      await this.requestApproval(context, item.title, item.description)
+    }
   }
 }

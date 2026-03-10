@@ -42,6 +42,25 @@ export abstract class BaseAgent {
   abstract name: string
   abstract systemPrompt: string
 
+  /**
+   * Creates an approval request row that the founder sees in the Approvals dashboard.
+   * Call this whenever an agent needs a human decision before proceeding.
+   */
+  protected async requestApproval(
+    context: AgentContext,
+    title: string,
+    description: string,
+    cardId?: string
+  ): Promise<void> {
+    await supabase.from('approval_requests').insert({
+      customer_id: context.customerId,
+      title,
+      description,
+      status: 'pending',
+      card_id: cardId ?? null,
+    })
+  }
+
   protected async chat(
     context: AgentContext,
     userMessage: string,

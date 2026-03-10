@@ -49,14 +49,24 @@ Output ONLY valid JSON, no markdown.`
     if (!board || !Array.isArray(cards)) return
 
     for (const card of cards) {
-      await supabase.from('kanban_cards').insert({
+      const { data: inserted } = await supabase.from('kanban_cards').insert({
         board_id: board.id,
         title: card.title ?? 'Untitled task',
         description: card.description ?? null,
         priority: card.priority ?? 'medium',
         column_name: 'backlog',
         assigned_agent: card.assigned_agent ?? this.name,
-      })
+      }).select('id').single()
+
+      // Critical cards need founder approval before work begins
+      if (card.priority === 'critical' && inserted?.id) {
+        await this.requestApproval(
+          context,
+          `Approve task: ${card.title ?? 'Untitled task'}`,
+          `Product Agent flagged this as critical priority. ${card.description ?? ''} Approve to move it to active development.`,
+          inserted.id
+        )
+      }
     }
 
     console.log(`ProductAgent: Added ${cards.length} cards to kanban`)

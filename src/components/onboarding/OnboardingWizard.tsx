@@ -34,30 +34,44 @@ const STEPS = [
   },
 ]
 
+const AGENTS = [
+  { id: 'ceo',      name: 'CEO Agent',       role: 'Strategy & delegation',          color: '#a78bfa' },
+  { id: 'product',  name: 'Product Agent',    role: 'Roadmap & kanban',               color: '#38bdf8' },
+  { id: 'engineer', name: 'Engineer Agent',   role: 'Code & architecture',            color: '#4ade80' },
+  { id: 'market',   name: 'Marketing Agent',  role: 'Content, SEO, campaigns',        color: '#fb923c' },
+  { id: 'sales',    name: 'Sales Agent',      role: 'Outreach & CRM',                 color: '#f472b6' },
+  { id: 'finance',  name: 'Finance Agent',    role: 'Budgets & forecasts',            color: '#14b8a6' },
+]
+
 const MAX_LENGTH = 2000
 
-const SpinnerIcon = () => (
-  <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </svg>
-)
+// ─── Activating state shows agents coming online one by one ───
+const ACTIVATION_SEQUENCE = [
+  'Saving your mission brief…',
+  'Assembling CEO Agent…',
+  'Assembling Product Agent…',
+  'Assembling Engineering Agent…',
+  'Assembling Marketing Agent…',
+  'Assembling Sales Agent…',
+  'Assembling Finance Agent…',
+  'Activating your command centre…',
+]
 
 export function OnboardingWizard() {
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(0)              // 0-3 = form steps, 4 = launch review
   const [values, setValues] = useState<Record<string, string>>({})
-  const [loading, setLoading] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
-  const [submitProgress, setSubmitProgress] = useState('')
+  const [activating, setActivating] = useState(false)
+  const [activationStep, setActivationStep] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
+  const isReviewStep = step === STEPS.length
   const current = STEPS[step]
-  const isLast = step === STEPS.length - 1
-  const progress = ((step + 1) / STEPS.length) * 100
-  const currentValue = values[current.field] ?? ''
+  const progress = isReviewStep ? 100 : ((step + 1) / STEPS.length) * 100
+  const currentValue = current ? (values[current.field] ?? '') : ''
 
   function handleChange(value: string) {
-    if (value.length <= MAX_LENGTH) {
+    if (current && value.length <= MAX_LENGTH) {
       setValues(prev => ({ ...prev, [current.field]: value }))
     }
   }
@@ -67,23 +81,23 @@ export function OnboardingWizard() {
     setStep(s => s - 1)
   }
 
-  async function handleNext() {
-    if (isLast) {
-      await handleSubmit()
-    } else {
-      setError(null)
-      setStep(s => s + 1)
-    }
+  function handleNext() {
+    setError(null)
+    setStep(s => s + 1)
   }
 
-  async function handleSubmit() {
-    setLoading(true)
-    setSubmitting(true)
+  async function handleActivate() {
+    setActivating(true)
     setError(null)
+    setActivationStep(0)
+
+    // Step through activation messages
+    for (let i = 0; i < ACTIVATION_SEQUENCE.length; i++) {
+      setActivationStep(i)
+      await new Promise(r => setTimeout(r, 500))
+    }
 
     try {
-      setSubmitProgress('Assembling your AI team...')
-
       const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,48 +114,84 @@ export function OnboardingWizard() {
 
       if (!res.ok || !result.success) {
         setError(result.error ?? 'Something went wrong. Please try again.')
-        setLoading(false)
-        setSubmitting(false)
+        setActivating(false)
         return
       }
 
-      setSubmitProgress('Launching your dashboard...')
       router.push('/dashboard')
     } catch {
       setError('Something went wrong. Please try again.')
-      setLoading(false)
-      setSubmitting(false)
+      setActivating(false)
     }
   }
 
-  if (submitting) {
+  // ─── Activating screen ───
+  if (activating) {
     return (
-      <div className="w-full max-w-xl flex flex-col items-center gap-6 py-20">
-        <div className="relative">
-          <div className="w-16 h-16 rounded-full border-2 border-[#6366f1]/20 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full border-2 border-t-[#6366f1] border-r-[#6366f1]/50 border-b-[#6366f1]/20 border-l-transparent animate-spin absolute inset-0" />
-            <div className="text-[#818cf8]">
-              <SpinnerIcon />
-            </div>
+      <div className="w-full max-w-lg flex flex-col items-center gap-8 py-16 px-4">
+        {/* Animated ring */}
+        <div className="relative w-20 h-20">
+          <div className="absolute inset-0 rounded-full border-2 animate-spin"
+            style={{ borderColor: 'transparent', borderTopColor: '#a78bfa', borderRightColor: 'rgba(167,139,250,0.3)', animationDuration: '1s' }} />
+          <div className="absolute inset-2 rounded-full border border-[#1a2236]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-3 h-3 rounded-full bg-[#a78bfa]" style={{ boxShadow: '0 0 12px rgba(167,139,250,0.8)' }} />
           </div>
         </div>
+
+        {/* Progress text */}
         <div className="text-center">
-          <h2
-            className="text-xl font-bold text-white mb-2"
-            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-          >
-            Setting up your team
+          <h2 className="text-xl font-bold mb-2" style={{ fontFamily: 'var(--font-bricolage)', color: '#eef2f8' }}>
+            Activating your team
           </h2>
-          <p className="text-[#6b7280] text-sm font-medium">{submitProgress}</p>
+          <p className="text-sm font-medium transition-all duration-300" style={{ color: '#8b98b4' }}>
+            {ACTIVATION_SEQUENCE[Math.min(activationStep, ACTIVATION_SEQUENCE.length - 1)]}
+          </p>
         </div>
+
+        {/* Agent activation bars */}
+        <div className="w-full flex flex-col gap-2">
+          {AGENTS.map((agent, i) => {
+            const agentStep = i + 1  // agent 0 activates at activationStep 1, etc.
+            const done = activationStep > agentStep
+            const active = activationStep === agentStep
+            return (
+              <div key={agent.id}
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300"
+                style={{
+                  background: done || active ? `${agent.color}08` : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${done || active ? agent.color + '25' : '#1a2236'}`,
+                  opacity: done || active ? 1 : 0.4,
+                }}>
+                <div className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-300"
+                  style={{
+                    background: done ? agent.color : active ? agent.color : '#253044',
+                    boxShadow: (done || active) ? `0 0 6px ${agent.color}80` : 'none',
+                  }} />
+                <span className="text-[13px] font-medium flex-1"
+                  style={{ color: done || active ? '#eef2f8' : '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+                  {agent.name}
+                </span>
+                {done && (
+                  <span className="text-[11px] font-semibold" style={{ color: agent.color }}>Online</span>
+                )}
+                {active && (
+                  <span className="text-[11px]" style={{ color: '#4a566e' }}>
+                    <span className="animate-pulse">Initialising…</span>
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
         {error && (
-          <div className="px-4 py-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm max-w-md text-center">
+          <div className="w-full px-4 py-3 rounded-xl text-[13px]"
+            style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)', color: '#f87171' }}>
             {error}
-            <button
-              onClick={() => { setSubmitting(false); setLoading(false) }}
-              className="block mx-auto mt-2 text-white underline text-xs cursor-pointer"
-            >
-              Go back to form
+            <button onClick={() => setActivating(false)}
+              className="block mt-2 underline text-[11px] cursor-pointer">
+              Go back and try again
             </button>
           </div>
         )}
@@ -149,43 +199,133 @@ export function OnboardingWizard() {
     )
   }
 
+  // ─── Launch review screen ───
+  if (isReviewStep) {
+    return (
+      <div className="w-full max-w-xl">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5"
+            style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="text-[12px] font-semibold" style={{ color: '#4ade80' }}>Ready to launch</span>
+          </div>
+          <h2 className="text-3xl font-extrabold mb-2" style={{ fontFamily: 'var(--font-bricolage)', color: '#eef2f8' }}>
+            Your team is assembled.
+          </h2>
+          <p className="text-[14px]" style={{ color: '#8b98b4' }}>
+            Review your mission brief, then activate your AI company.
+          </p>
+        </div>
+
+        {/* Mission summary */}
+        <div className="rounded-2xl p-5 mb-5"
+          style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
+          <div className="text-[11px] font-bold uppercase tracking-[0.12em] mb-4"
+            style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+            Mission Brief
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {STEPS.map(s => (
+              <div key={s.id} className="rounded-xl p-3" style={{ background: '#101620', border: '1px solid #1a2236' }}>
+                <div className="text-[10px] font-bold uppercase tracking-[0.12em] mb-1.5" style={{ color: '#4a566e' }}>
+                  {s.title.replace('?', '')}
+                </div>
+                <p className="text-[13px] leading-relaxed line-clamp-2" style={{ color: values[s.field] ? '#8b98b4' : '#2e3b52' }}>
+                  {values[s.field] || <span style={{ color: '#2e3b52' }}>Not provided</span>}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Agent team */}
+        <div className="rounded-2xl p-5 mb-6"
+          style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
+          <div className="text-[11px] font-bold uppercase tracking-[0.12em] mb-4"
+            style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+            Your 6-agent team
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {AGENTS.map(agent => (
+              <div key={agent.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
+                style={{ background: '#101620', border: '1px solid #1a2236' }}>
+                <div className="w-2 h-2 rounded-full flex-shrink-0"
+                  style={{ background: agent.color, boxShadow: `0 0 5px ${agent.color}80` }} />
+                <div>
+                  <div className="text-[12px] font-semibold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
+                    {agent.name}
+                  </div>
+                  <div className="text-[10px]" style={{ color: '#4a566e' }}>{agent.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Important notice */}
+        <div className="flex gap-3 p-4 rounded-xl mb-6"
+          style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
+          <svg className="flex-shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p className="text-[12px] leading-relaxed" style={{ color: '#8b98b4' }}>
+            Once activated, your agents begin working immediately. The orchestrator runs every 30 seconds — expect your first agent messages within 1 minute.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3">
+          <button onClick={handleBack}
+            className="px-5 py-3 text-[13px] font-medium transition-colors cursor-pointer rounded-xl"
+            style={{ color: '#8b98b4', border: '1px solid #1a2236', background: 'transparent' }}>
+            ← Edit answers
+          </button>
+          <button onClick={handleActivate}
+            className="flex-1 py-3.5 rounded-xl text-[15px] font-bold text-white transition-all duration-200 cursor-pointer"
+            style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.5), 0 4px 12px rgba(0,0,0,0.3)' }}>
+            Activate your team →
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Form steps 0–3 ───
   return (
     <div className="w-full max-w-xl">
       {/* Progress */}
       <div className="mb-10">
-        <div className="flex items-center justify-between text-xs text-[#6b7280] mb-3 font-medium">
+        <div className="flex items-center justify-between text-[12px] mb-3 font-medium" style={{ color: '#4a566e' }}>
           <span>Step {step + 1} of {STEPS.length}</span>
           <span className="tabular-nums">{Math.round(progress)}%</span>
         </div>
-        <div className="h-0.5 bg-[#1e1e2e] rounded-full overflow-hidden">
+        <div className="h-0.5 rounded-full overflow-hidden" style={{ background: '#1a2236' }}>
           <div
-            className="h-full bg-gradient-to-r from-[#6366f1] to-[#818cf8] rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]"
-            style={{ width: `${progress}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${progress}%`,
+              background: 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+              boxShadow: '0 0 8px rgba(124,58,237,0.5)',
+            }}
           />
         </div>
-        {/* Step dots */}
         <div className="flex gap-2 mt-3">
           {STEPS.map((_, i) => (
-            <div
-              key={i}
-              className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
-                i <= step ? 'bg-[#6366f1]' : 'bg-[#1e1e2e]'
-              }`}
-            />
+            <div key={i} className="h-0.5 flex-1 rounded-full transition-all duration-300"
+              style={{ background: i <= step ? '#7c3aed' : '#1a2236' }} />
           ))}
         </div>
       </div>
 
       {/* Card */}
-      <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-2xl p-8 hover:border-[#6366f1]/20 transition-colors duration-300">
+      <div className="rounded-2xl p-8 transition-colors duration-300"
+        style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
         <div className="mb-6">
-          <h2
-            className="text-2xl font-bold text-white mb-2"
-            style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
-          >
+          <h2 className="text-2xl font-bold mb-2" style={{ fontFamily: 'var(--font-bricolage)', color: '#eef2f8' }}>
             {current.title}
           </h2>
-          <p className="text-[#6b7280] text-sm">{current.subtitle}</p>
+          <p className="text-[14px]" style={{ color: '#8b98b4' }}>{current.subtitle}</p>
         </div>
 
         <div className="relative">
@@ -196,37 +336,51 @@ export function OnboardingWizard() {
             placeholder={current.placeholder}
             rows={6}
             maxLength={MAX_LENGTH}
-            className="w-full px-4 py-3 bg-[#070709] border border-[#1e1e2e] rounded-xl text-white placeholder-[#374151] focus:border-[#6366f1]/60 focus:shadow-[0_0_0_1px_rgba(99,102,241,0.2)] outline-none text-sm resize-none transition-all duration-200"
+            className="w-full px-4 py-3 rounded-xl text-[14px] outline-none resize-none transition-all duration-200"
+            style={{
+              background: '#101620',
+              border: '1px solid #1a2236',
+              color: '#eef2f8',
+            }}
+            onFocus={e => {
+              e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'
+              e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
+            }}
+            onBlur={e => {
+              e.currentTarget.style.borderColor = '#1a2236'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
           />
-          <span className="absolute bottom-3 right-3 text-[11px] text-[#374151] tabular-nums">
+          <span className="absolute bottom-3 right-3 text-[11px] tabular-nums" style={{ color: '#2e3b52' }}>
             {currentValue.length}/{MAX_LENGTH}
           </span>
         </div>
 
         {error && (
-          <div className="mt-3 px-4 py-3 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-sm">
+          <div className="mt-3 px-4 py-3 rounded-xl text-[13px]"
+            style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)', color: '#f87171' }}>
             {error}
           </div>
         )}
 
         <div className="flex items-center justify-between mt-6">
-          <button
-            onClick={handleBack}
-            className={`px-4 py-2 text-sm text-[#6b7280] hover:text-white transition-colors duration-200 cursor-pointer ${step === 0 ? 'invisible' : ''}`}
-          >
+          <button onClick={handleBack}
+            className={`px-4 py-2 text-[13px] transition-colors cursor-pointer ${step === 0 ? 'invisible' : ''}`}
+            style={{ color: '#8b98b4' }}>
             ← Back
           </button>
           <button
             onClick={handleNext}
-            disabled={loading || !currentValue.trim()}
-            className="px-6 py-2.5 bg-[#6366f1] text-white rounded-xl hover:bg-[#818cf8] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-semibold cursor-pointer shadow-[0_0_16px_rgba(99,102,241,0.3)] hover:shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+            disabled={!currentValue.trim()}
+            className="px-6 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            style={{ background: '#7c3aed', boxShadow: '0 0 16px rgba(124,58,237,0.3)' }}
           >
-            {loading ? 'Saving...' : isLast ? 'Launch my team' : 'Next →'}
+            {step === STEPS.length - 1 ? 'Review & Launch →' : 'Next →'}
           </button>
         </div>
       </div>
 
-      <p className="text-center text-[#374151] text-xs mt-6">
+      <p className="text-center text-[12px] mt-5" style={{ color: '#2e3b52' }}>
         Your answers help the CEO Agent understand your mission.
       </p>
     </div>
