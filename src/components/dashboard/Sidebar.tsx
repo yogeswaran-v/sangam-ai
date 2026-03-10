@@ -30,6 +30,12 @@ const Icons = {
       <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
     </svg>
   ),
+  Demo: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="13" rx="2" />
+      <polyline points="8 21 12 17 16 21" />
+    </svg>
+  ),
   Approvals: () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M9 11l3 3L22 4" />
@@ -66,12 +72,13 @@ const NAV = [
   { href: '/dashboard/kanban',         label: 'Kanban',          Icon: Icons.Kanban },
   { href: '/dashboard/chat',           label: 'Team Chat',       Icon: Icons.Chat },
   { href: '/dashboard/pixel-world',    label: 'Pixel World',     Icon: Icons.PixelWorld },
+  { href: '/dashboard/demo',           label: 'Product Demo',    Icon: Icons.Demo },
   { href: '/dashboard/approvals',      label: 'Approvals',       Icon: Icons.Approvals },
   { href: '/dashboard/usage',          label: 'Usage & Billing', Icon: Icons.Usage },
   { href: '/dashboard/settings',       label: 'Settings',        Icon: Icons.Settings },
 ]
 
-const SECTION_BREAK = 5 // insert separator before index 5 (Usage)
+const SECTION_BREAK = 6 // insert separator before index 6 (Usage)
 
 export function Sidebar() {
   const pathname = usePathname()
