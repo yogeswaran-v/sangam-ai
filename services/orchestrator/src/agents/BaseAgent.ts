@@ -38,6 +38,21 @@ async function getMonthlySpend(): Promise<number> {
   return (data ?? []).reduce((sum, row) => sum + Number(row.cost_usd), 0)
 }
 
+function deriveEventType(message: string): string {
+  const m = message.toLowerCase()
+  if (m.includes('kanban') || m.includes('backlog') || m.includes('task') || m.includes('sprint')) return 'kanban_update'
+  if (m.includes('code') || m.includes('implement') || m.includes('feature') || m.includes('bug') || m.includes('deploy')) return 'code_review'
+  if (m.includes('content') || m.includes('blog') || m.includes('seo') || m.includes('copy') || m.includes('campaign')) return 'content_creation'
+  if (m.includes('brief') || m.includes('priorit') || m.includes('strateg') || m.includes('vision') || m.includes('okr')) return 'strategy_planning'
+  if (m.includes('revenue') || m.includes('budget') || m.includes('forecast') || m.includes('p&l') || m.includes('finance') || m.includes('invoice')) return 'finance_review'
+  if (m.includes('outreach') || m.includes('crm') || m.includes('prospect') || m.includes('pitch') || m.includes('sales')) return 'sales_outreach'
+  if (m.includes('standup') || m.includes('meeting') || m.includes('discuss') || m.includes('collab') || m.includes('sync')) return 'team_sync'
+  if (m.includes('market') || m.includes('growth') || m.includes('social') || m.includes('brand')) return 'marketing_work'
+  if (m.includes('approval') || m.includes('decision') || m.includes('founder') || m.includes('review')) return 'approval_request'
+  if (m.includes('infra') || m.includes('server') || m.includes('cloud') || m.includes('devops')) return 'infra_work'
+  return 'agent_work'
+}
+
 export abstract class BaseAgent {
   abstract name: string
   abstract systemPrompt: string
@@ -100,8 +115,8 @@ export abstract class BaseAgent {
     await supabase.from('agent_events').insert({
       customer_id: context.customerId,
       agent_name: this.name,
-      event_type: 'message',
-      payload: { user_message: userMessage, response_length: text.length },
+      event_type: deriveEventType(userMessage),
+      payload: { response_length: text.length },
     })
 
     return text

@@ -5,9 +5,9 @@ import { createClient } from '@/lib/supabase/client'
 import type { TokenUsageRow, UsageSummary } from '@/types/usage'
 
 const PLAN_LIMITS = {
-  starter: { tokens: 100_000, label: 'Starter', price: { usd: 49, inr: 3999 } },
-  pro: { tokens: 500_000, label: 'Pro', price: { usd: 149, inr: 11999 } },
-  scale: { tokens: Infinity, label: 'Scale', price: { usd: 399, inr: 32999 } },
+  starter: { tokens: Infinity, costCapUsd: 2.00, label: 'Starter', price: { usd: 49, inr: 3999 } },
+  pro: { tokens: 500_000, costCapUsd: null, label: 'Pro', price: { usd: 149, inr: 11999 } },
+  scale: { tokens: Infinity, costCapUsd: null, label: 'Scale', price: { usd: 399, inr: 32999 } },
 }
 
 function computeSummary(rows: TokenUsageRow[]): UsageSummary {
@@ -122,7 +122,13 @@ export function UsageDashboard() {
 
   const planInfo = PLAN_LIMITS[plan]
   const totalTokens = (summary?.totalInputTokens ?? 0) + (summary?.totalOutputTokens ?? 0)
-  const usagePct = planInfo.tokens === Infinity ? 0 : Math.min(100, (totalTokens / planInfo.tokens) * 100)
+  const totalCostUsd = summary?.totalCostUsd ?? 0
+  const useCostCap = planInfo.costCapUsd !== null
+  const usagePct = useCostCap
+    ? Math.min(100, (totalCostUsd / planInfo.costCapUsd!) * 100)
+    : planInfo.tokens === Infinity
+      ? 0
+      : Math.min(100, (totalTokens / planInfo.tokens) * 100)
   const planPrice = currency === 'inr' ? `₹${planInfo.price.inr.toLocaleString('en-IN')}/mo` : `$${planInfo.price.usd}/mo`
 
   return (
@@ -140,13 +146,22 @@ export function UsageDashboard() {
           </button>
         </div>
 
-        {/* Token usage bar */}
+        {/* Usage bar */}
         <div>
           <div className="flex justify-between text-xs text-[#6b7280] mb-2">
-            <span>Token usage this month</span>
-            <span>
-              {fmt(totalTokens)} / {planInfo.tokens === Infinity ? 'Unlimited' : fmt(planInfo.tokens)}
-            </span>
+            {useCostCap ? (
+              <>
+                <span>Cost this month</span>
+                <span>${totalCostUsd.toFixed(2)} / ${planInfo.costCapUsd!.toFixed(2)} cap</span>
+              </>
+            ) : (
+              <>
+                <span>Token usage this month</span>
+                <span>
+                  {fmt(totalTokens)} / {planInfo.tokens === Infinity ? 'Unlimited' : fmt(planInfo.tokens)}
+                </span>
+              </>
+            )}
           </div>
           <div className="h-2 bg-[#0a0a0f] rounded-full overflow-hidden">
             <div
@@ -154,9 +169,11 @@ export function UsageDashboard() {
               style={{ width: `${usagePct}%` }}
             />
           </div>
-          {planInfo.tokens !== Infinity && (
+          {useCostCap ? (
+            <p className="text-xs text-[#4b5563] mt-2">{usagePct.toFixed(1)}% of $2.00 demo spend cap used</p>
+          ) : planInfo.tokens !== Infinity ? (
             <p className="text-xs text-[#4b5563] mt-2">{usagePct.toFixed(1)}% of monthly limit used</p>
-          )}
+          ) : null}
         </div>
       </div>
 

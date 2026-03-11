@@ -41,6 +41,15 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
   return (
     <div
       className={`bg-[#07070a] border border-[#1e1e2e] rounded-xl p-3.5 transition-all duration-200 hover:border-[#6366f1]/20 group ${moving ? 'opacity-40 pointer-events-none' : ''}`}
+      draggable
+      onDragStart={e => {
+        e.dataTransfer.setData('cardId', card.id)
+        e.dataTransfer.effectAllowed = 'move'
+        ;(e.currentTarget as HTMLDivElement).style.opacity = '0.4'
+      }}
+      onDragEnd={e => {
+        ;(e.currentTarget as HTMLDivElement).style.opacity = '1'
+      }}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <span className="text-sm text-white font-medium leading-snug">{card.title}</span>

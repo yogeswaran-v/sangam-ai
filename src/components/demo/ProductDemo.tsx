@@ -185,10 +185,13 @@ export function ProductDemo() {
                 <div className="text-center">
                   <h3 className="font-bold text-[16px] mb-2"
                     style={{ fontFamily: 'var(--font-bricolage)', color: '#eef2f8' }}>
-                    No product URL yet
+                    Preview your product here
                   </h3>
-                  <p className="text-[13px] max-w-xs leading-relaxed" style={{ color: '#4a566e' }}>
-                    Once your Engineering Agent deploys a preview, paste the URL above to see your product live.
+                  <p className="text-[13px] max-w-xs leading-relaxed mb-1" style={{ color: '#8b98b4' }}>
+                    Paste any URL in the bar above — your live site, staging environment, or Vercel preview.
+                  </p>
+                  <p className="text-[12px] max-w-xs leading-relaxed" style={{ color: '#4a566e' }}>
+                    Check the Agent Notes panel for the latest build updates from your Engineering team.
                   </p>
                 </div>
                 <Link href="/dashboard/chat"
@@ -208,9 +211,9 @@ export function ProductDemo() {
             style={{ borderBottom: '1px solid #1a2236' }}>
             <h3 className="text-[11px] font-bold uppercase tracking-[0.12em]"
               style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
-              Build Updates
+              Agent Notes
             </h3>
-            <p className="text-[11px] mt-0.5" style={{ color: '#2e3b52' }}>Engineering &amp; Product agents</p>
+            <p className="text-[11px] mt-0.5" style={{ color: '#2e3b52' }}>Latest from Engineering &amp; Product</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">

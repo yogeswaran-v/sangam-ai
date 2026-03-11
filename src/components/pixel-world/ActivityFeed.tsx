@@ -25,8 +25,23 @@ const AGENT_COLORS: Record<string, string> = {
   finance: '#14b8a6',
 }
 
-function formatEventType(raw: string): string {
-  return raw.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ')
+const EVENT_DESCRIPTIONS: Record<string, { label: string; icon: string }> = {
+  kanban_update:    { label: 'Updating kanban board',     icon: '⬡' },
+  code_review:      { label: 'Writing / reviewing code',  icon: '⌥' },
+  content_creation: { label: 'Creating content',          icon: '✦' },
+  strategy_planning:{ label: 'Planning strategy',         icon: '◈' },
+  finance_review:   { label: 'Reviewing financials',      icon: '◆' },
+  sales_outreach:   { label: 'Running sales outreach',    icon: '◉' },
+  team_sync:        { label: 'Team sync / meeting',       icon: '◎' },
+  marketing_work:   { label: 'Running marketing ops',     icon: '◐' },
+  approval_request: { label: 'Requesting approval',       icon: '◇' },
+  infra_work:       { label: 'Infrastructure work',       icon: '⬢' },
+  agent_work:       { label: 'Working on mission',        icon: '◌' },
+  message:          { label: 'Agent message sent',        icon: '◌' },
+}
+
+function getEventMeta(eventType: string): { label: string; icon: string } {
+  return EVENT_DESCRIPTIONS[eventType] ?? { label: eventType.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' '), icon: '◌' }
 }
 
 function timeAgo(dateStr: string): string {
@@ -114,7 +129,7 @@ export function ActivityFeed({ events, agents }: Props) {
               </div>
               {/* Event type */}
               <p className="text-[12px] leading-snug" style={{ color: '#8b98b4' }}>
-                {formatEventType(event.event_type)}
+                {getEventMeta(event.event_type).label}
               </p>
             </div>
           )

@@ -46,7 +46,23 @@ export function KanbanColumn({ column, cards, onMoveCard }: Props) {
           </span>
         </div>
       </div>
-      <div className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-16rem)]">
+      <div
+        className="flex-1 p-3 flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-16rem)]"
+        onDragOver={e => {
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'move'
+          ;(e.currentTarget as HTMLDivElement).style.background = 'rgba(124,58,237,0.06)'
+        }}
+        onDragLeave={e => {
+          ;(e.currentTarget as HTMLDivElement).style.background = ''
+        }}
+        onDrop={e => {
+          e.preventDefault()
+          ;(e.currentTarget as HTMLDivElement).style.background = ''
+          const cardId = e.dataTransfer.getData('cardId')
+          if (cardId) onMoveCard(cardId, column)
+        }}
+      >
         {cards.length === 0 && (
           <div className="text-center text-[#374151] text-xs py-8 border border-dashed border-[#1e1e2e] rounded-lg">
             Empty
