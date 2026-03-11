@@ -9,8 +9,7 @@ interface CustomerSettings {
   email: string
   telegram_bot_token: string | null
   telegram_chat_id: string | null
-  whatsapp_number: string | null
-  notification_channel: 'telegram' | 'whatsapp' | 'email'
+  notification_channel: 'telegram' | 'email'
   currency: 'usd' | 'inr'
 }
 
@@ -125,13 +124,6 @@ const TelegramIcon = () => (
   </svg>
 )
 
-// WhatsApp icon SVG
-const WhatsAppIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-  </svg>
-)
-
 export function SettingsForm() {
   const [customer, setCustomer] = useState<CustomerSettings | null>(null)
   const [mission, setMission] = useState<MissionSettings>({ vision: '', product_requirements: '', monetary_goals: '', timeline: '' })
@@ -139,19 +131,18 @@ export function SettingsForm() {
   const [saving, setSaving] = useState(false)
   const [savingMission, setSavingMission] = useState(false)
   const [testingTelegram, setTestingTelegram] = useState(false)
-  const [testingWhatsApp, setTestingWhatsApp] = useState(false)
   const [telegramStatus, setTelegramStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [whatsappStatus, setWhatsappStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [telegramError, setTelegramError] = useState<string | null>(null)
-  const [whatsappError, setWhatsappError] = useState<string | null>(null)
   const [saveMsg, setSaveMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [resetting, setResetting] = useState(false)
+  const [resetConfirm, setResetConfirm] = useState(false)
   const supabase = createClient()
 
   const fetchData = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { data: c } = await supabase.from('customers')
-      .select('id, name, email, telegram_bot_token, telegram_chat_id, whatsapp_number, notification_channel, currency')
+      .select('id, name, email, telegram_bot_token, telegram_chat_id, notification_channel, currency')
       .eq('user_id', user.id).single()
     if (c) {
       setCustomer(c as CustomerSettings)
@@ -171,7 +162,7 @@ export function SettingsForm() {
     const { error } = await supabase.from('customers').update({
       name: customer.name, telegram_bot_token: customer.telegram_bot_token,
       telegram_chat_id: customer.telegram_chat_id,
-      whatsapp_number: customer.whatsapp_number, notification_channel: customer.notification_channel,
+      notification_channel: customer.notification_channel,
       currency: customer.currency, updated_at: new Date().toISOString(),
     }).eq('id', customer.id)
     setSaveMsg(error ? { type: 'error', text: error.message } : { type: 'success', text: 'Settings saved.' })
@@ -201,23 +192,28 @@ export function SettingsForm() {
       }),
     })
     const data = await res.json()
-    setTelegramStatus(res.ok ? 'success' : 'error')
-    if (!res.ok) setTelegramError(data.error ?? 'Test failed')
+    if (res.ok) {
+      setTelegramStatus('success')
+      saveProfile()
+    } else {
+      setTelegramStatus('error')
+      setTelegramError(data.error ?? 'Test failed')
+    }
     setTestingTelegram(false)
   }
 
-  async function testWhatsApp() {
-    if (!customer?.whatsapp_number) return
-    setTestingWhatsApp(true); setWhatsappStatus('idle'); setWhatsappError(null)
-    const res = await fetch('/api/notifications/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel: 'whatsapp', phone: customer.whatsapp_number }),
-    })
-    const data = await res.json()
-    setWhatsappStatus(res.ok ? 'success' : 'error')
-    if (!res.ok) setWhatsappError(data.error ?? 'Test failed')
-    setTestingWhatsApp(false)
+  async function resetAll() {
+    if (!resetConfirm) {
+      setResetConfirm(true)
+      return
+    }
+    setResetting(true)
+    const res = await fetch('/api/settings/reset', { method: 'POST' })
+    if (res.ok) {
+      setSaveMsg({ type: 'success', text: 'All data cleared. Refresh the page to start fresh.' })
+    }
+    setResetConfirm(false)
+    setResetting(false)
   }
 
   if (loading) return <div style={{ textAlign: 'center', padding: '64px 0', fontSize: 13, color: '#4a566e' }}>Loading\u2026</div>
@@ -257,7 +253,7 @@ export function SettingsForm() {
               style={{ ...input.base, cursor: 'pointer' }}
             >
               <option value="usd">USD ($)</option>
-              <option value="inr">INR (\u20b9)</option>
+              <option value="inr">INR ({'\u20b9'})</option>
             </select>
           </div>
           <SaveButton onClick={saveProfile} loading={saving} />
@@ -267,24 +263,6 @@ export function SettingsForm() {
       {/* Notifications */}
       <SectionCard title="Notifications" subtitle="Only your CEO Agent sends notifications \u2014 daily briefings, approvals, and critical updates.">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* Channel selector */}
-          <div>
-            <Label>Active channel</Label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {(['telegram', 'whatsapp'] as const).map(ch => (
-                <button key={ch} onClick={() => setCustomer(p => p ? { ...p, notification_channel: ch } : p)}
-                  style={{
-                    flex: 1, padding: '9px 0', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-                    background: customer.notification_channel === ch ? 'rgba(124,58,237,0.12)' : 'transparent',
-                    border: `1px solid ${customer.notification_channel === ch ? 'rgba(167,139,250,0.3)' : '#1a2236'}`,
-                    color: customer.notification_channel === ch ? '#eef2f8' : '#4a566e',
-                  }}>
-                  {ch.charAt(0).toUpperCase() + ch.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Telegram card */}
           <div style={{
@@ -310,8 +288,9 @@ export function SettingsForm() {
                 { n: '1', text: <>Open Telegram and search for <strong style={{ color: '#29b6f6' }}>@BotFather</strong></> },
                 { n: '2', text: <>Send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/newbot</code> and follow the prompts to create your bot. Choose any name and username.</> },
                 { n: '3', text: <>BotFather gives you a <strong style={{ color: '#eef2f8' }}>Bot Token</strong> (looks like <code style={{ fontSize: 11, color: '#8b98b4' }}>123456:ABC-DEF...</code>). Copy and paste it below.</> },
-                { n: '4', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
-                { n: '5', text: <>Paste both below and click <strong style={{ color: '#eef2f8' }}>Test</strong>. Your CEO Agent will message you.</> },
+                { n: '4', text: <>Search for your new bot by username in Telegram and tap <strong style={{ color: '#29b6f6' }}>Start</strong>. This activates the bot so it can message you.</> },
+                { n: '5', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
+                { n: '6', text: <>Paste both below and click <strong style={{ color: '#eef2f8' }}>Test</strong>. Your CEO Agent will message you.</> },
               ].map(s => (
                 <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#29b6f6', flexShrink: 0 }}>{s.n}</span>
@@ -361,50 +340,6 @@ export function SettingsForm() {
             {telegramStatus === 'error' && <p style={{ fontSize: 12, color: '#f43f5e', margin: 0 }}>✗ {telegramError}</p>}
           </div>
 
-          {/* WhatsApp card */}
-          <div style={{
-            background: '#101620', border: `1px solid ${customer.notification_channel === 'whatsapp' ? 'rgba(37,211,102,0.2)' : '#1a2236'}`,
-            borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', gap: 14,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#25d366' }}>
-                  <WhatsAppIcon />
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>WhatsApp</div>
-                  <div style={{ fontSize: 11, color: '#4a566e' }}>Via Twilio sandbox</div>
-                </div>
-              </div>
-              <StatusBadge connected={!!customer.whatsapp_number} />
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
-                { step: '1', text: 'Send "join <sandbox-code>" to +1 415 523 8886 on WhatsApp' },
-                { step: '2', text: "You'll receive a confirmation from Twilio" },
-                { step: '3', text: 'Add your number below (with country code) and test' },
-              ].map(s => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(37,211,102,0.12)', border: '1px solid rgba(37,211,102,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#25d366', flexShrink: 0 }}>{s.step}</span>
-                  <span style={{ fontSize: 12, color: '#8b98b4', lineHeight: 1.5 }}>{s.text}</span>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ flex: 1 }}>
-                <Input value={customer.whatsapp_number ?? ''} onChange={v => setCustomer(p => p ? { ...p, whatsapp_number: v } : p)} placeholder="+91 9999999999" type="tel" />
-              </div>
-              <button onClick={testWhatsApp} disabled={testingWhatsApp || !customer.whatsapp_number}
-                style={{ padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: customer.whatsapp_number ? 'pointer' : 'not-allowed', transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0, opacity: customer.whatsapp_number ? 1 : 0.4, background: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.2)', color: '#25d366' }}>
-                {testingWhatsApp ? 'Sending\u2026' : 'Test'}
-              </button>
-            </div>
-            {whatsappStatus === 'success' && <p style={{ fontSize: 12, color: '#22c55e', margin: 0 }}>\u2713 Test message sent successfully</p>}
-            {whatsappStatus === 'error' && <p style={{ fontSize: 12, color: '#f43f5e', margin: 0 }}>\u2717 {whatsappError}</p>}
-          </div>
-
           <SaveButton onClick={saveProfile} loading={saving} label="Save notification settings" />
         </div>
       </SectionCard>
@@ -424,6 +359,34 @@ export function SettingsForm() {
             </div>
           ))}
           <SaveButton onClick={saveMission} loading={savingMission} label="Update mission" />
+        </div>
+      </SectionCard>
+
+      {/* Danger Zone */}
+      <SectionCard title="Danger Zone" subtitle="Permanently delete all agent activity and start from scratch. Your login and settings are preserved.">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 12, color: '#8b98b4', lineHeight: 1.6 }}>
+            This will delete: all chat messages, kanban cards, agent events, approvals, part-time deployments, and reset your mission briefing. Use this to start a fresh session with new goals.
+          </p>
+          <button
+            onClick={resetAll}
+            disabled={resetting}
+            style={{
+              padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+              cursor: resetting ? 'not-allowed' : 'pointer', opacity: resetting ? 0.6 : 1,
+              background: resetConfirm ? 'rgba(244,63,94,0.15)' : 'transparent',
+              border: `1px solid ${resetConfirm ? 'rgba(244,63,94,0.5)' : '#253044'}`,
+              color: resetConfirm ? '#f43f5e' : '#4a566e',
+              transition: 'all 0.2s', alignSelf: 'flex-start',
+            }}
+          >
+            {resetting ? 'Resetting\u2026' : resetConfirm ? 'Confirm \u2014 delete everything' : 'Reset All & Start Fresh'}
+          </button>
+          {resetConfirm && !resetting && (
+            <p style={{ fontSize: 11, color: '#f43f5e' }}>
+              Click again to confirm. This cannot be undone.
+            </p>
+          )}
         </div>
       </SectionCard>
 

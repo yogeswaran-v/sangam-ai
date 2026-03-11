@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/dashboard/TopBar'
 import { LiveStats } from '@/components/dashboard/LiveStats'
+import { MissionKPIs } from '@/components/dashboard/MissionKPIs'
 import Link from 'next/link'
 
 const RocketIcon = () => (
@@ -81,6 +82,8 @@ export default async function DashboardPage() {
 
           {/* Stats grid */}
           <LiveStats />
+
+          <MissionKPIs />
 
           {/* Mission brief */}
           {mission ? (

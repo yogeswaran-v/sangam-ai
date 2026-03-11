@@ -13,6 +13,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [loadingChannels, setLoadingChannels] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [customer, setCustomer] = useState<{ id: string } | null>(null)
   const supabase = createClient()
 
   const fetchChannels = useCallback(async () => {
@@ -26,6 +27,8 @@ export function ChatInterface() {
       .single()
 
     if (!customer) { setLoadingChannels(false); return }
+
+    setCustomer(customer)
 
     const { data } = await supabase
       .from('chat_channels')
@@ -72,7 +75,12 @@ export function ChatInterface() {
         table: 'chat_messages',
         filter: `channel_id=eq.${activeChannelId}`,
       }, payload => {
-        setMessages(prev => [...prev, payload.new as ChatMessage])
+        const incoming = payload.new as ChatMessage
+        setMessages(prev => {
+          // Replace matching temp message or just append
+          const withoutTemp = prev.filter(m => !(m.id.startsWith('temp-') && m.content === incoming.content && m.sender_type === incoming.sender_type))
+          return [...withoutTemp, incoming]
+        })
       })
       .subscribe()
 
@@ -81,12 +89,39 @@ export function ChatInterface() {
 
   async function handleSend(content: string) {
     if (!activeChannelId) return
+    // Optimistic: show message immediately
+    const tempId = `temp-${Date.now()}`
+    const optimistic: ChatMessage = {
+      id: tempId,
+      channel_id: activeChannelId,
+      sender_name: 'You (CEO)',
+      sender_type: 'ceo',
+      content,
+      created_at: new Date().toISOString(),
+    }
+    setMessages(prev => [...prev, optimistic])
+    // Insert to DB
     await supabase.from('chat_messages').insert({
       channel_id: activeChannelId,
       sender_name: 'You (CEO)',
       sender_type: 'ceo',
       content,
     })
+    // Trigger agent response
+    if (customer?.id) {
+      fetch('/api/chat/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channelId: activeChannelId, customerId: customer.id, userMessage: content }),
+      }).catch(() => null) // fire and forget
+    }
+  }
+
+  async function clearChannel() {
+    if (!activeChannelId) return
+    if (!window.confirm('Clear all messages in this channel?')) return
+    await supabase.from('chat_messages').delete().eq('channel_id', activeChannelId)
+    setMessages([])
   }
 
   const activeChannel = channels.find(c => c.id === activeChannelId)
@@ -107,6 +142,10 @@ export function ChatInterface() {
           <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center gap-3">
             <h3 className="text-sm font-semibold text-white">{activeChannel.name}</h3>
             <span className="text-xs text-[#4b5563]">#{activeChannel.department}</span>
+            <button onClick={clearChannel}
+              style={{ marginLeft: 'auto', fontSize: 11, color: '#4a566e', background: 'transparent', border: '1px solid #1a2236', borderRadius: 8, padding: '4px 10px', cursor: 'pointer' }}>
+              Clear
+            </button>
           </div>
         )}
         <MessageFeed messages={messages} loading={loadingMessages} />

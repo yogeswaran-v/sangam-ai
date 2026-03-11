@@ -211,12 +211,19 @@ function HumanAvatar({ agentId, color, status }: { agentId: string; color: strin
 
       {/* Left arm */}
       <rect x="2" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
-      {/* Right arm */}
-      <rect x="34" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
-
-      {/* Hands */}
+      {/* Right arm — waves when idle */}
+      <g style={!isWorking ? {
+        transformOrigin: '38px 28px',
+        animationName: 'agent-wave',
+        animationDuration: '3s',
+        animationIterationCount: 'infinite',
+        animationDelay: `${(agentId.charCodeAt(1) ?? 0) % 2}s`,
+      } : {}}>
+        <rect x="34" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
+        <circle cx="38" cy="39" r="4" fill={c.skinColor} />
+      </g>
+      {/* Left hand */}
       <circle cx="6" cy="39" r="4" fill={c.skinColor} />
-      <circle cx="38" cy="39" r="4" fill={c.skinColor} />
 
       {/* Neck */}
       <rect x="18" y="19" width="8" height="7" rx="2" fill={c.skinColor} />
@@ -234,21 +241,19 @@ function HumanAvatar({ agentId, color, status }: { agentId: string; color: strin
       <path d="M15.5 9.5 Q17.5 8.2 19.5 9.5" stroke={c.hairColor} strokeWidth="1.3" fill="none" strokeLinecap="round" />
       <path d="M24.5 9.5 Q26.5 8.2 28.5 9.5" stroke={c.hairColor} strokeWidth="1.3" fill="none" strokeLinecap="round" />
 
-      {/* Eyes — whites */}
-      <ellipse cx="17.5" cy="13.5" rx="2.8" ry="2.5" fill="white" />
-      <ellipse cx="26.5" cy="13.5" rx="2.8" ry="2.5" fill="white" />
-
-      {/* Irises */}
-      <circle cx="18" cy="13.8" r="1.7" fill={c.eyeColor} />
-      <circle cx="27" cy="13.8" r="1.7" fill={c.eyeColor} />
-
-      {/* Pupils */}
-      <circle cx="18.4" cy="14.1" r="0.85" fill="#0a0a0f" />
-      <circle cx="27.4" cy="14.1" r="0.85" fill="#0a0a0f" />
-
-      {/* Eye glints */}
-      <circle cx="17.7" cy="13.0" r="0.45" fill="white" opacity="0.9" />
-      <circle cx="26.7" cy="13.0" r="0.45" fill="white" opacity="0.9" />
+      {/* Eyes — with blink animation */}
+      <g style={{ transformOrigin: '17.5px 13.5px', animationName: 'eye-blink', animationDuration: `${3.5 + (agentId.charCodeAt(0) % 3)}s`, animationIterationCount: 'infinite', animationTimingFunction: 'ease-in-out' }}>
+        <ellipse cx="17.5" cy="13.5" rx="2.8" ry="2.5" fill="white" />
+        <circle cx="18" cy="13.8" r="1.7" fill={c.eyeColor} />
+        <circle cx="18.4" cy="14.1" r="0.85" fill="#0a0a0f" />
+        <circle cx="17.7" cy="13.0" r="0.45" fill="white" opacity="0.9" />
+      </g>
+      <g style={{ transformOrigin: '26.5px 13.5px', animationName: 'eye-blink', animationDuration: `${3.5 + (agentId.charCodeAt(0) % 3)}s`, animationIterationCount: 'infinite', animationTimingFunction: 'ease-in-out' }}>
+        <ellipse cx="26.5" cy="13.5" rx="2.8" ry="2.5" fill="white" />
+        <circle cx="27" cy="13.8" r="1.7" fill={c.eyeColor} />
+        <circle cx="27.4" cy="14.1" r="0.85" fill="#0a0a0f" />
+        <circle cx="26.7" cy="13.0" r="0.45" fill="white" opacity="0.9" />
+      </g>
 
       {/* Nose */}
       <path d="M21 16 Q22 17.5 23 16" stroke={c.skinColor} strokeWidth="1" fill="none" style={{ filter: 'brightness(0.8)' }} strokeLinecap="round" />
@@ -301,8 +306,24 @@ export function AgentSprite({ agent }: Props) {
         transform: 'translate(-50%, -100%)',
         transition: 'left 1.8s cubic-bezier(0.4,0,0.2,1), top 1.8s cubic-bezier(0.4,0,0.2,1)',
         zIndex: isWorking ? 10 : 5,
+        filter: isWorking ? 'none' : 'grayscale(40%)',
       }}
     >
+      {/* Working pulse ring */}
+      {isWorking && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{
+            bottom: 8,
+            width: 28, height: 10, borderRadius: '50%',
+            background: agent.color,
+            opacity: 0.3,
+            animation: 'agent-breathe 1.5s ease-in-out infinite',
+            filter: `blur(4px)`,
+          }}
+        />
+      )}
+
       {/* Task bubble */}
       {isWorking && taskMeta && (
         <div
