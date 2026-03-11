@@ -31,14 +31,30 @@ interface Props {
 export function MessageFeed({ messages, loading }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const isInitialRef = useRef(true)
 
   useEffect(() => {
+    if (loading) {
+      isInitialRef.current = true
+    }
+  }, [loading])
+
+  useEffect(() => {
+    if (messages.length === 0) return
     const container = containerRef.current
     if (!container) {
-      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+      bottomRef.current?.scrollIntoView({ behavior: 'instant' })
+      isInitialRef.current = false
       return
     }
-    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150
+    if (isInitialRef.current) {
+      // First load — always scroll to bottom instantly
+      container.scrollTop = container.scrollHeight
+      isInitialRef.current = false
+      return
+    }
+    // Subsequent messages — only auto-scroll if already near bottom
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 200
     if (isNearBottom) {
       bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
     }

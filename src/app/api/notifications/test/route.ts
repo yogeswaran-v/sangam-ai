@@ -7,15 +7,15 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { channel, chat_id, phone } = await req.json()
+  const { channel, chat_id, phone, bot_token } = await req.json()
 
   const TEST_MESSAGE = `\u2705 *Sangam.ai connected*\n\nYour CEO Agent will send updates and approval requests here.\n\n_This is a test message._`
 
   try {
     if (channel === 'telegram') {
-      const token = process.env.TELEGRAM_BOT_TOKEN
-      if (!token) return NextResponse.json({ error: 'Telegram bot not configured on server' }, { status: 500 })
-      await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+      const telegramToken = bot_token || process.env.TELEGRAM_BOT_TOKEN
+      if (!telegramToken) return NextResponse.json({ error: 'Bot token not configured. Add your bot token in Settings.' }, { status: 400 })
+      await axios.post(`https://api.telegram.org/bot${telegramToken}/sendMessage`, {
         chat_id,
         text: TEST_MESSAGE,
         parse_mode: 'Markdown',

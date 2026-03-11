@@ -65,7 +65,9 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {card.assigned_agent && (
-            <span className="text-[10px] text-[#374151] font-medium">{card.assigned_agent}</span>
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.1)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.2)' }}>
+              {card.assigned_agent.replace(' Agent', '')}
+            </span>
           )}
           <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${priority.text} ${priority.bg} ${priority.border}`}>
             {card.priority}

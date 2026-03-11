@@ -48,7 +48,7 @@ Keep it under 300 words. Format for Telegram (use *bold* and bullet points).`
     await notifyCustomer(context.customerId, `*Daily Briefing from CEO Agent*\n\n${briefing}`)
 
     // Ask Claude if any decisions need founder approval today
-    await this.generateApprovalRequests(context)
+    await this.generateApprovalRequests(context, briefing)
 
     // Deploy specialist agents for today's priorities
     await this.deploySpecialists(context)
@@ -134,18 +134,21 @@ Output ONLY valid JSON. No markdown.`
       .lt('deployed_at', twoHoursAgo)
   }
 
-  private async generateApprovalRequests(context: AgentContext): Promise<void> {
+  private async generateApprovalRequests(context: AgentContext, briefingContent: string): Promise<void> {
     const raw = await this.chat(
       context,
-      `Based on the current mission, what specific decisions require the founder's approval right now?
+      `You just sent this daily briefing to the founder:
 
-Think about: major product pivots, significant budget commitments, hiring decisions, key partnerships, launch go/no-go decisions, architectural choices with major tradeoffs.
+"${briefingContent}"
 
-Return a JSON array (max 2 items). Each item: {"title": "short decision title", "description": "1-2 sentence explanation of what the founder needs to decide and why it matters"}.
+Based on this briefing and the current mission, identify 1-2 specific decisions that require the founder's approval or input TODAY. Think about: product direction choices, significant resource commitments, go/no-go decisions, priority trade-offs, or anything where you need the founder's explicit sign-off before the team proceeds.
 
-If nothing critical needs approval today, return an empty array: []
+Be specific — name the actual decision and why it needs founder input.
 
-Output ONLY valid JSON. No markdown, no explanation.`
+Return JSON array: [{"title": "short decision title", "description": "1-2 sentence explanation of what the founder needs to decide"}]
+If genuinely nothing needs approval, return: []
+
+Output ONLY valid JSON.`
     )
 
     let items: Array<{ title: string; description: string }> = []

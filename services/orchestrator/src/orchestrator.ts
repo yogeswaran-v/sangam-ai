@@ -8,6 +8,10 @@ import { SalesAgent } from './agents/SalesAgent'
 import { FinanceAgent } from './agents/FinanceAgent'
 import type { AgentContext } from './agents/BaseAgent'
 
+// Throttle: minimum 30 minutes between full agent cycles per customer
+const lastCycleAt: Record<string, number> = {}
+const MIN_CYCLE_GAP_MS = 30 * 60 * 1000 // 30 min
+
 const ceoAgent = new CeoAgent()
 const productAgent = new ProductAgent()
 const engineeringAgent = new EngineeringAgent()
@@ -82,6 +86,15 @@ export async function runOrchestrationCycle(): Promise<void> {
   console.log(`Found ${customers.length} active customer(s)`)
 
   for (const ctx of customers) {
+    const now = Date.now()
+    const lastRun = lastCycleAt[ctx.customerId] ?? 0
+    if (now - lastRun < MIN_CYCLE_GAP_MS) {
+      const waitMin = Math.round((MIN_CYCLE_GAP_MS - (now - lastRun)) / 60000)
+      console.log(`[THROTTLE] Skipping ${ctx.customerId} — next run in ${waitMin}m`)
+      continue
+    }
+    lastCycleAt[ctx.customerId] = now
+
     try {
       await ensureChatChannels(ctx.customerId)
 

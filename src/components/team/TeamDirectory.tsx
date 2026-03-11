@@ -119,13 +119,65 @@ function PartTimeCard({ agent }: { agent: PartTimeAgent }) {
 
 export function TeamDirectory() {
   const [deptFilter, setDeptFilter] = useState('All')
+  const [search, setSearch] = useState('')
 
-  const filtered = deptFilter === 'All'
-    ? PART_TIME_AGENTS
-    : PART_TIME_AGENTS.filter(a => a.department === deptFilter)
+  const filteredFullTime = search
+    ? FULL_TIME_AGENTS.filter(a =>
+        a.name.toLowerCase().includes(search.toLowerCase()) ||
+        a.role.toLowerCase().includes(search.toLowerCase()) ||
+        a.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
+      )
+    : FULL_TIME_AGENTS
+
+  const filteredPartTime = (deptFilter === 'All' ? PART_TIME_AGENTS : PART_TIME_AGENTS.filter(a => a.department === deptFilter))
+    .filter(a => !search ||
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.role.toLowerCase().includes(search.toLowerCase()) ||
+      a.skills.some(s => s.toLowerCase().includes(search.toLowerCase()))
+    )
 
   return (
     <div className="flex flex-col gap-10">
+      {/* Header stats + search */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
+        <div className="flex items-center gap-5">
+          {[
+            { value: '26', label: 'Total Agents' },
+            { value: '6', label: 'Full-time' },
+            { value: '20', label: 'Specialists' },
+            { value: '7', label: 'Departments' },
+          ].map(s => (
+            <div key={s.label} className="text-center">
+              <div className="text-[22px] font-extrabold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)', lineHeight: 1 }}>{s.value}</div>
+              <div className="text-[10px] uppercase tracking-widest font-semibold mt-0.5" style={{ color: '#4a566e' }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+        {/* Search */}
+        <div style={{ position: 'relative' }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4a566e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search agents, roles, skills\u2026"
+            style={{
+              background: '#0b1018',
+              border: '1px solid #1a2236',
+              borderRadius: 12,
+              color: '#eef2f8',
+              fontSize: 13,
+              padding: '9px 14px 9px 34px',
+              outline: 'none',
+              width: 260,
+            }}
+            onFocus={e => { (e.target as HTMLInputElement).style.borderColor = 'rgba(124,58,237,0.5)' }}
+            onBlur={e => { (e.target as HTMLInputElement).style.borderColor = '#1a2236' }}
+          />
+        </div>
+      </div>
+
       {/* Full-time section */}
       <section>
         <div className="flex items-center gap-3 mb-5">
@@ -144,7 +196,7 @@ export function TeamDirectory() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FULL_TIME_AGENTS.map(a => <FullTimeCard key={a.id} agent={a} />)}
+          {filteredFullTime.map(a => <FullTimeCard key={a.id} agent={a} />)}
         </div>
       </section>
 
@@ -188,7 +240,7 @@ export function TeamDirectory() {
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-          {filtered.map(a => <PartTimeCard key={a.id} agent={a} />)}
+          {filteredPartTime.map(a => <PartTimeCard key={a.id} agent={a} />)}
         </div>
       </section>
     </div>

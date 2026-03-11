@@ -7,6 +7,7 @@ interface CustomerSettings {
   id: string
   name: string | null
   email: string
+  telegram_bot_token: string | null
   telegram_chat_id: string | null
   whatsapp_number: string | null
   notification_channel: 'telegram' | 'whatsapp' | 'email'
@@ -150,7 +151,7 @@ export function SettingsForm() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { data: c } = await supabase.from('customers')
-      .select('id, name, email, telegram_chat_id, whatsapp_number, notification_channel, currency')
+      .select('id, name, email, telegram_bot_token, telegram_chat_id, whatsapp_number, notification_channel, currency')
       .eq('user_id', user.id).single()
     if (c) {
       setCustomer(c as CustomerSettings)
@@ -168,7 +169,8 @@ export function SettingsForm() {
     if (!customer) return
     setSaving(true); setSaveMsg(null)
     const { error } = await supabase.from('customers').update({
-      name: customer.name, telegram_chat_id: customer.telegram_chat_id,
+      name: customer.name, telegram_bot_token: customer.telegram_bot_token,
+      telegram_chat_id: customer.telegram_chat_id,
       whatsapp_number: customer.whatsapp_number, notification_channel: customer.notification_channel,
       currency: customer.currency, updated_at: new Date().toISOString(),
     }).eq('id', customer.id)
@@ -187,12 +189,16 @@ export function SettingsForm() {
   }
 
   async function testTelegram() {
-    if (!customer?.telegram_chat_id) return
+    if (!customer?.telegram_chat_id || !customer?.telegram_bot_token) return
     setTestingTelegram(true); setTelegramStatus('idle'); setTelegramError(null)
     const res = await fetch('/api/notifications/test', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ channel: 'telegram', chat_id: customer.telegram_chat_id }),
+      body: JSON.stringify({
+        channel: 'telegram',
+        chat_id: customer.telegram_chat_id,
+        bot_token: customer.telegram_bot_token,
+      }),
     })
     const data = await res.json()
     setTelegramStatus(res.ok ? 'success' : 'error')
@@ -295,33 +301,64 @@ export function SettingsForm() {
                   <div style={{ fontSize: 11, color: '#4a566e' }}>Bot notifications</div>
                 </div>
               </div>
-              <StatusBadge connected={!!customer.telegram_chat_id} />
+              <StatusBadge connected={!!(customer.telegram_chat_id && customer.telegram_bot_token)} />
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {/* Steps */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
-                { step: '1', text: 'Open Telegram and search for your bot' },
-                { step: '2', text: 'Send /start \u2014 the bot replies with your Chat ID' },
-                { step: '3', text: 'Paste your Chat ID below and test' },
+                { n: '1', text: <>Open Telegram and search for <strong style={{ color: '#29b6f6' }}>@BotFather</strong></> },
+                { n: '2', text: <>Send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/newbot</code> and follow the prompts to create your bot. Choose any name and username.</> },
+                { n: '3', text: <>BotFather gives you a <strong style={{ color: '#eef2f8' }}>Bot Token</strong> (looks like <code style={{ fontSize: 11, color: '#8b98b4' }}>123456:ABC-DEF...</code>). Copy and paste it below.</> },
+                { n: '4', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
+                { n: '5', text: <>Paste both below and click <strong style={{ color: '#eef2f8' }}>Test</strong>. Your CEO Agent will message you.</> },
               ].map(s => (
-                <div key={s.step} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#29b6f6', flexShrink: 0 }}>{s.step}</span>
-                  <span style={{ fontSize: 12, color: '#8b98b4', lineHeight: 1.5 }}>{s.text}</span>
+                <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#29b6f6', flexShrink: 0 }}>{s.n}</span>
+                  <span style={{ fontSize: 12, color: '#8b98b4', lineHeight: 1.6 }}>{s.text}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div style={{ flex: 1 }}>
-                <Input value={customer.telegram_chat_id ?? ''} onChange={v => setCustomer(p => p ? { ...p, telegram_chat_id: v } : p)} placeholder="e.g. 123456789" />
-              </div>
-              <button onClick={testTelegram} disabled={testingTelegram || !customer.telegram_chat_id}
-                style={{ padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: customer.telegram_chat_id ? 'pointer' : 'not-allowed', transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0, opacity: customer.telegram_chat_id ? 1 : 0.4, background: 'rgba(41,182,246,0.1)', border: '1px solid rgba(41,182,246,0.25)', color: '#29b6f6' }}>
-                {testingTelegram ? 'Sending\u2026' : 'Test'}
-              </button>
+            {/* Bot token input */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#4a566e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Bot Token</div>
+              <Input
+                value={customer.telegram_bot_token ?? ''}
+                onChange={v => setCustomer(p => p ? { ...p, telegram_bot_token: v } : p)}
+                placeholder="123456789:AABBcc-your-bot-token-here"
+              />
             </div>
-            {telegramStatus === 'success' && <p style={{ fontSize: 12, color: '#22c55e', margin: 0 }}>\u2713 Test message sent successfully</p>}
-            {telegramStatus === 'error' && <p style={{ fontSize: 12, color: '#f43f5e', margin: 0 }}>\u2717 {telegramError}</p>}
+
+            {/* Chat ID input + test */}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#4a566e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Your Chat ID</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <Input
+                    value={customer.telegram_chat_id ?? ''}
+                    onChange={v => setCustomer(p => p ? { ...p, telegram_chat_id: v } : p)}
+                    placeholder="e.g. 123456789"
+                  />
+                </div>
+                <button
+                  onClick={testTelegram}
+                  disabled={testingTelegram || !customer.telegram_chat_id || !customer.telegram_bot_token}
+                  style={{
+                    padding: '10px 16px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                    cursor: (customer.telegram_chat_id && customer.telegram_bot_token) ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s', whiteSpace: 'nowrap', flexShrink: 0,
+                    opacity: (customer.telegram_chat_id && customer.telegram_bot_token) ? 1 : 0.4,
+                    background: 'rgba(41,182,246,0.1)', border: '1px solid rgba(41,182,246,0.25)', color: '#29b6f6',
+                  }}
+                >
+                  {testingTelegram ? 'Sending\u2026' : 'Test'}
+                </button>
+              </div>
+            </div>
+
+            {telegramStatus === 'success' && <p style={{ fontSize: 12, color: '#22c55e', margin: 0 }}>✓ Test message sent — check your Telegram</p>}
+            {telegramStatus === 'error' && <p style={{ fontSize: 12, color: '#f43f5e', margin: 0 }}>✗ {telegramError}</p>}
           </div>
 
           {/* WhatsApp card */}
