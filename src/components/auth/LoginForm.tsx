@@ -1,7 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+
+// Detect in-app browsers (LinkedIn, Facebook, Instagram, etc.)
+// Google blocks OAuth in these — we intercept before the user hits the 403
+function detectInAppBrowser(): { isInApp: boolean; isAndroid: boolean; name: string } {
+  if (typeof navigator === 'undefined') return { isInApp: false, isAndroid: false, name: '' }
+  const ua = navigator.userAgent || ''
+  const isAndroid = /Android/i.test(ua)
+  if (/LinkedIn/i.test(ua))          return { isInApp: true, isAndroid, name: 'LinkedIn' }
+  if (/FBAN|FBAV|FB_IAB/i.test(ua))  return { isInApp: true, isAndroid, name: 'Facebook' }
+  if (/Instagram/i.test(ua))         return { isInApp: true, isAndroid, name: 'Instagram' }
+  if (/Twitter/i.test(ua))           return { isInApp: true, isAndroid, name: 'X (Twitter)' }
+  if (/Line\//i.test(ua))            return { isInApp: true, isAndroid, name: 'Line' }
+  if (/MicroMessenger/i.test(ua))    return { isInApp: true, isAndroid, name: 'WeChat' }
+  if (/GSA\//i.test(ua))             return { isInApp: true, isAndroid, name: 'Google App' }
+  return { isInApp: false, isAndroid, name: '' }
+}
 
 const GoogleIcon = () => (
   <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
@@ -18,7 +34,26 @@ export function LoginForm() {
   const [step, setStep] = useState<'initial' | 'otp'>('initial')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  const [inApp, setInApp] = useState<{ isInApp: boolean; isAndroid: boolean; name: string }>({ isInApp: false, isAndroid: false, name: '' })
   const supabase = createClient()
+
+  useEffect(() => {
+    setInApp(detectInAppBrowser())
+  }, [])
+
+  const pageUrl = typeof window !== 'undefined' ? window.location.href : 'https://sangam-ai-pi.vercel.app/login'
+
+  function openInChrome() {
+    // Android: intent URI forces Chrome to open the URL
+    window.location.href = `intent://${pageUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`
+  }
+
+  async function copyUrl() {
+    await navigator.clipboard.writeText(pageUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   async function signInWithGoogle() {
     setError(null)
@@ -60,23 +95,58 @@ export function LoginForm() {
           </div>
         )}
 
-        {/* Google OAuth */}
-        <button
-          onClick={signInWithGoogle}
-          className="flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium text-[#eef2f8] transition-all duration-200 cursor-pointer"
-          style={{ background: '#101620', border: '1px solid #1a2236' }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = '#253044'
-            ;(e.currentTarget as HTMLButtonElement).style.background = '#141c26'
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = '#1a2236'
-            ;(e.currentTarget as HTMLButtonElement).style.background = '#101620'
-          }}
-        >
-          <GoogleIcon />
-          Continue with Google
-        </button>
+        {/* In-app browser gate */}
+        {inApp.isInApp ? (
+          <div className="flex flex-col gap-3">
+            <div className="px-4 py-3 rounded-xl text-[13px]"
+              style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.25)' }}>
+              <p className="font-semibold text-[#fb923c] mb-1">Google sign-in blocked</p>
+              <p className="text-[#8b98b4] leading-relaxed">
+                {inApp.name}&apos;s browser doesn&apos;t allow Google sign-in.
+                Open this page in Chrome or Safari.
+              </p>
+            </div>
+
+            {inApp.isAndroid ? (
+              <button
+                onClick={openInChrome}
+                className="flex items-center justify-center gap-2 py-3 rounded-xl text-[14px] font-semibold text-white cursor-pointer"
+                style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
+              >
+                Open in Chrome
+              </button>
+            ) : (
+              <p className="text-[12px] text-[#4a566e] text-center leading-relaxed">
+                Tap <span className="text-[#8b98b4]">&#8943;</span> or the share icon → <span className="text-[#8b98b4]">Open in Browser</span>
+              </p>
+            )}
+
+            <button
+              onClick={copyUrl}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium cursor-pointer transition-colors"
+              style={{ background: '#101620', border: '1px solid #1a2236', color: copied ? '#4ade80' : '#8b98b4' }}
+            >
+              {copied ? '✓ Copied' : 'Copy link'}
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={signInWithGoogle}
+            className="flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium text-[#eef2f8] transition-all duration-200 cursor-pointer"
+            style={{ background: '#101620', border: '1px solid #1a2236' }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#253044'
+              ;(e.currentTarget as HTMLButtonElement).style.background = '#141c26'
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#1a2236'
+              ;(e.currentTarget as HTMLButtonElement).style.background = '#101620'
+            }}
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
+        )}
 
         {/* Divider */}
         <div className="flex items-center gap-3">
