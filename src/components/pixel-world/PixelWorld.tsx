@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { AgentPixel, AgentEvent } from '@/types/pixel'
 import { AgentSprite } from './AgentSprite'
@@ -390,23 +390,91 @@ function Printer({ x, y }: { x: string; y: string }) {
   )
 }
 
-/* ─── Zone area (subtle background tint) ─── */
-function ZoneArea({ x, y, w, h, color, label }: { x: string; y: string; w: string; h: string; color: string; label: string }) {
+/* ─── Zone area (subtle background tint, glows when occupied) ─── */
+function ZoneArea({ x, y, w, h, color, label, active }: { x: string; y: string; w: string; h: string; color: string; label: string; active?: boolean }) {
   return (
     <div className="absolute pointer-events-none" style={{ left: x, top: y, width: w, height: h }}>
-      <div style={{ width: '100%', height: '100%', background: `${color}08`, border: `1px solid #253044`, borderRadius: 8 }} />
+      <div style={{
+        width: '100%', height: '100%',
+        background: active ? `${color}12` : `${color}08`,
+        border: `1px solid ${active ? `${color}50` : '#253044'}`,
+        borderRadius: 8,
+        boxShadow: active ? `inset 0 0 28px ${color}08` : 'none',
+        transition: 'border-color 1s ease, background 1s ease, box-shadow 1s ease',
+      }} />
       <div style={{
         position: 'absolute', top: -9, left: 10,
         fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
         fontFamily: 'var(--font-bricolage)',
-        color: '#8b98b4',
+        color: active ? color : '#8b98b4',
         background: '#0b1018',
-        border: '1px solid #253044',
+        border: `1px solid ${active ? `${color}60` : '#253044'}`,
         borderRadius: 4,
         padding: '1px 6px',
+        transition: 'color 1s ease, border-color 1s ease',
       }}>
         {label}
       </div>
+    </div>
+  )
+}
+
+/* ─── Live event ticker ─── */
+function EventTicker({ agents }: { agents: AgentPixel[] }) {
+  const messages = useMemo(() => {
+    const working = agents.filter(a => a.status === 'working' && a.currentTask)
+    return working.map(a => {
+      const task = a.currentTask!.split('_').map(w => w[0]?.toUpperCase() + w.slice(1)).join(' ')
+      return `${a.name}  ·  ${task}`
+    })
+  }, [agents])
+
+  const [idx, setIdx] = useState(0)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    if (messages.length === 0) return
+    const timer = setInterval(() => {
+      setVisible(false)
+      const next = setTimeout(() => {
+        setIdx(i => (i + 1) % Math.max(messages.length, 1))
+        setVisible(true)
+      }, 350)
+      return () => clearTimeout(next)
+    }, 3200)
+    return () => clearInterval(timer)
+  }, [messages.length])
+
+  const msg = messages[idx % Math.max(messages.length, 1)]
+
+  return (
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, right: 0,
+      background: 'rgba(5,8,15,0.88)',
+      borderTop: '1px solid #1a2236',
+      padding: '4px 12px',
+      display: 'flex', alignItems: 'center', gap: 8,
+      zIndex: 20,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+        <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', animation: 'blink-slow 1.6s step-end infinite' }} />
+        <span style={{ fontSize: 9, color: '#4a566e', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-bricolage)' }}>Live</span>
+      </div>
+      <span style={{ color: '#253044', fontSize: 10 }}>|</span>
+      <span style={{
+        fontSize: 10,
+        color: '#8b98b4',
+        fontFamily: 'var(--font-jakarta)',
+        opacity: visible && msg ? 1 : 0,
+        transition: 'opacity 0.35s ease',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        flex: 1,
+        letterSpacing: '0.01em',
+      }}>
+        {msg ?? 'All agents idle'}
+      </span>
     </div>
   )
 }
@@ -545,6 +613,22 @@ export function PixelWorld() {
     return () => { supabase.removeChannel(channel) }
   }, [supabase, fetchRecentEvents])
 
+  // Determine which zones have active agents (for border glow)
+  const activeZones = useMemo(() => {
+    const names = new Set<string>()
+    ;[...agents, ...partTimeAgents].forEach(a => {
+      const { x, y } = a
+      if (x >= 1  && x <= 27 && y >= 1  && y <= 47) names.add('Leadership')
+      if (x >= 28 && x <= 60 && y >= 1  && y <= 35) names.add('Product')
+      if (x >= 61 && x <= 99 && y >= 1  && y <= 47) names.add('Engineering')
+      if (x >= 1  && x <= 27 && y >= 50 && y <= 98) names.add('Marketing')
+      if (x >= 28 && x <= 60 && y >= 38 && y <= 64) names.add('Conference')
+      if (x >= 61 && x <= 99 && y >= 50 && y <= 98) names.add('Sales')
+      if (x >= 28 && x <= 60 && y >= 65 && y <= 99) names.add('Finance')
+    })
+    return names
+  }, [agents, partTimeAgents])
+
   return (
     <div className="flex rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #253044' }}>
       {/* ─── Office canvas ─── */}
@@ -562,13 +646,13 @@ export function PixelWorld() {
         }} />
 
         {/* ─── Zone areas ─── */}
-        <ZoneArea x="1%" y="1%" w="26%" h="46%" color="#a78bfa" label="Leadership" />
-        <ZoneArea x="28%" y="1%" w="32%" h="34%" color="#38bdf8" label="Product" />
-        <ZoneArea x="61%" y="1%" w="38%" h="46%" color="#4ade80" label="Engineering" />
-        <ZoneArea x="1%" y="50%" w="26%" h="48%" color="#fb923c" label="Marketing" />
-        <ZoneArea x="28%" y="38%" w="32%" h="26%" color="#a78bfa" label="Conference" />
-        <ZoneArea x="61%" y="50%" w="38%" h="48%" color="#f472b6" label="Sales" />
-        <ZoneArea x="28%" y="65%" w="32%" h="34%" color="#14b8a6" label="Finance" />
+        <ZoneArea x="1%" y="1%" w="26%" h="46%" color="#a78bfa" label="Leadership"  active={activeZones.has('Leadership')} />
+        <ZoneArea x="28%" y="1%" w="32%" h="34%" color="#38bdf8" label="Product"    active={activeZones.has('Product')} />
+        <ZoneArea x="61%" y="1%" w="38%" h="46%" color="#4ade80" label="Engineering" active={activeZones.has('Engineering')} />
+        <ZoneArea x="1%" y="50%" w="26%" h="48%" color="#fb923c" label="Marketing"  active={activeZones.has('Marketing')} />
+        <ZoneArea x="28%" y="38%" w="32%" h="26%" color="#a78bfa" label="Conference" active={activeZones.has('Conference')} />
+        <ZoneArea x="61%" y="50%" w="38%" h="48%" color="#f472b6" label="Sales"     active={activeZones.has('Sales')} />
+        <ZoneArea x="28%" y="65%" w="32%" h="34%" color="#14b8a6" label="Finance"   active={activeZones.has('Finance')} />
 
         {/* ─── Ceiling lights ─── */}
         <CeilingLight x="18%" y="2%" color="#a78bfa" />
@@ -623,7 +707,7 @@ export function PixelWorld() {
         ))}
 
         {/* ─── Legend ─── */}
-        <div className="absolute bottom-3 right-3 flex items-center gap-4" style={{ fontSize: 10, color: '#4a566e' }}>
+        <div className="absolute flex items-center gap-4" style={{ bottom: 34, right: 12, fontSize: 10, color: '#4a566e' }}>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full" style={{ background: '#253044' }} /> Idle
           </div>
@@ -633,9 +717,12 @@ export function PixelWorld() {
         </div>
 
         {/* ─── Version tag ─── */}
-        <div className="absolute bottom-3 left-3" style={{ fontSize: 9, color: '#2e3b52', fontFamily: 'var(--font-bricolage)', letterSpacing: '0.06em' }}>
+        <div className="absolute" style={{ bottom: 34, left: 12, fontSize: 9, color: '#2e3b52', fontFamily: 'var(--font-bricolage)', letterSpacing: '0.06em' }}>
           Sangam HQ · v0.2
         </div>
+
+        {/* ─── Live event ticker ─── */}
+        <EventTicker agents={[...agents, ...partTimeAgents]} />
       </div>
 
       {/* ─── Activity feed ─── */}

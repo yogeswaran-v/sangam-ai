@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import type { AgentPixel } from '@/types/pixel'
 
 interface Props {
@@ -186,7 +186,7 @@ export function HumanAvatar({ agentId, color, status }: { agentId: string; color
   const isWorking = status === 'working'
 
   return (
-    <svg width="44" height="62" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="56" height="78" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Ground shadow */}
       <ellipse cx="22" cy="60" rx="11" ry="3.5" fill="rgba(0,0,0,0.35)" />
 
@@ -211,15 +211,21 @@ export function HumanAvatar({ agentId, color, status }: { agentId: string; color
 
       {/* Left arm */}
       <rect x="2" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
-      {/* Right arm — waves when idle, timing unique per agent */}
-      <g style={!isWorking ? {
-        transformOrigin: '38px 28px',
-        transformBox: 'fill-box',
-        animationName: 'agent-wave',
-        animationDuration: `${1.6 + (agentId.charCodeAt(0) % 7) * 0.28}s`,
-        animationIterationCount: 'infinite',
-        animationDelay: `${((agentId.charCodeAt(0) * 37 + agentId.charCodeAt(agentId.length - 1) * 13) % 31) * 0.1}s`,
-      } : {}}>
+      {/* Right arm — occasional wave, unique timing per agent */}
+      <g style={!isWorking ? (() => {
+        const c0 = agentId.charCodeAt(0)
+        const cN = agentId.charCodeAt(agentId.length - 1) || 0
+        const h = c0 * 13 + cN * 7
+        return {
+          transformOrigin: '38px 28px',
+          transformBox: 'fill-box',
+          animationName: 'agent-wave-occ',
+          animationDuration: `${11 + (h % 7)}s`,
+          animationIterationCount: 'infinite',
+          animationDelay: `${((h % 23) * 0.4).toFixed(2)}s`,
+          animationTimingFunction: 'ease-in-out',
+        }
+      })() : {}}>
         <rect x="34" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
         <circle cx="38" cy="39" r="4" fill={c.skinColor} />
       </g>
@@ -298,16 +304,49 @@ export function AgentSprite({ agent }: Props) {
   const isWorking = agent.status === 'working'
   const taskMeta = agent.currentTask ? getTaskMeta(agent.currentTask) : null
 
+  // Walking detection — compare current vs previous position
+  const prevPos = useRef({ x: agent.x, y: agent.y })
+  const [isWalking, setIsWalking] = useState(false)
+  const walkTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (prevPos.current.x !== agent.x || prevPos.current.y !== agent.y) {
+      setIsWalking(true)
+      if (walkTimer.current) clearTimeout(walkTimer.current)
+      walkTimer.current = setTimeout(() => setIsWalking(false), 1900)
+      prevPos.current = { x: agent.x, y: agent.y }
+    }
+    return () => { if (walkTimer.current) clearTimeout(walkTimer.current) }
+  }, [agent.x, agent.y])
+
+  // Per-agent sway timing — derived from agent ID chars so each agent has unique rhythm
+  const c0 = agent.id.charCodeAt(0)
+  const cN = agent.id.charCodeAt(agent.id.length - 1) || 0
+  const hash = c0 * 13 + cN * 7
+  const swayDuration = (2.0 + (c0 % 8) * 0.15).toFixed(2)
+  const swayDelay    = ((hash % 13) * 0.2).toFixed(2)
+
+  const stateClass = isWalking ? 'agent-walking' : isWorking ? 'agent-working' : ''
+
   return (
     <div
-      className={`absolute ${isWorking ? 'agent-working' : 'agent-idle'}`}
+      className={`absolute ${stateClass}`}
       style={{
         left: `${agent.x}%`,
         top: `${agent.y}%`,
         transform: 'translate(-50%, -100%)',
         transition: 'left 1.8s cubic-bezier(0.4,0,0.2,1), top 1.8s cubic-bezier(0.4,0,0.2,1)',
         zIndex: isWorking ? 10 : 5,
-        filter: isWorking ? 'none' : 'brightness(0.75)',
+        filter: isWorking ? 'none' : 'brightness(0.9)',
+        // Sway applied inline so each agent has unique duration — no class-level sync
+        ...(!isWalking && !isWorking ? {
+          animationName: 'agent-sway',
+          animationDuration: `${swayDuration}s`,
+          animationDelay: `${swayDelay}s`,
+          animationTimingFunction: 'ease-in-out',
+          animationIterationCount: 'infinite',
+          animationFillMode: 'both',
+        } : {}),
       }}
     >
       {/* Working status ring — crisp ellipse on the floor, no blur */}
@@ -316,7 +355,7 @@ export function AgentSprite({ agent }: Props) {
           className="absolute left-1/2 -translate-x-1/2"
           style={{
             bottom: 4,
-            width: 38, height: 12, borderRadius: '50%',
+            width: 42, height: 13, borderRadius: '50%',
             border: `2px solid ${agent.color}`,
             opacity: 0.9,
             animation: 'agent-breathe 1.5s ease-in-out infinite',
@@ -327,16 +366,17 @@ export function AgentSprite({ agent }: Props) {
       {/* Task bubble */}
       {isWorking && taskMeta && (
         <div
-          className="task-bubble absolute -top-8 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full whitespace-nowrap"
+          className="task-bubble absolute -top-9 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full whitespace-nowrap"
           style={{
             background: 'rgba(11,16,24,0.95)',
-            border: `1px solid ${agent.color}40`,
+            border: `1px solid ${agent.color}70`,
             color: agent.color,
-            fontSize: 10,
+            fontSize: 11,
             fontFamily: 'var(--font-jakarta, sans-serif)',
             fontWeight: 600,
-            boxShadow: `0 2px 12px ${agent.color}20`,
+            boxShadow: `0 2px 12px ${agent.color}30`,
             letterSpacing: '0.03em',
+            backdropFilter: 'blur(4px)',
           }}
         >
           <taskMeta.Icon />
@@ -352,13 +392,13 @@ export function AgentSprite({ agent }: Props) {
         className="absolute left-1/2 -translate-x-1/2 mt-0.5 px-2 py-0.5 rounded whitespace-nowrap text-center"
         style={{
           top: '100%',
-          fontSize: 9,
+          fontSize: 10,
           fontFamily: 'var(--font-bricolage, sans-serif)',
           fontWeight: 700,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
-          color: isWorking ? agent.color : `${agent.color}99`,
-          background: 'rgba(5,8,15,0.8)',
+          color: isWorking ? agent.color : `${agent.color}b0`,
+          background: 'rgba(5,8,15,0.85)',
         }}
       >
         {agent.name}
