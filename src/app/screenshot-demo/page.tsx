@@ -20,22 +20,33 @@ const HOME: Record<string, { x: number; y: number }> = {
   finance:     { x: 44, y: 74 },
 }
 
-const ZONES = [
-  { x: 44, y: 46 }, // meeting
-  { x: 54, y: 10 }, // whiteboard
-  { x: 80, y: 10 }, // server
-  { x: 84, y: 55 }, // coffee
-]
+// Per-agent tasks (role-realistic)
+const AGENT_TASKS: Record<string, string[]> = {
+  ceo:         ['strategy_planning', 'team_sync', 'okr_review'],
+  product:     ['kanban_update', 'roadmap_planning', 'sprint_review'],
+  engineering: ['code_review', 'debug_session', 'deploy_fix'],
+  marketing:   ['content_creation', 'campaign_planning', 'seo_review'],
+  sales:       ['sales_outreach', 'crm_update', 'prospect_call'],
+  finance:     ['finance_review', 'budget_forecast', 'p_and_l_analysis'],
+}
 
-const TASKS = ['strategy_planning', 'code_review', 'content_creation', 'team_sync', 'finance_review', 'sales_outreach', 'kanban_update']
+// Each agent stays inside their own zone — no border crossing
+const ZONE_BOUNDS: Record<string, { xMin: number; xMax: number; yMin: number; yMax: number }> = {
+  ceo:         { xMin: 3,  xMax: 24, yMin: 5,  yMax: 43 },
+  product:     { xMin: 30, xMax: 58, yMin: 4,  yMax: 32 },
+  engineering: { xMin: 63, xMax: 96, yMin: 4,  yMax: 43 },
+  marketing:   { xMin: 3,  xMax: 24, yMin: 53, yMax: 95 },
+  sales:       { xMin: 63, xMax: 96, yMin: 53, yMax: 95 },
+  finance:     { xMin: 30, xMax: 58, yMin: 68, yMax: 96 },
+}
 
 const INITIAL_AGENTS: AgentPixel[] = [
-  { id: 'ceo',         name: 'CEO',         emoji: '👔', color: AGENT_COLORS.ceo,         status: 'working', currentTask: 'strategy_planning', ...HOME.ceo },
-  { id: 'product',     name: 'Product',     emoji: '📋', color: AGENT_COLORS.product,     status: 'working', currentTask: 'kanban_update',      ...HOME.product },
-  { id: 'engineering', name: 'Engineer',    emoji: '⚙️', color: AGENT_COLORS.engineering, status: 'working', currentTask: 'code_review',        ...HOME.engineering },
-  { id: 'marketing',   name: 'Marketing',   emoji: '📣', color: AGENT_COLORS.marketing,   status: 'idle',    currentTask: undefined,             ...HOME.marketing },
-  { id: 'sales',       name: 'Sales',       emoji: '🤝', color: AGENT_COLORS.sales,       status: 'working', currentTask: 'sales_outreach',      ...HOME.sales },
-  { id: 'finance',     name: 'Finance',     emoji: '💰', color: AGENT_COLORS.finance,     status: 'idle',    currentTask: undefined,             ...HOME.finance },
+  { id: 'ceo',         name: 'CEO',      emoji: '', color: AGENT_COLORS.ceo,         status: 'working', currentTask: 'strategy_planning', ...HOME.ceo },
+  { id: 'product',     name: 'Product',  emoji: '', color: AGENT_COLORS.product,     status: 'working', currentTask: 'kanban_update',      ...HOME.product },
+  { id: 'engineering', name: 'Engineer', emoji: '', color: AGENT_COLORS.engineering, status: 'working', currentTask: 'code_review',        ...HOME.engineering },
+  { id: 'marketing',   name: 'Marketing',emoji: '', color: AGENT_COLORS.marketing,   status: 'working', currentTask: 'content_creation',   ...HOME.marketing },
+  { id: 'sales',       name: 'Sales',    emoji: '', color: AGENT_COLORS.sales,       status: 'working', currentTask: 'sales_outreach',      ...HOME.sales },
+  { id: 'finance',     name: 'Finance',  emoji: '', color: AGENT_COLORS.finance,     status: 'working', currentTask: 'finance_review',      ...HOME.finance },
 ]
 
 const MOCK_EVENTS: AgentEvent[] = [
@@ -67,10 +78,10 @@ const ROOMS = [
   { label: 'Finance',      x: '28%', y: '65%', w: '32%', h: '34%', color: '#14b8a6', xRange: [28,60], yRange: [65,99] },
 ]
 
-// Per-agent update intervals (ms) — CEO slowest, Sales fastest
+// Per-agent update intervals (ms) — slow, deliberate movements
 const AGENT_BASE_INTERVALS: Record<string, number> = {
-  ceo: 6500, product: 4800, engineering: 4200,
-  marketing: 3600, sales: 3000, finance: 5200,
+  ceo: 14000, product: 11000, engineering: 10000,
+  marketing: 9500,  sales: 12000,  finance: 13000,
 }
 
 /* ─── Pixel World (animated, no Supabase) ─── */
@@ -86,23 +97,27 @@ function MockPixelWorld() {
         const t = setTimeout(() => {
           setAgents(prev => prev.map(a => {
             if (a.id !== agent.id) return a
-            const goHome = Math.random() < 0.45
-            const pos = goHome
-              ? HOME[a.id]
-              : ZONES[Math.floor(Math.random() * ZONES.length)]
-            const isWorking = Math.random() > 0.28
+            const b = ZONE_BOUNDS[a.id]
+            const tasks = AGENT_TASKS[a.id] ?? ['working']
+            // Small drift within own zone — ±3% around home, clamped to zone bounds
+            const x = Math.min(b.xMax, Math.max(b.xMin, HOME[a.id].x + (Math.random() - 0.5) * 6))
+            const y = Math.min(b.yMax, Math.max(b.yMin, HOME[a.id].y + (Math.random() - 0.5) * 5))
+            // Agents mostly stay working; occasionally take a short idle break
+            const isWorking = Math.random() > 0.15
             return {
-              ...a, ...pos,
+              ...a, x, y,
               status: isWorking ? 'working' : 'idle',
-              currentTask: isWorking ? TASKS[Math.floor(Math.random() * TASKS.length)] : undefined,
+              currentTask: isWorking ? tasks[Math.floor(Math.random() * tasks.length)] : undefined,
             }
           }))
-          const jitter = (Math.random() - 0.5) * 1500
+          // Long, varied interval + small jitter so no two agents sync up
+          const jitter = (Math.random() - 0.5) * 2000
           loop(AGENT_BASE_INTERVALS[agent.id] + jitter)
         }, delay)
         timers.push(t)
       }
-      loop(1200 + idx * 800)
+      // Stagger first fires widely so no agents move at same time
+      loop(2000 + idx * 1800)
     })
 
     return () => timers.forEach(clearTimeout)
