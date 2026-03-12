@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sangam.ai
 
-## Getting Started
+> **Copilots still need a pilot. Sangam gives you the whole crew.**
 
-First, run the development server:
+An autonomous multi-agent platform where AI agents — CEO, Product, Engineering, Marketing, Sales, Finance — run your company operations in parallel, collaborate in real time, and surface decisions for your approval.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**[Try it live →](https://sangam-ai-pi.vercel.app)**
+
+---
+
+## The Pixel World
+
+Watch your AI team work in real time. Agents move between their zones, pick up tasks, and show you exactly what they're doing.
+
+![Pixel World — live agent activity](./screenshots/1-pixel-world.gif)
+
+---
+
+## The Idea
+
+Most AI tools make *you* faster. Sangam makes the *company* run.
+
+You write a mission brief. Six agents pick it up:
+
+- **CEO** — strategy, OKRs, decisions
+- **Product** — roadmap, sprints, backlogs
+- **Engineering** — PRs, code review, deploys
+- **Marketing** — campaigns, content, SEO
+- **Sales** — outreach, CRM, pipeline
+- **Finance** — P&L, forecasts, budgets
+
+They work in parallel, coordinate through a shared channel, and escalate to you only when a decision needs a human. Everything else just happens.
+
+---
+
+## Landing Page
+
+![Sangam.ai landing page](./screenshots/0-landing-robot.gif)
+
+---
+
+## Dashboard
+
+Your agents' activity, condensed. See what's running, what's pending approval, and how much runway you've used.
+
+![Dashboard](./screenshots/2-dashboard.png)
+
+---
+
+## Multi-Agent Chat
+
+Talk to any agent directly. Watch the others chime in when the conversation touches their domain.
+
+![Multi-agent chat](./screenshots/3-chat.png)
+
+---
+
+## Approval Queue
+
+Agents are autonomous — but not unchecked. Anything consequential waits here for you.
+
+![Approvals](./screenshots/4-approvals.png)
+
+---
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Frontend | Next.js 15, Tailwind CSS v4, TypeScript |
+| Backend | Supabase (Postgres, Auth, Realtime) |
+| AI | Claude Sonnet 4.6 (Anthropic) |
+| Orchestrator | Node.js service, polls every 60s |
+| 3D | Spline (landing page hero) |
+| Deploy | Vercel |
+
+---
+
+## How It Works
+
+```
+User writes mission brief
+        ↓
+Orchestrator distributes context to each agent
+        ↓
+Agents run independently, emit events to Supabase
+        ↓
+Frontend subscribes to real-time events → Pixel World updates live
+        ↓
+Consequential actions surface as Approvals
+        ↓
+User approves / rejects → agent continues
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Running Locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/yogeswaran-v/sangam-ai.git
+cd sangam-ai
+npm install
 
-## Learn More
+# Add your keys to .env.local
+cp .env.example .env.local
 
-To learn more about Next.js, take a look at the following resources:
+# Start the frontend
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Start the orchestrator (separate terminal)
+cd services/orchestrator
+npm install && npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Required env vars:**
 
-## Deploy on Vercel
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+ANTHROPIC_API_KEY=
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Status
+
+This is a **hobby project** — built on weekends, actively evolving.
+
+- [x] Six core agents with distinct roles
+- [x] Real-time Pixel World (live virtual office)
+- [x] Multi-agent chat with shared context
+- [x] Approval queue for consequential decisions
+- [x] Part-time specialist agents (Frontend Dev, UX Researcher, etc.)
+- [ ] Agent memory across sessions
+- [ ] Inter-agent messaging (agents briefing each other)
+- [ ] Mobile view
+- [ ] Public API
+
+---
+
+## Author
+
+Built by [Yogi Venkatesan](https://linkedin.com/in/yogi-venkatesan)
+
+*Sangam (संगम) — confluence in Sanskrit. Where rivers meet. Where strategy, engineering, and execution flow into one outcome.*
