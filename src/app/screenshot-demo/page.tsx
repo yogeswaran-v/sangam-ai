@@ -56,70 +56,90 @@ const MOCK_MESSAGES = [
   { id: '7', sender_name: 'Marketing Agent',sender_type: 'marketing',   content: 'On it. Drafting a 3-email sequence targeting the 847 users who churned in Feb. Subject line options ready for your review by tomorrow morning.',             created_at: new Date(Date.now() - 60000).toISOString() },
 ]
 
+// Room zones as visible rectangles (floor plan style)
+const ROOMS = [
+  { label: 'Meeting Room',  x: '30%', y: '34%', w: '24%', h: '30%' },
+  { label: 'Whiteboard',    x: '44%', y: '2%',  w: '18%', h: '22%' },
+  { label: 'Server Room',   x: '72%', y: '2%',  w: '15%', h: '22%' },
+  { label: 'Coffee Corner', x: '76%', y: '44%', w: '15%', h: '24%' },
+]
+
+// Per-agent update intervals (ms) — CEO slowest, Sales fastest
+const AGENT_BASE_INTERVALS: Record<string, number> = {
+  ceo: 6500, product: 4800, engineering: 4200,
+  marketing: 3600, sales: 3000, finance: 5200,
+}
+
 /* ─── Pixel World (animated, no Supabase) ─── */
 
 function MockPixelWorld() {
   const [agents, setAgents] = useState<AgentPixel[]>(INITIAL_AGENTS)
 
   useEffect(() => {
-    const tick = () => {
-      setAgents(prev => prev.map(agent => {
-        if (Math.random() < 0.35) {
-          const goHome = Math.random() < 0.4
-          const pos = goHome
-            ? HOME[agent.id]
-            : ZONES[Math.floor(Math.random() * ZONES.length)]
-          const isWorking = Math.random() > 0.25
-          return {
-            ...agent,
-            ...pos,
-            status: isWorking ? 'working' : 'idle',
-            currentTask: isWorking ? TASKS[Math.floor(Math.random() * TASKS.length)] : undefined,
-          }
-        }
-        return agent
-      }))
-    }
+    const timers: ReturnType<typeof setTimeout>[] = []
 
-    const interval = setInterval(tick, 2200)
-    return () => clearInterval(interval)
+    // Each agent runs its own independent loop
+    INITIAL_AGENTS.forEach((agent, idx) => {
+      const loop = (delay: number) => {
+        const t = setTimeout(() => {
+          setAgents(prev => prev.map(a => {
+            if (a.id !== agent.id) return a
+            const goHome = Math.random() < 0.45
+            const pos = goHome
+              ? HOME[a.id]
+              : ZONES[Math.floor(Math.random() * ZONES.length)]
+            const isWorking = Math.random() > 0.28
+            return {
+              ...a, ...pos,
+              status: isWorking ? 'working' : 'idle',
+              currentTask: isWorking ? TASKS[Math.floor(Math.random() * TASKS.length)] : undefined,
+            }
+          }))
+          // Schedule next tick with jitter
+          const jitter = (Math.random() - 0.5) * 1500
+          loop(AGENT_BASE_INTERVALS[agent.id] + jitter)
+        }, delay)
+        timers.push(t)
+      }
+      // Stagger initial fires so no two agents move at the same time
+      loop(1200 + idx * 800)
+    })
+
+    return () => timers.forEach(clearTimeout)
   }, [])
 
   return (
     <div
       id="pixel-world"
       className="relative w-full rounded-2xl overflow-hidden"
-      style={{ height: 520, background: '#05080f', border: '1px solid #1a2236' }}
+      style={{ height: 520, background: '#05080f', border: '1px solid #253044' }}
     >
-      {/* Floor grid */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
+      {/* Floor grid — slightly more visible */}
+      <div className="absolute inset-0 opacity-[0.06]" style={{
         backgroundImage: 'linear-gradient(rgba(167,139,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,1) 1px, transparent 1px)',
         backgroundSize: '60px 60px',
       }} />
 
-      {/* Zone labels */}
-      {[
-        { label: 'Meeting Room',  x: '37%', y: '40%' },
-        { label: 'Whiteboard',    x: '47%', y:  '4%' },
-        { label: 'Server Room',   x: '72%', y:  '4%' },
-        { label: 'Coffee Corner', x: '76%', y: '49%' },
-      ].map(z => (
-        <div key={z.label} className="absolute text-[10px] font-bold uppercase tracking-widest pointer-events-none"
-          style={{ left: z.x, top: z.y, color: '#1a2236', transform: 'translateX(-50%)' }}>
-          {z.label}
-        </div>
-      ))}
-
-      {/* Zone circles */}
-      {ZONES.map((z, i) => (
-        <div key={i} className="absolute rounded-full pointer-events-none"
+      {/* Room zones — rectangular floor plan style */}
+      {ROOMS.map(room => (
+        <div
+          key={room.label}
+          className="absolute pointer-events-none"
           style={{
-            left: `${z.x}%`, top: `${z.y}%`,
-            width: 70, height: 70,
-            transform: 'translate(-50%, -50%)',
-            background: 'rgba(124,58,237,0.04)',
-            border: '1px solid rgba(124,58,237,0.1)',
-          }} />
+            left: room.x, top: room.y, width: room.w, height: room.h,
+            background: 'rgba(255,255,255,0.025)',
+            border: '1px solid #253044',
+            borderRadius: 8,
+          }}
+        >
+          {/* Room sign — top-left corner */}
+          <div
+            className="absolute -top-5 left-3 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-[0.12em] whitespace-nowrap"
+            style={{ background: '#0b1018', border: '1px solid #253044', color: '#8b98b4' }}
+          >
+            {room.label}
+          </div>
+        </div>
       ))}
 
       {/* Agents */}
@@ -131,7 +151,7 @@ function MockPixelWorld() {
       <div className="absolute bottom-4 left-4 flex flex-col gap-1.5" style={{ maxWidth: 260 }}>
         {MOCK_EVENTS.slice(0, 4).map(e => (
           <div key={e.id} className="flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-medium"
-            style={{ background: 'rgba(5,8,15,0.85)', border: '1px solid #1a2236', color: '#4a566e' }}>
+            style={{ background: 'rgba(5,8,15,0.9)', border: '1px solid #253044', color: '#4a566e' }}>
             <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: AGENT_COLORS[e.agent_name.toLowerCase().split(' ')[0]] ?? '#7c3aed' }} />
             <span className="text-[#8b98b4] font-semibold">{e.agent_name.replace(' Agent', '')}</span>
             <span>{e.event_type.replace(/_/g, ' ')}</span>
@@ -140,7 +160,7 @@ function MockPixelWorld() {
       </div>
 
       {/* Title */}
-      <div className="absolute top-4 right-4 text-[11px] font-bold uppercase tracking-[0.15em] text-[#2e3b52]">
+      <div className="absolute top-4 right-4 text-[11px] font-bold uppercase tracking-[0.15em] text-[#4a566e]">
         Live · Pixel World
       </div>
     </div>

@@ -186,8 +186,7 @@ export function HumanAvatar({ agentId, color, status }: { agentId: string; color
   const isWorking = status === 'working'
 
   return (
-    <svg width="44" height="62" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"
-      style={{ filter: `drop-shadow(0 0 6px ${color}bb) drop-shadow(0 0 14px ${color}44)` }}>
+    <svg width="44" height="62" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg">
       {/* Ground shadow */}
       <ellipse cx="22" cy="60" rx="11" ry="3.5" fill="rgba(0,0,0,0.35)" />
 
@@ -308,36 +307,21 @@ export function AgentSprite({ agent }: Props) {
         transform: 'translate(-50%, -100%)',
         transition: 'left 1.8s cubic-bezier(0.4,0,0.2,1), top 1.8s cubic-bezier(0.4,0,0.2,1)',
         zIndex: isWorking ? 10 : 5,
-        filter: isWorking ? 'none' : 'grayscale(20%) brightness(0.85)',
+        filter: isWorking ? 'none' : 'brightness(0.75)',
       }}
     >
-      {/* Working pulse ring */}
+      {/* Working status ring — crisp ellipse on the floor, no blur */}
       {isWorking && (
-        <>
-          <div
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              bottom: 6,
-              width: 50, height: 16, borderRadius: '50%',
-              background: agent.color,
-              opacity: 0.55,
-              animation: 'agent-breathe 1.5s ease-in-out infinite',
-              filter: `blur(6px)`,
-            }}
-          />
-          <div
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{
-              bottom: 4,
-              width: 70, height: 20, borderRadius: '50%',
-              background: agent.color,
-              opacity: 0.2,
-              animation: 'agent-breathe 1.5s ease-in-out infinite',
-              animationDelay: '0.2s',
-              filter: `blur(10px)`,
-            }}
-          />
-        </>
+        <div
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{
+            bottom: 4,
+            width: 38, height: 12, borderRadius: '50%',
+            border: `2px solid ${agent.color}`,
+            opacity: 0.9,
+            animation: 'agent-breathe 1.5s ease-in-out infinite',
+          }}
+        />
       )}
 
       {/* Task bubble */}
