@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { Navbar } from '@/components/marketing/Navbar'
 import { Footer } from '@/components/marketing/Footer'
+import { SplineScene } from '@/components/ui/splite'
+import { Spotlight } from '@/components/ui/spotlight'
 
 const AGENTS = [
   {
@@ -131,7 +133,7 @@ export default function HomePage() {
       <Navbar />
 
       {/* ─── Hero ─── */}
-      <section className="pt-48 pb-28 px-6 text-center relative overflow-hidden">
+      <section className="pt-32 pb-0 relative overflow-hidden min-h-[calc(100vh-64px)] flex items-center">
         {/* Ambient mesh */}
         <div className="absolute inset-0 pointer-events-none" style={{
           background: 'radial-gradient(ellipse 90% 55% at 50% -5%, rgba(124,58,237,0.11) 0%, transparent 65%)',
@@ -144,54 +146,68 @@ export default function HomePage() {
           backgroundImage: 'linear-gradient(rgba(167,139,250,1) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,1) 1px, transparent 1px)',
           backgroundSize: '80px 80px',
         }} />
+        <Spotlight className="-top-40 left-0 md:left-1/2 md:-top-20" fill="rgba(167,139,250,0.4)" />
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          {/* Status pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-10"
-            style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)' }}>
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inset-0 rounded-full bg-[#a78bfa] opacity-70" />
-              <span className="relative block h-1.5 w-1.5 rounded-full bg-[#a78bfa]" />
-            </span>
-            <span className="text-[12px] font-semibold text-[#a78bfa] tracking-wide">Early access — limited spots</span>
+        <div className="max-w-7xl mx-auto px-6 w-full relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
+
+          {/* Left — copy */}
+          <div className="flex-1 flex flex-col items-start text-left max-w-xl lg:pr-12">
+            {/* Status pill */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-10"
+              style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)' }}>
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inset-0 rounded-full bg-[#a78bfa] opacity-70" />
+                <span className="relative block h-1.5 w-1.5 rounded-full bg-[#a78bfa]" />
+              </span>
+              <span className="text-[12px] font-semibold text-[#a78bfa] tracking-wide">Early access — limited spots</span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-none"
+              style={{ fontFamily: 'var(--font-bricolage, sans-serif)', letterSpacing: '-0.03em' }}>
+              Your AI company,
+              <br />
+              <span className="gradient-text">assembled.</span>
+            </h1>
+
+            <p className="text-[17px] text-[#8b98b4] mb-11 leading-relaxed">
+              Sangam brings together specialised AI agents as your CEO, Product, Engineering, Marketing, Sales, and Finance team — working 24/7 on your vision.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/login"
+                className="px-8 py-3.5 rounded-xl font-semibold text-[15px] text-white transition-all duration-200 cursor-pointer"
+                style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.3)' }}>
+                Start building →
+              </Link>
+              <Link href="#features"
+                className="px-8 py-3.5 rounded-xl font-medium text-[15px] text-[#8b98b4] hover:text-[#eef2f8] transition-all duration-200 cursor-pointer"
+                style={{ border: '1px solid #1a2236' }}>
+                See how it works
+              </Link>
+            </div>
+
+            {/* Social proof bar */}
+            <div className="mt-12 flex items-center gap-6 flex-wrap">
+              {['Powered by Claude 4.6', 'No-code setup', 'Ships in 60 seconds'].map((item, i) => (
+                <div key={i} className="flex items-center gap-2 text-[12px] text-[#4a566e]">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {item}
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 leading-none"
-            style={{ fontFamily: 'var(--font-bricolage, sans-serif)', letterSpacing: '-0.03em' }}>
-            Your AI company,
-            <br />
-            <span className="gradient-text">assembled.</span>
-          </h1>
-
-          <p className="text-[17px] md:text-lg text-[#8b98b4] max-w-xl mx-auto mb-11 leading-relaxed">
-            Sangam brings together specialised AI agents as your CEO, Product, Engineering, Marketing, Sales, and Finance team — working 24/7 on your vision.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link href="/login"
-              className="px-8 py-3.5 rounded-xl font-semibold text-[15px] text-white transition-all duration-200 cursor-pointer"
-              style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.45), 0 4px 12px rgba(0,0,0,0.3)' }}>
-              Start building →
-            </Link>
-            <Link href="#features"
-              className="px-8 py-3.5 rounded-xl font-medium text-[15px] text-[#8b98b4] hover:text-[#eef2f8] transition-all duration-200 cursor-pointer"
-              style={{ border: '1px solid #1a2236' }}>
-              See how it works
-            </Link>
+          {/* Right — interactive robot */}
+          <div className="flex-1 w-full lg:w-auto h-[480px] lg:h-[680px] relative">
+            <SplineScene
+              scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+              className="w-full h-full"
+            />
           </div>
 
-          {/* Social proof bar */}
-          <div className="mt-14 flex items-center justify-center gap-6 flex-wrap">
-            {['Powered by Claude 4.6', 'No-code setup', 'Ships in 60 seconds'].map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-[12px] text-[#4a566e]">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                {item}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

@@ -182,10 +182,18 @@ h1, h2, h3, h4, h5, h6 {
   0%, 100% { transform: translate(-50%, -100%) translateY(0px); opacity: 1; }
   50%       { transform: translate(-50%, -100%) translateY(-4px); opacity: 1; }
 }
+@keyframes agent-sway {
+  0%, 100% { transform: translate(-50%, -100%) rotate(0deg); opacity: 0.72; }
+  25%       { transform: translate(-50%, -100%) rotate(-4deg) translateX(-1px); opacity: 0.78; }
+  75%       { transform: translate(-50%, -100%) rotate(4deg) translateX(1px); opacity: 0.78; }
+}
 @keyframes agent-wave {
-  0%, 100% { transform: translate(-50%, -100%) rotate(0deg); }
-  25%       { transform: translate(-50%, -100%) rotate(-2deg); }
-  75%       { transform: translate(-50%, -100%) rotate(2deg); }
+  0%, 55%, 100% { transform: rotate(0deg); }
+  5%            { transform: rotate(-20deg); }
+  15%           { transform: rotate(20deg); }
+  25%           { transform: rotate(-16deg); }
+  35%           { transform: rotate(16deg); }
+  45%           { transform: rotate(-8deg); }
 }
 @keyframes task-bubble-in {
   from { opacity: 0; transform: translateY(4px) scale(0.9); }
@@ -207,8 +215,8 @@ h1, h2, h3, h4, h5, h6 {
   0%, 90%, 100% { transform: scaleY(1); }
   95%           { transform: scaleY(0.1); }
 }
-.agent-idle    { animation: agent-breathe 4s ease-in-out infinite; }
-.agent-working { animation: agent-bob 0.9s ease-in-out infinite; }
+.agent-idle    { animation: agent-sway 2.2s ease-in-out infinite; }
+.agent-working { animation: agent-bob 0.7s ease-in-out infinite; }
 .task-bubble   { animation: task-bubble-in 0.25s ease-out forwards; }
 .screen-glow   { animation: screen-flicker 8s ease-in-out infinite; }
 .blink-fast    { animation: blink-light 0.8s step-end infinite; }
@@ -239,6 +247,12 @@ h1, h2, h3, h4, h5, h6 {
   50%       { transform: translateY(-6px); }
 }
 .float { animation: float 4s ease-in-out infinite; }
+
+@keyframes spotlight {
+  0%   { opacity: 0; transform: translate(-72%, -62%) skewX(12deg); }
+  100% { opacity: 1; transform: translate(-50%, -40%) skewX(6deg); }
+}
+.animate-spotlight { animation: spotlight 2s ease 0.75s forwards; }
 
 @keyframes pulse-ring {
   0%   { transform: scale(1); opacity: 0.6; }
