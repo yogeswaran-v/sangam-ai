@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 // Detect in-app browsers (LinkedIn, Facebook, Instagram, etc.)
@@ -9,13 +9,19 @@ function detectInAppBrowser(): { isInApp: boolean; isAndroid: boolean; name: str
   if (typeof navigator === 'undefined') return { isInApp: false, isAndroid: false, name: '' }
   const ua = navigator.userAgent || ''
   const isAndroid = /Android/i.test(ua)
-  if (/LinkedIn/i.test(ua))          return { isInApp: true, isAndroid, name: 'LinkedIn' }
-  if (/FBAN|FBAV|FB_IAB/i.test(ua))  return { isInApp: true, isAndroid, name: 'Facebook' }
-  if (/Instagram/i.test(ua))         return { isInApp: true, isAndroid, name: 'Instagram' }
-  if (/Twitter/i.test(ua))           return { isInApp: true, isAndroid, name: 'X (Twitter)' }
-  if (/Line\//i.test(ua))            return { isInApp: true, isAndroid, name: 'Line' }
-  if (/MicroMessenger/i.test(ua))    return { isInApp: true, isAndroid, name: 'WeChat' }
-  if (/GSA\//i.test(ua))             return { isInApp: true, isAndroid, name: 'Google App' }
+  // Named in-app browsers
+  if (/LinkedInApp|\[LinkedInApp\]/i.test(ua)) return { isInApp: true, isAndroid, name: 'LinkedIn' }
+  if (/LinkedIn/i.test(ua))                    return { isInApp: true, isAndroid, name: 'LinkedIn' }
+  if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua))      return { isInApp: true, isAndroid, name: 'Facebook' }
+  if (/Instagram/i.test(ua))                   return { isInApp: true, isAndroid, name: 'Instagram' }
+  if (/Twitter/i.test(ua))                     return { isInApp: true, isAndroid, name: 'X' }
+  if (/Line\//i.test(ua))                      return { isInApp: true, isAndroid, name: 'Line' }
+  if (/MicroMessenger/i.test(ua))              return { isInApp: true, isAndroid, name: 'WeChat' }
+  if (/GSA\//i.test(ua))                       return { isInApp: true, isAndroid, name: 'Google App' }
+  if (/Snapchat/i.test(ua))                    return { isInApp: true, isAndroid, name: 'Snapchat' }
+  if (/BytedanceWebview|TikTok/i.test(ua))     return { isInApp: true, isAndroid, name: 'TikTok' }
+  // Generic WebView signals — wv in parens is Android WebView marker
+  if (/\bwv\b/i.test(ua) && isAndroid)         return { isInApp: true, isAndroid, name: 'in-app browser' }
   return { isInApp: false, isAndroid, name: '' }
 }
 
@@ -35,12 +41,9 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
-  const [inApp, setInApp] = useState<{ isInApp: boolean; isAndroid: boolean; name: string }>({ isInApp: false, isAndroid: false, name: '' })
+  // Lazy initializer — runs synchronously on first render, no flash of wrong state
+  const [inApp] = useState(() => detectInAppBrowser())
   const supabase = createClient()
-
-  useEffect(() => {
-    setInApp(detectInAppBrowser())
-  }, [])
 
   const pageUrl = typeof window !== 'undefined' ? window.location.href : 'https://sangam-ai-pi.vercel.app/login'
 
@@ -56,6 +59,8 @@ export function LoginForm() {
   }
 
   async function signInWithGoogle() {
+    // Double-check — in case detection ran late or UA changed
+    if (detectInAppBrowser().isInApp) return
     setError(null)
     await supabase.auth.signInWithOAuth({
       provider: 'google',
