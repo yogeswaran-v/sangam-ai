@@ -59,14 +59,14 @@ const PLANS = [
   {
     name: 'Starter',
     price: { usd: 49, inr: 3999 },
-    features: ['1 Agent team', '5 agents', 'Telegram notifications', '100K tokens/mo'],
+    features: ['1 Agent team', '5 agents', 'Telegram notifications', '100K tokens/mo (~50 agent runs)'],
     highlighted: false,
     badge: null,
   },
   {
     name: 'Pro',
     price: { usd: 149, inr: 11999 },
-    features: ['3 Agent teams', '15 agents', 'WhatsApp + Telegram', '500K tokens/mo', 'CEO approval flows'],
+    features: ['3 Agent teams', '15 agents', 'WhatsApp + Telegram', '500K tokens/mo (~250 agent runs)', 'CEO approval flows'],
     highlighted: true,
     badge: 'Most popular',
   },
@@ -100,8 +100,8 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Real-time notifications',
-    desc: 'Receive updates via Telegram or WhatsApp whenever agents take action.',
+    title: 'Instant notifications',
+    desc: 'Receive updates via Telegram or WhatsApp the moment agents take action.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -109,8 +109,8 @@ const FEATURES = [
     ),
   },
   {
-    title: 'Powered by Claude 4',
-    desc: 'Every agent runs on Claude Sonnet 4.6 — the sharpest reasoning model available.',
+    title: 'Claude Sonnet 4.6',
+    desc: 'Every agent runs on Claude Sonnet 4.6 — one of the most capable reasoning models available.',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
@@ -189,7 +189,7 @@ export default function HomePage() {
 
             {/* Social proof bar */}
             <div className="mt-12 flex items-center gap-6 flex-wrap">
-              {['Powered by Claude 4.6', 'No-code setup', 'Ships in 60 seconds'].map((item, i) => (
+              {['Powered by Claude 4.6', 'No-code setup', 'Up and running today'].map((item, i) => (
                 <div key={i} className="flex items-center gap-2 text-[12px] text-[#4a566e]">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
@@ -299,7 +299,7 @@ export default function HomePage() {
                   boxShadow: '0 0 40px rgba(124,58,237,0.12), 0 8px 32px rgba(0,0,0,0.3)',
                 } : {
                   background: '#05080f',
-                  border: '1px solid #1a2236',
+                  border: '1px solid #253044',
                 }}
               >
                 {plan.badge && (
@@ -339,8 +339,8 @@ export default function HomePage() {
                     color: 'white',
                     boxShadow: '0 0 20px rgba(124,58,237,0.4)',
                   } : {
-                    border: '1px solid #1a2236',
-                    color: '#8b98b4',
+                    border: '1px solid #253044',
+                    color: '#eef2f8',
                   }}>
                   Get started
                 </Link>
@@ -367,12 +367,12 @@ export default function HomePage() {
                 Ready to assemble<br />your team?
               </h2>
               <p className="text-[15px] text-[#8b98b4] mb-8 max-w-md mx-auto">
-                Get started in under a minute. Your AI team will be operational before your next coffee.
+                Your agents are ready when you are. No infra to manage, no models to tune.
               </p>
               <Link href="/login"
                 className="inline-block px-8 py-4 rounded-xl font-semibold text-[15px] text-white transition-all duration-200 cursor-pointer"
                 style={{ background: '#7c3aed', boxShadow: '0 0 28px rgba(124,58,237,0.5), 0 4px 16px rgba(0,0,0,0.3)' }}>
-                Start for free →
+                Start building →
               </Link>
             </div>
           </div>
