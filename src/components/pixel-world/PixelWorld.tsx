@@ -394,8 +394,17 @@ function Printer({ x, y }: { x: string; y: string }) {
 function ZoneArea({ x, y, w, h, color, label }: { x: string; y: string; w: string; h: string; color: string; label: string }) {
   return (
     <div className="absolute pointer-events-none" style={{ left: x, top: y, width: w, height: h }}>
-      <div style={{ width: '100%', height: '100%', background: `${color}04`, border: `1px solid ${color}08`, borderRadius: 8 }} />
-      <div style={{ position: 'absolute', top: 6, left: 10, fontSize: 8, color, opacity: 0.35, fontFamily: 'var(--font-bricolage)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
+      <div style={{ width: '100%', height: '100%', background: `${color}08`, border: `1px solid #253044`, borderRadius: 8 }} />
+      <div style={{
+        position: 'absolute', top: -9, left: 10,
+        fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const,
+        fontFamily: 'var(--font-bricolage)',
+        color: '#8b98b4',
+        background: '#0b1018',
+        border: '1px solid #253044',
+        borderRadius: 4,
+        padding: '1px 6px',
+      }}>
         {label}
       </div>
     </div>
@@ -503,7 +512,7 @@ export function PixelWorld() {
   }, [supabase, fetchRecentEvents])
 
   return (
-    <div className="flex rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #1a2236' }}>
+    <div className="flex rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #253044' }}>
       {/* ─── Office canvas ─── */}
       <div className="flex-1 relative overflow-hidden" style={{ background: '#080c14' }}>
 
