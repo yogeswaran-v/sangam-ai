@@ -57,10 +57,10 @@ const AVATARS: Record<string, AvatarConfig> = {
     hair: (
       <path d="M12 14 Q12 2 22 2 Q32 2 32 13 Q29 4 22 4 Q15 4 12 14Z" fill="#9ca3af" />
     ),
-    shirtColor: '#1e1b4b',
+    shirtColor: '#4c1d95',
     accentColor: '#a78bfa',
-    pantsColor: '#1e1b4b',
-    shoeColor: '#0f0e17',
+    pantsColor: '#312e81',
+    shoeColor: '#1e1b4b',
     eyeColor: '#4b5563',
     earpiece: true,
   },
@@ -70,9 +70,9 @@ const AVATARS: Record<string, AvatarConfig> = {
     hair: (
       <path d="M12 15 Q11 1 22 1 Q33 1 32 12 Q30 3 22 3 Q14 3 12 15Z" fill="#5c3d2e" />
     ),
-    shirtColor: '#0c3a5e',
+    shirtColor: '#1e40af',
     accentColor: '#38bdf8',
-    pantsColor: '#1e3a5f',
+    pantsColor: '#1e3a8a',
     shoeColor: '#1e293b',
     eyeColor: '#7c4c3d',
     glasses: false,
@@ -88,9 +88,9 @@ const AVATARS: Record<string, AvatarConfig> = {
         <rect x="30.5" y="14" width="2.5" height="6" rx="1" fill="#1f2937" />
       </>
     ),
-    shirtColor: '#0d2e0d',
+    shirtColor: '#14532d',
     accentColor: '#4ade80',
-    pantsColor: '#1f2937',
+    pantsColor: '#1e3a2a',
     shoeColor: '#374151',
     eyeColor: '#374151',
     glasses: true,
@@ -106,9 +106,9 @@ const AVATARS: Record<string, AvatarConfig> = {
         <path d="M33 13 Q36 18 35 24" stroke="#c8922a" strokeWidth="4" fill="none" strokeLinecap="round" />
       </>
     ),
-    shirtColor: '#431407',
+    shirtColor: '#9a3412',
     accentColor: '#fb923c',
-    pantsColor: '#1c1917',
+    pantsColor: '#44403c',
     shoeColor: '#292524',
     eyeColor: '#7c3d1e',
   },
@@ -118,10 +118,10 @@ const AVATARS: Record<string, AvatarConfig> = {
     hair: (
       <path d="M13 16 Q14 1 22 1 Q30 1 31 14 Q27 4 22 4 Q17 4 13 16Z" fill="#1c1917" />
     ),
-    shirtColor: '#042f2e',
+    shirtColor: '#831843',
     accentColor: '#f472b6',
-    pantsColor: '#0c0a09',
-    shoeColor: '#050403',
+    pantsColor: '#4a1942',
+    shoeColor: '#1c1917',
     eyeColor: '#6b4c2a',
   },
   finance: {
@@ -130,23 +130,23 @@ const AVATARS: Record<string, AvatarConfig> = {
     hair: (
       <path d="M13 14 Q13 3 22 3 Q31 3 31 14 Q28 5 22 5 Q16 5 13 14Z" fill="#6b3a1f" />
     ),
-    shirtColor: '#042024',
+    shirtColor: '#134e4a',
     accentColor: '#14b8a6',
-    pantsColor: '#0c1f22',
+    pantsColor: '#164e63',
     shoeColor: '#0a1618',
     eyeColor: '#6b4a2a',
   },
 }
 
 // Generate a pseudo-unique avatar from agent ID
-function getAvatarConfig(agentId: string): AvatarConfig {
+export function getAvatarConfig(agentId: string): AvatarConfig {
   if (AVATARS[agentId]) return AVATARS[agentId]
 
   // Deterministic skin tones
   const skins = ['#f5c6a0', '#d4956a', '#c8a87a', '#a67c52', '#8d5524', '#6b4226', '#e8b59a', '#f0c49e']
   const hairs = ['#1f2937', '#1c1917', '#5c3d2e', '#c8922a', '#0a0a0a', '#374151', '#6b3a1f', '#111827']
-  const shirts = ['#0c3a5e', '#1e1b4b', '#042024', '#0d2e0d', '#431407', '#1a0505', '#1a3a1a', '#2d1b4a']
-  const pants = ['#1e3a5f', '#1f2937', '#0c1f22', '#1c1917', '#0c0a09', '#111827', '#1e1b4b', '#1a2236']
+  const shirts = ['#1e40af', '#4c1d95', '#134e4a', '#14532d', '#9a3412', '#831843', '#1e3a5f', '#3b1f6e']
+  const pants = ['#1e3a8a', '#312e81', '#164e63', '#1e3a2a', '#44403c', '#4a1942', '#1e3a5f', '#1a2236']
   const eyeColors = ['#4b5563', '#374151', '#7c4c3d', '#6b4c2a', '#6b4226', '#4a3728']
 
   // hash the agent id to pick consistent values
@@ -181,12 +181,13 @@ function getAvatarConfig(agentId: string): AvatarConfig {
 }
 
 /* ─── Human SVG avatar ─── */
-function HumanAvatar({ agentId, color, status }: { agentId: string; color: string; status: string }) {
+export function HumanAvatar({ agentId, color, status }: { agentId: string; color: string; status: string }) {
   const c = getAvatarConfig(agentId)
   const isWorking = status === 'working'
 
   return (
-    <svg width="44" height="62" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="44" height="62" viewBox="0 0 44 62" fill="none" xmlns="http://www.w3.org/2000/svg"
+      style={{ filter: `drop-shadow(0 0 6px ${color}bb) drop-shadow(0 0 14px ${color}44)` }}>
       {/* Ground shadow */}
       <ellipse cx="22" cy="60" rx="11" ry="3.5" fill="rgba(0,0,0,0.35)" />
 
@@ -214,10 +215,11 @@ function HumanAvatar({ agentId, color, status }: { agentId: string; color: strin
       {/* Right arm — waves when idle */}
       <g style={!isWorking ? {
         transformOrigin: '38px 28px',
+        transformBox: 'fill-box',
         animationName: 'agent-wave',
-        animationDuration: '3s',
+        animationDuration: '2s',
         animationIterationCount: 'infinite',
-        animationDelay: `${(agentId.charCodeAt(1) ?? 0) % 2}s`,
+        animationDelay: '0s',
       } : {}}>
         <rect x="34" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
         <circle cx="38" cy="39" r="4" fill={c.skinColor} />
@@ -306,22 +308,36 @@ export function AgentSprite({ agent }: Props) {
         transform: 'translate(-50%, -100%)',
         transition: 'left 1.8s cubic-bezier(0.4,0,0.2,1), top 1.8s cubic-bezier(0.4,0,0.2,1)',
         zIndex: isWorking ? 10 : 5,
-        filter: isWorking ? 'none' : 'grayscale(40%)',
+        filter: isWorking ? 'none' : 'grayscale(20%) brightness(0.85)',
       }}
     >
       {/* Working pulse ring */}
       {isWorking && (
-        <div
-          className="absolute left-1/2 -translate-x-1/2"
-          style={{
-            bottom: 8,
-            width: 28, height: 10, borderRadius: '50%',
-            background: agent.color,
-            opacity: 0.3,
-            animation: 'agent-breathe 1.5s ease-in-out infinite',
-            filter: `blur(4px)`,
-          }}
-        />
+        <>
+          <div
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{
+              bottom: 6,
+              width: 50, height: 16, borderRadius: '50%',
+              background: agent.color,
+              opacity: 0.55,
+              animation: 'agent-breathe 1.5s ease-in-out infinite',
+              filter: `blur(6px)`,
+            }}
+          />
+          <div
+            className="absolute left-1/2 -translate-x-1/2"
+            style={{
+              bottom: 4,
+              width: 70, height: 20, borderRadius: '50%',
+              background: agent.color,
+              opacity: 0.2,
+              animation: 'agent-breathe 1.5s ease-in-out infinite',
+              animationDelay: '0.2s',
+              filter: `blur(10px)`,
+            }}
+          />
+        </>
       )}
 
       {/* Task bubble */}
@@ -357,7 +373,7 @@ export function AgentSprite({ agent }: Props) {
           fontWeight: 700,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
-          color: isWorking ? agent.color : '#4a566e',
+          color: isWorking ? agent.color : `${agent.color}99`,
           background: 'rgba(5,8,15,0.8)',
         }}
       >
