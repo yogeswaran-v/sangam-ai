@@ -211,14 +211,14 @@ export function HumanAvatar({ agentId, color, status }: { agentId: string; color
 
       {/* Left arm */}
       <rect x="2" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
-      {/* Right arm — waves when idle */}
+      {/* Right arm — waves when idle, timing unique per agent */}
       <g style={!isWorking ? {
         transformOrigin: '38px 28px',
         transformBox: 'fill-box',
         animationName: 'agent-wave',
-        animationDuration: '2s',
+        animationDuration: `${1.6 + (agentId.charCodeAt(0) % 7) * 0.28}s`,
         animationIterationCount: 'infinite',
-        animationDelay: '0s',
+        animationDelay: `${((agentId.charCodeAt(0) * 37 + agentId.charCodeAt(agentId.length - 1) * 13) % 31) * 0.1}s`,
       } : {}}>
         <rect x="34" y="25" width="8" height="13" rx="4" fill={c.shirtColor} />
         <circle cx="38" cy="39" r="4" fill={c.skinColor} />

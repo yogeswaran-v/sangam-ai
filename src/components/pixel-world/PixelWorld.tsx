@@ -489,6 +489,40 @@ export function PixelWorld() {
 
   useEffect(() => { fetchRecentEvents() }, [fetchRecentEvents])
 
+  // Per-agent idle wander — each agent drifts slowly and independently near their desk
+  useEffect(() => {
+    const timers: ReturnType<typeof setTimeout>[] = []
+
+    // How often each agent decides to drift (ms) — intentionally varied by role
+    const BASE: Record<string, number> = {
+      ceo: 8000, product: 5800, engineering: 4800,
+      marketing: 4200, sales: 3900, finance: 6500,
+    }
+    // How far each agent drifts from home (% of canvas)
+    const DRIFT = { x: 5, y: 4 }
+
+    Object.keys(HOME).forEach((id, idx) => {
+      const loop = () => {
+        setAgents(prev => prev.map(a => {
+          if (a.id !== id || a.status === 'working') return a
+          const home = HOME[id]
+          const x = Math.min(95, Math.max(2, home.x + (Math.random() - 0.5) * DRIFT.x * 2))
+          const y = Math.min(90, Math.max(5, home.y + (Math.random() - 0.5) * DRIFT.y * 2))
+          return { ...a, x, y }
+        }))
+
+        const base = BASE[id] ?? 5500
+        const jitter = (Math.random() - 0.5) * 2400
+        timers.push(setTimeout(loop, base + jitter))
+      }
+
+      // Stagger first fire so no two agents move simultaneously
+      timers.push(setTimeout(loop, 1500 + idx * 950 + Math.random() * 800))
+    })
+
+    return () => timers.forEach(clearTimeout)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const channel = supabase.channel('agent_events_live')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'agent_events' }, payload => {
