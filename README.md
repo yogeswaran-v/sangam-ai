@@ -142,4 +142,4 @@ This is a **hobby project** — built on weekends, actively evolving.
 
 Built by [Yogi Venkatesan](https://linkedin.com/in/yogi-venkatesan)
 
-*Sangam (संगम) — confluence in Sanskrit. Where rivers meet. Where strategy, engineering, and execution flow into one outcome.*
+*In Tamil, “சங்கம்” (Sangam) means a coming together — a place where ideas, people, and efforts meet.*
