@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function POST() {
   try {
+    // Verify the user is authenticated
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -16,17 +18,30 @@ export async function POST() {
 
     const cid = customer.id
 
-    // Delete in order (no FK violations expected since service role bypasses)
-    await supabase.from('chat_messages').delete().in(
-      'channel_id',
-      (await supabase.from('chat_channels').select('id').eq('customer_id', cid)).data?.map(r => r.id) ?? []
+    // Use service role to bypass RLS for deletes (most tables have no user DELETE policy)
+    const admin = createAdminClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      { auth: { autoRefreshToken: false, persistSession: false } }
     )
-    await supabase.from('approval_requests').delete().eq('customer_id', cid)
-    await supabase.from('kanban_cards').delete().eq('customer_id', cid)
-    await supabase.from('agent_events').delete().eq('customer_id', cid)
-    await supabase.from('part_time_deployments').delete().eq('customer_id', cid)
-    await supabase.from('token_usage').delete().eq('customer_id', cid)
-    await supabase.from('mission_control').update({
+
+    // Delete chat messages via channel IDs
+    const { data: channels } = await admin
+      .from('chat_channels')
+      .select('id')
+      .eq('customer_id', cid)
+    if (channels && channels.length > 0) {
+      await admin.from('chat_messages').delete().in('channel_id', channels.map(r => r.id))
+    }
+
+    // Delete kanban_boards (cascades to kanban_cards via FK)
+    await admin.from('kanban_boards').delete().eq('customer_id', cid)
+
+    await admin.from('approval_requests').delete().eq('customer_id', cid)
+    await admin.from('agent_events').delete().eq('customer_id', cid)
+    await admin.from('part_time_deployments').delete().eq('customer_id', cid)
+    await admin.from('token_usage').delete().eq('customer_id', cid)
+    await admin.from('mission_control').update({
       vision: null,
       product_requirements: null,
       monetary_goals: null,
