@@ -1,11 +1,9 @@
 import axios from 'axios'
 
-const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN!
-
-export async function sendTelegram(chatId: string, message: string): Promise<void> {
-  if (!TELEGRAM_TOKEN || !chatId) return
+export async function sendTelegram(chatId: string, message: string, botToken: string): Promise<void> {
+  if (!botToken || !chatId) return
   try {
-    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+    await axios.post(`https://api.telegram.org/bot${botToken}/sendMessage`, {
       chat_id: chatId,
       text: message,
       parse_mode: 'Markdown',
@@ -45,14 +43,16 @@ export async function notifyFounder(customerId: string, message: string): Promis
   const { supabase } = await import('./supabase')
   const { data: customer } = await supabase
     .from('customers')
-    .select('telegram_chat_id, whatsapp_number, notification_channel')
+    .select('telegram_chat_id, telegram_bot_token, whatsapp_number, notification_channel')
     .eq('id', customerId)
     .single()
 
   if (!customer) return
 
   if (customer.notification_channel === 'telegram' && customer.telegram_chat_id) {
-    await sendTelegram(customer.telegram_chat_id, message)
+    // Prefer per-user bot token; fall back to shared env token
+    const token = customer.telegram_bot_token || process.env.TELEGRAM_BOT_TOKEN || ''
+    await sendTelegram(customer.telegram_chat_id, message, token)
   } else if (customer.notification_channel === 'whatsapp' && customer.whatsapp_number) {
     await sendWhatsApp(customer.whatsapp_number, message)
   }
