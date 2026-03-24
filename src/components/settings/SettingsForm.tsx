@@ -9,6 +9,7 @@ interface CustomerSettings {
   email: string
   telegram_bot_token: string | null
   telegram_chat_id: string | null
+  telegram_webhook_active: boolean | null
   notification_channel: 'telegram' | 'email'
   currency: 'usd' | 'inr'
 }
@@ -133,6 +134,9 @@ export function SettingsForm() {
   const [testingTelegram, setTestingTelegram] = useState(false)
   const [telegramStatus, setTelegramStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [telegramError, setTelegramError] = useState<string | null>(null)
+  const [connectingWebhook, setConnectingWebhook] = useState(false)
+  const [webhookStatus, setWebhookStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [webhookError, setWebhookError] = useState<string | null>(null)
   const [saveMsg, setSaveMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [resetting, setResetting] = useState(false)
   const [resetConfirm, setResetConfirm] = useState(false)
@@ -142,7 +146,7 @@ export function SettingsForm() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
     const { data: c } = await supabase.from('customers')
-      .select('id, name, email, telegram_bot_token, telegram_chat_id, notification_channel, currency')
+      .select('id, name, email, telegram_bot_token, telegram_chat_id, telegram_webhook_active, notification_channel, currency')
       .eq('user_id', user.id).single()
     if (c) {
       setCustomer(c as CustomerSettings)
@@ -200,6 +204,27 @@ export function SettingsForm() {
       setTelegramError(data.error ?? 'Test failed')
     }
     setTestingTelegram(false)
+  }
+
+  async function connectWebhook() {
+    if (!customer?.telegram_bot_token) return
+    setConnectingWebhook(true); setWebhookStatus('idle'); setWebhookError(null)
+    // Save settings first so the token is persisted before registering
+    await saveProfile()
+    const res = await fetch('/api/telegram/setup-webhook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bot_token: customer.telegram_bot_token }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setWebhookStatus('success')
+      setCustomer(p => p ? { ...p, telegram_webhook_active: true } : p)
+    } else {
+      setWebhookStatus('error')
+      setWebhookError(data.error ?? 'Failed to register webhook')
+    }
+    setConnectingWebhook(false)
   }
 
   async function resetAll() {
@@ -261,7 +286,7 @@ export function SettingsForm() {
       </SectionCard>
 
       {/* Notifications */}
-      <SectionCard title="Notifications" subtitle="Only your CEO Agent sends notifications \u2014 daily briefings, approvals, and critical updates.">
+      <SectionCard title="Notifications &amp; Telegram Chat" subtitle="Receive CEO Agent briefings and chat with all six agents directly from Telegram.">
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
           {/* Telegram card */}
@@ -276,7 +301,9 @@ export function SettingsForm() {
                 </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>Telegram</div>
-                  <div style={{ fontSize: 11, color: '#4a566e' }}>Bot notifications</div>
+                  <div style={{ fontSize: 11, color: '#4a566e' }}>
+                    {customer.telegram_webhook_active ? 'Two-way chat active' : 'Bot notifications'}
+                  </div>
                 </div>
               </div>
               <StatusBadge connected={!!(customer.telegram_chat_id && customer.telegram_bot_token)} />
@@ -291,6 +318,7 @@ export function SettingsForm() {
                 { n: '4', text: <>Search for your new bot by username in Telegram and tap <strong style={{ color: '#29b6f6' }}>Start</strong>. This activates the bot so it can message you.</> },
                 { n: '5', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
                 { n: '6', text: <>Paste both below and click <strong style={{ color: '#eef2f8' }}>Test</strong>. Your CEO Agent will message you.</> },
+                { n: '7', text: <>Click <strong style={{ color: '#eef2f8' }}>Connect Bot</strong> to enable two-way chat. Send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/engineering</code>, <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/product</code>, <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/marketing</code>, etc. to reach any agent.</> },
               ].map(s => (
                 <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
                   <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#29b6f6', flexShrink: 0 }}>{s.n}</span>
@@ -338,6 +366,48 @@ export function SettingsForm() {
 
             {telegramStatus === 'success' && <p style={{ fontSize: 12, color: '#22c55e', margin: 0 }}>✓ Test message sent — check your Telegram</p>}
             {telegramStatus === 'error' && <p style={{ fontSize: 12, color: '#f43f5e', margin: 0 }}>✗ {telegramError}</p>}
+
+            {/* Webhook connect */}
+            <div style={{ borderTop: '1px solid #1a2236', paddingTop: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#eef2f8' }}>Two-way agent chat</div>
+                  <div style={{ fontSize: 11, color: '#4a566e', marginTop: 2 }}>
+                    {customer.telegram_webhook_active
+                      ? 'Active — message your bot to chat with any agent'
+                      : 'Register webhook to chat with all 6 agents from Telegram'}
+                  </div>
+                </div>
+                {customer.telegram_webhook_active && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 20, padding: '3px 10px' }}>
+                    Active
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={connectWebhook}
+                disabled={connectingWebhook || !customer.telegram_bot_token || !customer.telegram_chat_id}
+                style={{
+                  padding: '9px 18px', borderRadius: 10, fontSize: 12, fontWeight: 600,
+                  cursor: (customer.telegram_bot_token && customer.telegram_chat_id && !connectingWebhook) ? 'pointer' : 'not-allowed',
+                  opacity: (customer.telegram_bot_token && customer.telegram_chat_id) ? 1 : 0.4,
+                  background: customer.telegram_webhook_active ? 'rgba(34,197,94,0.08)' : 'rgba(41,182,246,0.1)',
+                  border: `1px solid ${customer.telegram_webhook_active ? 'rgba(34,197,94,0.25)' : 'rgba(41,182,246,0.25)'}`,
+                  color: customer.telegram_webhook_active ? '#22c55e' : '#29b6f6',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {connectingWebhook ? 'Connecting…' : customer.telegram_webhook_active ? '↺ Reconnect Bot' : 'Connect Bot'}
+              </button>
+              {webhookStatus === 'success' && (
+                <p style={{ fontSize: 12, color: '#22c55e', margin: '8px 0 0' }}>
+                  ✓ Bot connected — send /help to your bot to get started
+                </p>
+              )}
+              {webhookStatus === 'error' && (
+                <p style={{ fontSize: 12, color: '#f43f5e', margin: '8px 0 0' }}>✗ {webhookError}</p>
+              )}
+            </div>
           </div>
 
           <SaveButton onClick={saveProfile} loading={saving} label="Save notification settings" />
