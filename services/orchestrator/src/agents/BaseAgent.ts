@@ -11,7 +11,7 @@ export interface AgentContext {
 }
 
 // Demo environment hard cap — $2.00 total across all customers this month
-const DEMO_SPEND_CAP_USD = 2.00
+const DEMO_SPEND_CAP_USD = 5.00
 
 class SpendCapError extends Error {
   constructor(spent: number) {
