@@ -146,7 +146,7 @@ export function LoginForm() {
         style={{ background: '#0b1018', border: '1px solid #1a2236', boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}>
 
         {error && (
-          <div className="px-4 py-3 rounded-xl text-[13px] text-[#f87171]"
+          <div className="px-4 py-3 rounded-xl text-[14px] text-[#f87171]"
             style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)' }}>
             {error}
           </div>
@@ -155,7 +155,7 @@ export function LoginForm() {
         {/* In-app browser gate */}
         {inApp.isInApp ? (
           <div className="flex flex-col gap-3">
-            <div className="px-4 py-3 rounded-xl text-[13px]"
+            <div className="px-4 py-3 rounded-xl text-[14px]"
               style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.25)' }}>
               <p className="font-semibold text-[#fb923c] mb-1">Open in your browser</p>
               <p className="text-[#8b98b4] leading-relaxed">
@@ -172,13 +172,13 @@ export function LoginForm() {
                 Open in Chrome
               </button>
             ) : (
-              <p className="text-[12px] text-[#4a566e] text-center leading-relaxed">
+              <p className="text-[12px] text-[#8b98b4] text-center leading-relaxed">
                 Tap <span className="text-[#8b98b4]">&#8943;</span> or the share icon → <span className="text-[#8b98b4]">Open in Browser</span>
               </p>
             )}
             <button
               onClick={copyUrl}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium cursor-pointer transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[14px] font-medium cursor-pointer transition-colors"
               style={{ background: '#101620', border: '1px solid #1a2236', color: copied ? '#4ade80' : '#8b98b4' }}
             >
               {copied ? '✓ Copied' : 'Copy link'}
@@ -207,7 +207,7 @@ export function LoginForm() {
             {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
-              <span className="text-[12px] text-[#2e3b52] font-medium">or</span>
+              <span className="text-[12px] text-[#7c8aa5] font-medium">or</span>
               <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
             </div>
 
@@ -234,13 +234,13 @@ export function LoginForm() {
                 <div className="flex flex-col gap-3 py-2 text-center">
                   <div className="text-3xl">📬</div>
                   <p className="text-[14px] font-semibold text-[#eef2f8]">Check your inbox</p>
-                  <p className="text-[13px] leading-relaxed" style={{ color: '#4a566e' }}>
+                  <p className="text-[14px] leading-relaxed" style={{ color: '#8b98b4' }}>
                     We sent a confirmation link to <span className="text-[#8b98b4]">{email}</span>.
                     Click it to activate your account.
                   </p>
                   <button
                     onClick={() => { setEmailStep('form'); setError(null) }}
-                    className="text-[12px] text-[#7c3aed] hover:text-[#a78bfa] transition-colors cursor-pointer mt-1"
+                    className="text-[12px] text-[#a78bfa] hover:text-[#a78bfa] transition-colors cursor-pointer mt-1"
                   >
                     ← Back
                   </button>
@@ -279,9 +279,9 @@ export function LoginForm() {
                   <button
                     onClick={() => { setFormMode(m => m === 'signin' ? 'signup' : 'signin'); setError(null) }}
                     className="text-[12px] transition-colors cursor-pointer"
-                    style={{ color: '#4a566e' }}
+                    style={{ color: '#8b98b4' }}
                     onMouseEnter={e => (e.currentTarget.style.color = '#8b98b4')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#4a566e')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#8b98b4')}
                   >
                     {formMode === 'signin' ? "Don't have an account? Create one" : 'Already have an account? Sign in'}
                   </button>
@@ -314,7 +314,7 @@ export function LoginForm() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-3">
-                  <p className="text-[12px] text-[#4a566e]">OTP sent to <span className="text-[#8b98b4]">{phone}</span></p>
+                  <p className="text-[12px] text-[#8b98b4]">OTP sent to <span className="text-[#8b98b4]">{phone}</span></p>
                   <input
                     type="text"
                     placeholder="000000"
@@ -336,7 +336,7 @@ export function LoginForm() {
                   </button>
                   <button
                     onClick={() => { setOtpStep('initial'); setOtp(''); setError(null) }}
-                    className="text-[12px] text-[#4a566e] hover:text-[#8b98b4] transition-colors cursor-pointer"
+                    className="text-[12px] text-[#8b98b4] hover:text-[#8b98b4] transition-colors cursor-pointer"
                   >
                     ← Change number
                   </button>
@@ -347,11 +347,11 @@ export function LoginForm() {
         )}
       </div>
 
-      <p className="text-[12px] text-[#2e3b52] text-center mt-4">
+      <p className="text-[12px] text-[#7c8aa5] text-center mt-4">
         By continuing, you agree to our{' '}
-        <a href="/terms" className="text-[#4a566e] hover:text-[#8b98b4] transition-colors">Terms</a>
+        <a href="/terms" className="text-[#8b98b4] hover:text-[#8b98b4] transition-colors">Terms</a>
         {' & '}
-        <a href="/privacy" className="text-[#4a566e] hover:text-[#8b98b4] transition-colors">Privacy Policy</a>
+        <a href="/privacy" className="text-[#8b98b4] hover:text-[#8b98b4] transition-colors">Privacy Policy</a>
       </p>
     </div>
   )

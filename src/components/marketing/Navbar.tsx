@@ -25,7 +25,7 @@ export function Navbar() {
             <Link
               key={item}
               href={`#${item.toLowerCase()}`}
-              className="text-[13px] text-[#4a566e] hover:text-[#8b98b4] transition-colors duration-200 font-medium"
+              className="text-[14px] text-[#8b98b4] hover:text-[#8b98b4] transition-colors duration-200 font-medium"
             >
               {item}
             </Link>
@@ -35,11 +35,11 @@ export function Navbar() {
         {/* Actions */}
         <div className="flex items-center gap-2">
           <Link href="/login"
-            className="px-4 py-2 text-[13px] text-[#8b98b4] hover:text-[#eef2f8] transition-colors duration-200 font-medium">
+            className="px-4 py-2 text-[14px] text-[#8b98b4] hover:text-[#eef2f8] transition-colors duration-200 font-medium">
             Sign in
           </Link>
           <Link href="/login"
-            className="px-4 py-2 text-[13px] bg-[#7c3aed] text-white rounded-xl font-semibold transition-all duration-200 hover:bg-[#8b5cf6] cursor-pointer"
+            className="px-4 py-2 text-[14px] bg-[#7c3aed] text-white rounded-xl font-semibold transition-all duration-200 hover:bg-[#8b5cf6] cursor-pointer"
             style={{ boxShadow: '0 0 16px rgba(124,58,237,0.35), 0 2px 8px rgba(0,0,0,0.3)' }}>
             Get started
           </Link>

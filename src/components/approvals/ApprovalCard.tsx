@@ -72,8 +72,8 @@ export function ApprovalCard({ request, onApprove, onReject }: Props) {
           {/* Linked card badge */}
           {request.card_id && (
             <div className="flex items-center gap-1.5 mb-2">
-              <span style={{ color: '#4a566e' }}><CardIcon /></span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#4a566e' }}>
+              <span style={{ color: '#8b98b4' }}><CardIcon /></span>
+              <span className="text-[12px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#8b98b4' }}>
                 Kanban task
               </span>
             </div>
@@ -82,7 +82,7 @@ export function ApprovalCard({ request, onApprove, onReject }: Props) {
             {request.title}
           </h3>
         </div>
-        <span className="flex-shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full"
+        <span className="flex-shrink-0 text-[12px] font-bold px-2.5 py-1 rounded-full"
           style={{ background: statusStyle.bg, border: `1px solid ${statusStyle.border}`, color: statusStyle.text }}>
           {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
         </span>
@@ -90,13 +90,13 @@ export function ApprovalCard({ request, onApprove, onReject }: Props) {
 
       {/* Description */}
       {request.description && (
-        <p className="text-[13px] leading-relaxed" style={{ color: '#8b98b4' }}>
+        <p className="text-[14px] leading-relaxed" style={{ color: '#8b98b4' }}>
           {request.description}
         </p>
       )}
 
       {/* Meta */}
-      <div className="flex items-center gap-3 text-[11px]" style={{ color: '#4a566e' }}>
+      <div className="flex items-center gap-3 text-[12px]" style={{ color: '#8b98b4' }}>
         <span>{timeAgo(request.created_at)}</span>
         {request.responded_at && (
           <>
@@ -112,7 +112,7 @@ export function ApprovalCard({ request, onApprove, onReject }: Props) {
           <button
             onClick={handleApprove}
             disabled={acting}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all duration-200 disabled:opacity-50 cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-50 cursor-pointer"
             style={{ background: '#166534', border: '1px solid rgba(34,197,94,0.3)' }}
           >
             <ApproveIcon />
@@ -121,7 +121,7 @@ export function ApprovalCard({ request, onApprove, onReject }: Props) {
           <button
             onClick={handleReject}
             disabled={acting}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 disabled:opacity-50 cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[14px] font-semibold transition-all duration-200 disabled:opacity-50 cursor-pointer"
             style={{ background: 'transparent', border: '1px solid #1a2236', color: '#8b98b4' }}
             onMouseEnter={e => {
               (e.currentTarget as HTMLButtonElement).style.background = 'rgba(244,63,94,0.08)'

@@ -9,7 +9,7 @@ const DEPARTMENTS = ['All', 'Engineering', 'Design', 'Marketing', 'Product', 'Fi
 function SkillBadge({ skill, color }: { skill: string; color: string }) {
   return (
     <span
-      className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+      className="px-2 py-0.5 rounded-full text-[12px] font-semibold"
       style={{ background: `${color}12`, color, border: `1px solid ${color}25` }}
     >
       {skill}
@@ -24,7 +24,7 @@ function DeptBadge({ dept }: { dept: string }) {
   }
   const c = colors[dept] ?? '#4a566e'
   return (
-    <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style={{ color: c, background: `${c}12` }}>
+    <span className="text-[12px] font-bold uppercase tracking-widest px-2 py-0.5 rounded" style={{ color: c, background: `${c}12` }}>
       {dept}
     </span>
   )
@@ -53,7 +53,7 @@ function FullTimeCard({ agent }: { agent: FullTimeAgent }) {
           <div className="text-[12px]" style={{ color: agent.color }}>{agent.role}</div>
         </div>
         {/* Full-time badge */}
-        <span className="ml-auto text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full" style={{ background: `${agent.color}15`, color: agent.color, border: `1px solid ${agent.color}25` }}>
+        <span className="ml-auto text-[12px] font-black uppercase tracking-widest px-2 py-1 rounded-full" style={{ background: `${agent.color}15`, color: agent.color, border: `1px solid ${agent.color}25` }}>
           Full-time
         </span>
       </div>
@@ -70,7 +70,7 @@ function FullTimeCard({ agent }: { agent: FullTimeAgent }) {
           <span className="animate-ping absolute inset-0 rounded-full bg-emerald-400 opacity-60" />
           <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
         </span>
-        <span className="text-[11px]" style={{ color: '#4a566e' }}>Always active</span>
+        <span className="text-[12px]" style={{ color: '#8b98b4' }}>Always active</span>
       </div>
     </div>
   )
@@ -88,22 +88,22 @@ function PartTimeCard({ agent }: { agent: PartTimeAgent }) {
         <div className="flex items-center gap-2.5">
           {/* Avatar with initials */}
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[11px] font-black"
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-[12px] font-black"
             style={{ background: `${agent.color}15`, border: `1px solid ${agent.color}30`, color: agent.color, fontFamily: 'var(--font-bricolage)' }}
           >
             {agent.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div>
-            <div className="text-[13px] font-bold leading-tight" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
+            <div className="text-[14px] font-bold leading-tight" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
               {agent.name}
             </div>
-            <div className="text-[11px]" style={{ color: agent.color }}>{agent.role}</div>
+            <div className="text-[12px]" style={{ color: agent.color }}>{agent.role}</div>
           </div>
         </div>
         <DeptBadge dept={agent.department} />
       </div>
 
-      <p className="text-[11px] leading-relaxed" style={{ color: '#8b98b4' }}>{agent.description}</p>
+      <p className="text-[12px] leading-relaxed" style={{ color: '#8b98b4' }}>{agent.description}</p>
 
       <div className="flex flex-wrap gap-1">
         {agent.skills.slice(0, 4).map(s => <SkillBadge key={s} skill={s} color={agent.color} />)}
@@ -111,7 +111,7 @@ function PartTimeCard({ agent }: { agent: PartTimeAgent }) {
 
       <div className="flex items-center gap-2 pt-1 border-t" style={{ borderColor: '#1a2236' }}>
         <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#253044' }} />
-        <span className="text-[10px]" style={{ color: '#4a566e' }}>Deployed by CEO as needed</span>
+        <span className="text-[12px]" style={{ color: '#8b98b4' }}>Deployed by CEO as needed</span>
       </div>
     </div>
   )
@@ -149,7 +149,7 @@ export function TeamDirectory() {
           ].map(s => (
             <div key={s.label} className="text-center">
               <div className="text-[22px] font-extrabold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)', lineHeight: 1 }}>{s.value}</div>
-              <div className="text-[10px] uppercase tracking-widest font-semibold mt-0.5" style={{ color: '#4a566e' }}>{s.label}</div>
+              <div className="text-[12px] uppercase tracking-widest font-semibold mt-0.5" style={{ color: '#8b98b4' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -167,7 +167,7 @@ export function TeamDirectory() {
               border: '1px solid #1a2236',
               borderRadius: 12,
               color: '#eef2f8',
-              fontSize: 13,
+              fontSize: 14,
               padding: '9px 14px 9px 34px',
               outline: 'none',
               width: 260,
@@ -185,9 +185,9 @@ export function TeamDirectory() {
             <h2 className="text-[16px] font-bold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
               Core Team
             </h2>
-            <p className="text-[12px]" style={{ color: '#4a566e' }}>6 full-time agents · always active</p>
+            <p className="text-[12px]" style={{ color: '#8b98b4' }}>6 full-time agents · always active</p>
           </div>
-          <div className="ml-auto flex items-center gap-1.5 text-[11px]" style={{ color: '#4a566e' }}>
+          <div className="ml-auto flex items-center gap-1.5 text-[12px]" style={{ color: '#8b98b4' }}>
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inset-0 rounded-full bg-emerald-400 opacity-60" />
               <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -210,7 +210,7 @@ export function TeamDirectory() {
             <h2 className="text-[16px] font-bold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
               Specialist Roster
             </h2>
-            <p className="text-[12px]" style={{ color: '#4a566e' }}>20 part-time specialists · deployed by CEO as needed</p>
+            <p className="text-[12px]" style={{ color: '#8b98b4' }}>20 part-time specialists · deployed by CEO as needed</p>
           </div>
           {/* Department filters */}
           <div className="flex flex-wrap gap-1.5 justify-end">
@@ -220,18 +220,18 @@ export function TeamDirectory() {
                 <button
                   key={d}
                   onClick={() => setDeptFilter(d)}
-                  className="px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all duration-150 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl text-[12px] font-semibold transition-all duration-150 cursor-pointer"
                   style={active ? {
                     background: 'rgba(124,58,237,0.12)',
                     color: '#eef2f8',
                     border: '1px solid rgba(167,139,250,0.25)',
                   } : {
                     background: 'transparent',
-                    color: '#4a566e',
+                    color: '#8b98b4',
                     border: '1px solid transparent',
                   }}
                   onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#8b98b4' }}
-                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#4a566e' }}
+                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.color = '#8b98b4' }}
                 >
                   {d}
                 </button>

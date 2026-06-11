@@ -62,7 +62,7 @@ export function MessageFeed({ messages, loading }: Props) {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center gap-2 text-[#374151] text-sm">
+      <div className="flex-1 flex items-center justify-center gap-2 text-[#9ca3af] text-sm">
         <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 12a9 9 0 1 1-6.219-8.56" />
         </svg>
@@ -80,7 +80,7 @@ export function MessageFeed({ messages, loading }: Props) {
             <BotIcon />
           </div>
           <p className="text-sm font-semibold text-[#eef2f8]">This channel is quiet — for now</p>
-          <p className="text-[13px] leading-relaxed text-[#4a566e]">
+          <p className="text-[14px] leading-relaxed text-[#8b98b4]">
             Agents post progress updates here as they work through your mission.
             You can also send a message — your CEO agent reads this channel and
             factors it into the next work cycle.
@@ -97,13 +97,13 @@ export function MessageFeed({ messages, loading }: Props) {
           <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
             msg.sender_type === 'ceo'
               ? 'bg-[#6366f1]/20 text-[#818cf8] border border-[#6366f1]/30'
-              : 'bg-[#12121a] text-[#6b7280] border border-[#1e1e2e]'
+              : 'bg-[#12121a] text-[#9ca3af] border border-[#1e1e2e]'
           }`}>
             {msg.sender_type === 'ceo' ? <UserIcon /> : <BotIcon />}
           </div>
           <div className={`max-w-lg flex flex-col gap-1 ${msg.sender_type === 'ceo' ? 'items-end' : 'items-start'}`}>
-            <div className={`flex items-center gap-2 text-[11px] text-[#374151] ${msg.sender_type === 'ceo' ? 'flex-row-reverse' : ''}`}>
-              <span className="font-semibold text-[#6b7280]">{msg.sender_name}</span>
+            <div className={`flex items-center gap-2 text-[12px] text-[#9ca3af] ${msg.sender_type === 'ceo' ? 'flex-row-reverse' : ''}`}>
+              <span className="font-semibold text-[#9ca3af]">{msg.sender_name}</span>
               <span>{formatTime(msg.created_at)}</span>
             </div>
             <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${

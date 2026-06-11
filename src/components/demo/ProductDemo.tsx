@@ -118,12 +118,12 @@ export function ProductDemo() {
             onChange={e => setInputUrl(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Paste your product URL to preview it here\u2026"
-            className="flex-1 bg-transparent outline-none text-[13px]"
+            className="flex-1 bg-transparent outline-none text-[14px]"
             style={{ color: '#eef2f8', minWidth: 0 }}
           />
         </div>
         <button onClick={applyUrl}
-          className="px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white cursor-pointer transition-all"
+          className="px-4 py-2.5 rounded-xl text-[14px] font-semibold text-white cursor-pointer transition-all"
           style={{ background: '#7c3aed', border: 'none', boxShadow: '0 0 16px rgba(124,58,237,0.35)', flexShrink: 0 }}>
           Preview
         </button>
@@ -152,14 +152,14 @@ export function ProductDemo() {
                 <div className="w-2.5 h-2.5 rounded-full" style={{ background: '#22c55e' }} />
               </div>
             </div>
-            <div className="flex-1 mx-4 px-3 py-1 rounded-lg text-[11px] text-center truncate"
-              style={{ background: '#0b1018', border: '1px solid #1a2236', color: '#4a566e' }}>
+            <div className="flex-1 mx-4 px-3 py-1 rounded-lg text-[12px] text-center truncate"
+              style={{ background: '#0b1018', border: '1px solid #1a2236', color: '#8b98b4' }}>
               {url || 'No URL set'}
             </div>
             {url && (
               <a href={url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-[11px] cursor-pointer transition-colors"
-                style={{ color: '#4a566e', flexShrink: 0 }}>
+                className="flex items-center gap-1.5 text-[12px] cursor-pointer transition-colors"
+                style={{ color: '#8b98b4', flexShrink: 0 }}>
                 <ExternalIcon /> Open
               </a>
             )}
@@ -187,16 +187,16 @@ export function ProductDemo() {
                     style={{ fontFamily: 'var(--font-bricolage)', color: '#eef2f8' }}>
                     Preview your product here
                   </h3>
-                  <p className="text-[13px] max-w-xs leading-relaxed mb-1" style={{ color: '#8b98b4' }}>
+                  <p className="text-[14px] max-w-xs leading-relaxed mb-1" style={{ color: '#8b98b4' }}>
                     Paste any URL in the bar above — your live site, staging environment, or Vercel preview.
                   </p>
-                  <p className="text-[12px] max-w-xs leading-relaxed" style={{ color: '#4a566e' }}>
+                  <p className="text-[12px] max-w-xs leading-relaxed" style={{ color: '#8b98b4' }}>
                     Check the Agent Notes panel for the latest build updates from your Engineering team.
                   </p>
                 </div>
                 <Link href="/dashboard/chat"
                   className="text-[12px] font-medium transition-colors"
-                  style={{ color: '#7c3aed' }}>
+                  style={{ color: '#a78bfa' }}>
                   View engineering updates \u2192
                 </Link>
               </div>
@@ -209,31 +209,31 @@ export function ProductDemo() {
           style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
           <div className="px-4 py-3.5 flex-shrink-0"
             style={{ borderBottom: '1px solid #1a2236' }}>
-            <h3 className="text-[11px] font-bold uppercase tracking-[0.12em]"
-              style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.12em]"
+              style={{ color: '#8b98b4', fontFamily: 'var(--font-bricolage)' }}>
               Agent Notes
             </h3>
-            <p className="text-[11px] mt-0.5" style={{ color: '#2e3b52' }}>Latest from Engineering &amp; Product</p>
+            <p className="text-[12px] mt-0.5" style={{ color: '#7c8aa5' }}>Latest from Engineering &amp; Product</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
             {loadingMsgs ? (
-              <p className="text-[12px] text-center py-8" style={{ color: '#4a566e' }}>Loading\u2026</p>
+              <p className="text-[12px] text-center py-8" style={{ color: '#8b98b4' }}>Loading\u2026</p>
             ) : messages.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-[12px] font-semibold mb-1" style={{ color: '#4a566e' }}>No updates yet</p>
-                <p className="text-[11px]" style={{ color: '#2e3b52' }}>Agent build updates appear here.</p>
+                <p className="text-[12px] font-semibold mb-1" style={{ color: '#8b98b4' }}>No updates yet</p>
+                <p className="text-[12px]" style={{ color: '#7c8aa5' }}>Agent build updates appear here.</p>
               </div>
             ) : (
               messages.map(msg => (
                 <div key={msg.id} className="rounded-xl px-3 py-2.5"
                   style={{ background: '#101620', border: '1px solid #1a2236' }}>
                   <div className="flex items-center justify-between mb-1.5 gap-2">
-                    <span className="text-[11px] font-semibold"
+                    <span className="text-[12px] font-semibold"
                       style={{ color: agentColor(msg.sender_name), fontFamily: 'var(--font-bricolage)' }}>
                       {msg.sender_name}
                     </span>
-                    <span className="text-[10px]" style={{ color: '#2e3b52' }}>{timeAgo(msg.created_at)}</span>
+                    <span className="text-[12px]" style={{ color: '#7c8aa5' }}>{timeAgo(msg.created_at)}</span>
                   </div>
                   <p className="text-[12px] leading-relaxed line-clamp-4" style={{ color: '#8b98b4' }}>
                     {msg.content}

@@ -190,7 +190,7 @@ function MockPixelWorld() {
             }}
           >
             <div
-              className="absolute -top-5 left-3 px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-[0.12em] whitespace-nowrap"
+              className="absolute -top-5 left-3 px-2 py-0.5 rounded text-[12px] font-bold uppercase tracking-[0.12em] whitespace-nowrap"
               style={{
                 background: '#0b1018',
                 border: `1px solid ${active ? `${room.color}60` : '#253044'}`,
@@ -210,12 +210,12 @@ function MockPixelWorld() {
       ))}
 
       {/* Title */}
-      <div className="absolute top-3 right-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[#4a566e]">
+      <div className="absolute top-3 right-4 text-[12px] font-bold uppercase tracking-[0.15em] text-[#8b98b4]">
         Sangam HQ
       </div>
 
       {/* Legend */}
-      <div className="absolute flex items-center gap-4" style={{ bottom: 34, right: 12, fontSize: 10, color: '#4a566e' }}>
+      <div className="absolute flex items-center gap-4" style={{ bottom: 34, right: 12, fontSize: 12, color: '#8b98b4' }}>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full" style={{ background: '#253044' }} /> Idle
         </div>
@@ -235,11 +235,11 @@ function MockPixelWorld() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', animation: 'blink-slow 1.6s step-end infinite' }} />
-          <span style={{ fontSize: 9, color: '#4a566e', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-bricolage)' }}>Live</span>
+          <span style={{ fontSize: 12, color: '#8b98b4', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-bricolage)' }}>Live</span>
         </div>
-        <span style={{ color: '#253044', fontSize: 10 }}>|</span>
+        <span style={{ color: '#253044', fontSize: 12 }}>|</span>
         <span style={{
-          fontSize: 10, color: '#8b98b4',
+          fontSize: 12, color: '#8b98b4',
           opacity: tickVisible && tickMsg ? 1 : 0,
           transition: 'opacity 0.35s ease',
           whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1,
@@ -265,7 +265,7 @@ function MockChat() {
       {/* Sidebar */}
       <div className="flex flex-col" style={{ width: 220, background: '#05080f', borderRight: '1px solid #1a2236' }}>
         <div className="p-4 border-b border-[#1a2236]">
-          <div className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#4a566e]">Channels</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#8b98b4]">Channels</div>
         </div>
         {['CEO', 'Product', 'Engineering', 'Marketing', 'Sales', 'Finance'].map((name, i) => {
           const id = name.toLowerCase()
@@ -273,11 +273,11 @@ function MockChat() {
           return (
             <div key={name} className="flex items-center gap-3 px-4 py-3 cursor-default"
               style={i === 0 ? { background: 'rgba(124,58,237,0.08)', borderLeft: '2px solid #7c3aed' } : {}}>
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0"
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-bold flex-shrink-0"
                 style={{ background: `${color}15`, border: `1px solid ${color}30`, color }}>
                 {name[0]}
               </div>
-              <div className="text-[13px] font-medium" style={{ color: i === 0 ? '#eef2f8' : '#4a566e' }}>{name}</div>
+              <div className="text-[14px] font-medium" style={{ color: i === 0 ? '#eef2f8' : '#4a566e' }}>{name}</div>
               {i === 0 && <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: '#7c3aed' }} />}
             </div>
           )
@@ -287,13 +287,13 @@ function MockChat() {
       {/* Messages */}
       <div className="flex-1 flex flex-col">
         <div className="p-4 border-b border-[#1a2236] flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[11px] font-bold"
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-bold"
             style={{ background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', color: '#a78bfa' }}>C</div>
           <div>
-            <div className="text-[13px] font-bold text-[#eef2f8]">CEO</div>
-            <div className="text-[10px] text-[#4a566e]">Strategy · Vision · Decisions</div>
+            <div className="text-[14px] font-bold text-[#eef2f8]">CEO</div>
+            <div className="text-[12px] text-[#8b98b4]">Strategy · Vision · Decisions</div>
           </div>
-          <div className="ml-auto flex items-center gap-1.5 text-[11px] text-[#4ade80]">
+          <div className="ml-auto flex items-center gap-1.5 text-[12px] text-[#4ade80]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#4ade80]" />
             Working
           </div>
@@ -307,16 +307,16 @@ function MockChat() {
             return (
               <div key={msg.id} className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
                 {!isUser && (
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5"
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-bold flex-shrink-0 mt-0.5"
                     style={{ background: `${color}15`, border: `1px solid ${color}30`, color }}>
                     {msg.sender_name[0]}
                   </div>
                 )}
                 <div className={`flex flex-col gap-1 ${isUser ? 'items-end' : ''}`} style={{ maxWidth: '72%' }}>
                   {!isUser && (
-                    <div className="text-[11px] font-semibold" style={{ color }}>{msg.sender_name}</div>
+                    <div className="text-[12px] font-semibold" style={{ color }}>{msg.sender_name}</div>
                   )}
-                  <div className="px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed"
+                  <div className="px-3.5 py-2.5 rounded-2xl text-[14px] leading-relaxed"
                     style={isUser
                       ? { background: '#7c3aed', color: 'white', borderBottomRightRadius: 4 }
                       : { background: '#101620', color: '#8b98b4', border: '1px solid #1a2236', borderBottomLeftRadius: 4 }
@@ -330,7 +330,7 @@ function MockChat() {
         </div>
 
         <div className="p-4 border-t border-[#1a2236]">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-[13px] text-[#2e3b52]"
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl text-[14px] text-[#7c8aa5]"
             style={{ background: '#05080f', border: '1px solid #1a2236' }}>
             Message your CEO agent...
           </div>
@@ -356,7 +356,7 @@ function MockDashboard() {
       <div className="grid grid-cols-4 gap-4">
         {stats.map(s => (
           <div key={s.label} className="p-5 rounded-2xl" style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
-            <div className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#4a566e] mb-2">{s.label}</div>
+            <div className="text-[12px] font-bold uppercase tracking-[0.12em] text-[#8b98b4] mb-2">{s.label}</div>
             <div className="text-3xl font-extrabold text-[#eef2f8] mb-1" style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>{s.value}</div>
             <div className="text-[12px] font-semibold" style={{ color: s.color }}>{s.delta}</div>
           </div>
@@ -377,8 +377,8 @@ function MockDashboard() {
             { label: 'Timeline', value: 'Public beta by June 2026. Paid plans live by August. Series A conversations by Q4.' },
           ].map(f => (
             <div key={f.label} className="rounded-xl p-4" style={{ background: '#101620', border: '1px solid #1a2236' }}>
-              <div className="text-[10px] font-bold uppercase tracking-[0.14em] mb-2" style={{ color: '#4a566e' }}>{f.label}</div>
-              <p className="text-[13px] leading-relaxed" style={{ color: '#8b98b4' }}>{f.value}</p>
+              <div className="text-[12px] font-bold uppercase tracking-[0.14em] mb-2" style={{ color: '#8b98b4' }}>{f.label}</div>
+              <p className="text-[14px] leading-relaxed" style={{ color: '#8b98b4' }}>{f.value}</p>
             </div>
           ))}
         </div>
@@ -413,21 +413,21 @@ function MockApprovals() {
         },
       ].map(item => (
         <div key={item.title} className="p-6 rounded-2xl flex gap-5" style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-bold flex-shrink-0"
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[14px] font-bold flex-shrink-0"
             style={{ background: `${item.color}15`, border: `1px solid ${item.color}30`, color: item.color }}>
             {item.agent[0]}
           </div>
           <div className="flex-1">
             <div className="flex items-start justify-between gap-4 mb-2">
               <div className="text-[14px] font-bold text-[#eef2f8]">{item.title}</div>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide flex-shrink-0"
+              <span className="px-2 py-0.5 rounded text-[12px] font-bold uppercase tracking-wide flex-shrink-0"
                 style={{ background: `${item.color}15`, color: item.color }}>{item.urgency}</span>
             </div>
-            <p className="text-[13px] text-[#4a566e] leading-relaxed mb-4">{item.desc}</p>
+            <p className="text-[14px] text-[#8b98b4] leading-relaxed mb-4">{item.desc}</p>
             <div className="flex gap-2">
-              <button className="px-4 py-1.5 rounded-lg text-[13px] font-semibold text-white"
+              <button className="px-4 py-1.5 rounded-lg text-[14px] font-semibold text-white"
                 style={{ background: '#7c3aed' }}>Approve</button>
-              <button className="px-4 py-1.5 rounded-lg text-[13px] font-medium text-[#4a566e]"
+              <button className="px-4 py-1.5 rounded-lg text-[14px] font-medium text-[#8b98b4]"
                 style={{ border: '1px solid #1a2236' }}>Reject</button>
             </div>
           </div>

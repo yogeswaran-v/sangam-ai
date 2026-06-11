@@ -38,7 +38,7 @@ export function FeedbackWidget() {
       {/* Floating trigger */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-medium text-white transition-all duration-200 cursor-pointer"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full text-[14px] font-medium text-white transition-all duration-200 cursor-pointer"
         style={{ background: '#7c3aed', boxShadow: '0 4px 24px rgba(124,58,237,0.45)' }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -61,10 +61,10 @@ export function FeedbackWidget() {
               <div className="py-4 text-center flex flex-col gap-3">
                 <div className="text-3xl">🙏</div>
                 <p className="text-[15px] font-semibold text-[#eef2f8]">Thanks for the feedback!</p>
-                <p className="text-[13px]" style={{ color: '#4a566e' }}>It helps us build something you&apos;ll love.</p>
+                <p className="text-[14px]" style={{ color: '#8b98b4' }}>It helps us build something you&apos;ll love.</p>
                 <button
                   onClick={reset}
-                  className="mt-2 text-[13px] text-[#7c3aed] hover:text-[#a78bfa] transition-colors cursor-pointer"
+                  className="mt-2 text-[14px] text-[#a78bfa] hover:text-[#a78bfa] transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -75,7 +75,7 @@ export function FeedbackWidget() {
                   <h3 className="text-[14px] font-semibold text-[#eef2f8]">Share your feedback</h3>
                   <button
                     onClick={reset}
-                    className="text-[#4a566e] hover:text-[#8b98b4] transition-colors cursor-pointer"
+                    className="text-[#8b98b4] hover:text-[#8b98b4] transition-colors cursor-pointer"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -84,7 +84,7 @@ export function FeedbackWidget() {
                 </div>
 
                 <div>
-                  <p className="text-[12px] mb-3" style={{ color: '#4a566e' }}>How&apos;s your experience so far?</p>
+                  <p className="text-[12px] mb-3" style={{ color: '#8b98b4' }}>How&apos;s your experience so far?</p>
                   <div className="flex gap-2">
                     {ratings.map((emoji, i) => (
                       <button
@@ -107,7 +107,7 @@ export function FeedbackWidget() {
                   onChange={e => setMessage(e.target.value)}
                   placeholder="What's working? What's confusing? What do you wish existed?"
                   rows={3}
-                  className="resize-none px-4 py-3 rounded-xl text-[13px] text-[#eef2f8] outline-none transition-all duration-200 w-full"
+                  className="resize-none px-4 py-3 rounded-xl text-[14px] text-[#eef2f8] outline-none transition-all duration-200 w-full"
                   style={{ background: '#101620', border: '1px solid #1a2236' }}
                   onFocus={e => {
                     e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'

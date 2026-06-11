@@ -9,12 +9,12 @@ export default function TermsPage() {
 
       <main className="max-w-3xl mx-auto px-6 pt-40 pb-28">
         <div className="mb-12">
-          <div className="text-[11px] font-bold text-[#7c3aed] uppercase tracking-[0.15em] mb-4">Legal</div>
+          <div className="text-[12px] font-bold text-[#a78bfa] uppercase tracking-[0.15em] mb-4">Legal</div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#eef2f8] mb-4"
             style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
             Terms of Service
           </h1>
-          <p className="text-[13px] text-[#4a566e]">Last updated: March 2026</p>
+          <p className="text-[14px] text-[#8b98b4]">Last updated: March 2026</p>
         </div>
 
         <div className="flex flex-col gap-10 text-[15px] text-[#8b98b4] leading-relaxed">
@@ -76,7 +76,7 @@ export default function TermsPage() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-[#1a2236]">
-          <Link href="/" className="text-[13px] text-[#4a566e] hover:text-[#8b98b4] transition-colors">← Back to home</Link>
+          <Link href="/" className="text-[14px] text-[#8b98b4] hover:text-[#8b98b4] transition-colors">← Back to home</Link>
         </div>
       </main>
 

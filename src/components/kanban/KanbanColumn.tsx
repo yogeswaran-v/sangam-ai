@@ -41,7 +41,7 @@ export function KanbanColumn({ column, cards, onMoveCard }: Props) {
               {COLUMN_LABELS[column]}
             </span>
           </div>
-          <span className="text-[10px] text-[#4b5563] font-bold tabular-nums bg-[#12121a] px-2 py-0.5 rounded-full border border-[#1e1e2e]">
+          <span className="text-[12px] text-[#9ca3af] font-bold tabular-nums bg-[#12121a] px-2 py-0.5 rounded-full border border-[#1e1e2e]">
             {cards.length}
           </span>
         </div>
@@ -64,7 +64,7 @@ export function KanbanColumn({ column, cards, onMoveCard }: Props) {
         }}
       >
         {cards.length === 0 && (
-          <div className="text-center text-xs py-8 px-3 border border-dashed border-[#1e1e2e] rounded-lg leading-relaxed text-[#4a566e]">
+          <div className="text-center text-xs py-8 px-3 border border-dashed border-[#1e1e2e] rounded-lg leading-relaxed text-[#8b98b4]">
             {column === 'backlog'
               ? 'Your agents add tasks here as they plan work — or drag cards in yourself.'
               : column === 'done'

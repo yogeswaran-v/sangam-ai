@@ -17,12 +17,12 @@ export default function OnboardingLayout({ children }: { children: React.ReactNo
             className="text-base font-bold tracking-tight text-white"
             style={{ fontFamily: 'var(--font-space-grotesk, sans-serif)' }}
           >
-            Sangam<span className="text-[#6366f1]">.ai</span>
+            Sangam<span className="text-[#818cf8]">.ai</span>
           </span>
         </Link>
         <Link
           href="/"
-          className="text-sm text-[#4b5563] hover:text-white transition-colors duration-200"
+          className="text-sm text-[#9ca3af] hover:text-white transition-colors duration-200"
         >
           Back to home
         </Link>

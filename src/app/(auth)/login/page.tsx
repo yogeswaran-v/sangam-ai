@@ -24,13 +24,13 @@ export default function LoginPage() {
           style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
           Welcome back
         </h1>
-        <p className="text-[14px] text-[#4a566e]">Sign in to your mission command centre.</p>
+        <p className="text-[14px] text-[#8b98b4]">Sign in to your mission command centre.</p>
       </div>
 
       <LoginForm />
 
       <Link href="/"
-        className="text-[13px] text-[#4a566e] hover:text-[#8b98b4] transition-colors duration-200 cursor-pointer">
+        className="text-[14px] text-[#8b98b4] hover:text-[#8b98b4] transition-colors duration-200 cursor-pointer">
         ← Back to home
       </Link>
     </div>

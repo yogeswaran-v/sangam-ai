@@ -59,7 +59,7 @@ export default async function DashboardPage() {
 
           {/* Early access banner */}
           <div
-            className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl text-[13px]"
+            className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl text-[14px]"
             style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)' }}
           >
             <span className="text-base">🚀</span>
@@ -78,13 +78,13 @@ export default async function DashboardPage() {
               >
                 {customerData?.name ? `Welcome back, ${customerData.name}` : 'Command Centre'}
               </h2>
-              <p className="text-[13px] mt-1" style={{ color: '#4a566e' }}>
+              <p className="text-[14px] mt-1" style={{ color: '#8b98b4' }}>
                 Your AI team is standing by.
               </p>
             </div>
             {customerData?.plan && (
               <span
-                className="flex-shrink-0 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full"
+                className="flex-shrink-0 text-[12px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 rounded-full"
                 style={{ background: planStyle.bg, border: `1px solid ${planStyle.border}`, color: planStyle.text }}
               >
                 {planStyle.label}
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
                 <Link
                   href="/dashboard/settings"
                   className="flex items-center gap-1.5 text-[12px] font-medium transition-colors cursor-pointer hover:text-[#a78bfa]"
-                  style={{ color: '#7c3aed' }}
+                  style={{ color: '#a78bfa' }}
                 >
                   <EditIcon />
                   Edit
@@ -133,11 +133,11 @@ export default async function DashboardPage() {
                   <div key={field.label}
                     className="rounded-xl p-4"
                     style={{ background: '#101620', border: '1px solid #1a2236' }}>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.14em] mb-2"
-                      style={{ color: '#4a566e' }}>
+                    <div className="text-[12px] font-bold uppercase tracking-[0.14em] mb-2"
+                      style={{ color: '#8b98b4' }}>
                       {field.label}
                     </div>
-                    <p className="text-[13px] leading-relaxed line-clamp-3" style={{ color: '#8b98b4' }}>
+                    <p className="text-[14px] leading-relaxed line-clamp-3" style={{ color: '#8b98b4' }}>
                       {field.value}
                     </p>
                   </div>
@@ -161,13 +161,13 @@ export default async function DashboardPage() {
               >
                 Your team is getting set up
               </h3>
-              <p className="text-[13px] max-w-sm mx-auto leading-relaxed mb-5" style={{ color: '#4a566e' }}>
+              <p className="text-[14px] max-w-sm mx-auto leading-relaxed mb-5" style={{ color: '#8b98b4' }}>
                 Agents run on a daily work cycle — the first one kicks off within 24 hours
                 of onboarding. In the meantime, review the starter tasks they&apos;ll pick up first.
               </p>
               <Link
                 href="/dashboard/kanban"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all duration-200"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[14px] font-semibold text-white transition-all duration-200"
                 style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
               >
                 View starter tasks

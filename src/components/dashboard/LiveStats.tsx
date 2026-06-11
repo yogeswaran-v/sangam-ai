@@ -121,7 +121,7 @@ export function LiveStats() {
           <div className="text-[26px] font-extrabold text-[#eef2f8] mb-1 leading-none" style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}>
             {stat.value}
           </div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#4a566e' }}>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.1em]" style={{ color: '#8b98b4' }}>
             {stat.label}
           </div>
         </Link>

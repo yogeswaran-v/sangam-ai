@@ -61,7 +61,7 @@ const AVATARS: Record<string, AvatarConfig> = {
     accentColor: '#a78bfa',
     pantsColor: '#312e81',
     shoeColor: '#1e1b4b',
-    eyeColor: '#4b5563',
+    eyeColor: '#9ca3af',
     earpiece: true,
   },
   product: {
@@ -91,8 +91,8 @@ const AVATARS: Record<string, AvatarConfig> = {
     shirtColor: '#14532d',
     accentColor: '#4ade80',
     pantsColor: '#1e3a2a',
-    shoeColor: '#374151',
-    eyeColor: '#374151',
+    shoeColor: '#9ca3af',
+    eyeColor: '#9ca3af',
     glasses: true,
   },
   marketing: {

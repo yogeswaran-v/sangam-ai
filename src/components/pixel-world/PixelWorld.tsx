@@ -267,7 +267,7 @@ function Whiteboard({ x, y }: { x: string; y: string }) {
       {/* Marker on tray */}
       <div style={{ position: 'absolute', bottom: 1, left: 10, width: 3, height: 5, borderRadius: 2, background: '#7c3aed' }} />
       <div style={{ position: 'absolute', bottom: 1, left: 16, width: 3, height: 5, borderRadius: 2, background: '#16a34a' }} />
-      <div style={{ textAlign: 'center', fontSize: 7, color: '#4a566e', marginTop: 3, letterSpacing: '0.08em', textTransform: 'uppercase' }}>sprint board</div>
+      <div style={{ textAlign: 'center', fontSize: 7, color: '#8b98b4', marginTop: 3, letterSpacing: '0.08em', textTransform: 'uppercase' }}>sprint board</div>
     </div>
   )
 }
@@ -385,7 +385,7 @@ function Printer({ x, y }: { x: string; y: string }) {
         {/* Status light */}
         <div style={{ position: 'absolute', top: 5, right: 5, width: 4, height: 4, borderRadius: '50%', background: '#4ade80' }} className="blink-slow" />
       </div>
-      <div style={{ textAlign: 'center', fontSize: 7, color: '#4a566e', marginTop: 2, letterSpacing: '0.06em', textTransform: 'uppercase' }}>printer</div>
+      <div style={{ textAlign: 'center', fontSize: 7, color: '#8b98b4', marginTop: 2, letterSpacing: '0.06em', textTransform: 'uppercase' }}>printer</div>
     </div>
   )
 }
@@ -458,7 +458,7 @@ function EventTicker({ agents }: { agents: AgentPixel[] }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
         <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block', animation: 'blink-slow 1.6s step-end infinite' }} />
-        <span style={{ fontSize: 9, color: '#4a566e', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-bricolage)' }}>Live</span>
+        <span style={{ fontSize: 9, color: '#8b98b4', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-bricolage)' }}>Live</span>
       </div>
       <span style={{ color: '#253044', fontSize: 10 }}>|</span>
       <span style={{
@@ -640,7 +640,7 @@ export function PixelWorld() {
           </svg>
         </div>
         <p className="text-sm font-semibold text-[#eef2f8]">The live office view needs a bigger screen</p>
-        <p className="text-[13px] leading-relaxed text-[#4a566e] max-w-xs">
+        <p className="text-[13px] leading-relaxed text-[#8b98b4] max-w-xs">
           Open Sangam on a tablet or desktop to watch your agents move around HQ.
           Their latest activity is in the feed below.
         </p>
@@ -722,7 +722,7 @@ export function PixelWorld() {
         ))}
 
         {/* ─── Legend ─── */}
-        <div className="absolute flex items-center gap-4" style={{ bottom: 34, right: 12, fontSize: 10, color: '#4a566e' }}>
+        <div className="absolute flex items-center gap-4" style={{ bottom: 34, right: 12, fontSize: 10, color: '#8b98b4' }}>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full" style={{ background: '#253044' }} /> Idle
           </div>
@@ -732,7 +732,7 @@ export function PixelWorld() {
         </div>
 
         {/* ─── Version tag ─── */}
-        <div className="absolute" style={{ bottom: 34, left: 12, fontSize: 9, color: '#2e3b52', fontFamily: 'var(--font-bricolage)', letterSpacing: '0.06em' }}>
+        <div className="absolute" style={{ bottom: 34, left: 12, fontSize: 9, color: '#7c8aa5', fontFamily: 'var(--font-bricolage)', letterSpacing: '0.06em' }}>
           Sangam HQ · v0.2
         </div>
 

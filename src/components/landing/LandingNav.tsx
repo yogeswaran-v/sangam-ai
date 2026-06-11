@@ -46,7 +46,7 @@ export function LandingNav() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex min-h-[44px] cursor-pointer items-center rounded-lg px-3 text-[13px] font-medium text-[#8b98b4] transition-colors duration-200 hover:text-[#eef2f8]"
+                className="flex min-h-[44px] cursor-pointer items-center rounded-lg px-3 text-[14px] font-medium text-[#8b98b4] transition-colors duration-200 hover:text-[#eef2f8]"
               >
                 {link.label}
               </Link>
@@ -57,13 +57,13 @@ export function LandingNav() {
           <div className="flex items-center gap-1.5">
             <Link
               href="/login"
-              className="hidden min-h-[44px] cursor-pointer items-center rounded-lg px-3 text-[13px] font-medium text-[#8b98b4] transition-colors duration-200 hover:text-[#eef2f8] sm:flex"
+              className="hidden min-h-[44px] cursor-pointer items-center rounded-lg px-3 text-[14px] font-medium text-[#8b98b4] transition-colors duration-200 hover:text-[#eef2f8] sm:flex"
             >
               Sign in
             </Link>
             <Link
               href="/login"
-              className="flex min-h-[44px] cursor-pointer items-center rounded-xl bg-[#7c3aed] px-4 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-[#8b5cf6]"
+              className="flex min-h-[44px] cursor-pointer items-center rounded-xl bg-[#7c3aed] px-4 text-[14px] font-semibold text-white transition-colors duration-200 hover:bg-[#8b5cf6]"
               style={{ boxShadow: '0 0 16px rgba(124,58,237,0.35), 0 2px 8px rgba(0,0,0,0.3)' }}
             >
               Start free trial

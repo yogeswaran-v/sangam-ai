@@ -99,7 +99,7 @@ export function KanbanBoard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64 gap-2 text-[#374151]">
+      <div className="flex items-center justify-center h-64 gap-2 text-[#9ca3af]">
         <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 12a9 9 0 1 1-6.219-8.56" />
         </svg>

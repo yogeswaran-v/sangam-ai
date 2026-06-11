@@ -162,7 +162,7 @@ function CheckIcon({ size = 13 }: { size?: number }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-4 text-[11px] font-bold uppercase tracking-[0.15em] text-[#a78bfa]">
+    <div className="mb-4 text-[12px] font-bold uppercase tracking-[0.15em] text-[#a78bfa]">
       {children}
     </div>
   )
@@ -202,7 +202,7 @@ function HeroFeedCard() {
             Your company · live
           </span>
         </div>
-        <span className="text-[11px] font-medium text-[#8b98b4]">Tuesday, 6:42 AM</span>
+        <span className="text-[12px] font-medium text-[#8b98b4]">Tuesday, 6:42 AM</span>
       </div>
 
       {/* Feed rows */}
@@ -221,7 +221,7 @@ function HeroFeedCard() {
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-[12px] font-bold text-[#eef2f8]">{row.name}</span>
-                <span className="flex-shrink-0 text-[11px] text-[#8b98b4]">{row.time}</span>
+                <span className="flex-shrink-0 text-[12px] text-[#8b98b4]">{row.time}</span>
               </div>
               <p className="truncate text-[12px] leading-snug text-[#8b98b4]">{row.task}</p>
               {row.working && (
@@ -238,7 +238,7 @@ function HeroFeedCard() {
       <div className="flex items-center justify-between border-t border-[#1a2236] px-4 py-3">
         <span className="text-[12px] text-[#8b98b4]">2 decisions waiting for your sign-off</span>
         <span
-          className="rounded-full px-2.5 py-1 text-[11px] font-bold text-[#a78bfa]"
+          className="rounded-full px-2.5 py-1 text-[12px] font-bold text-[#a78bfa]"
           style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(167,139,250,0.25)' }}
         >
           Review
@@ -306,7 +306,7 @@ export default function HomePage() {
 
             <div className="landing-fade-up flex w-full flex-col items-center lg:items-start" style={{ animationDelay: '0.24s' }}>
               <CtaButton className="w-full sm:w-auto">Start free trial</CtaButton>
-              <p className="mt-4 text-[13px] text-[#8b98b4]">
+              <p className="mt-4 text-[14px] text-[#8b98b4]">
                 No credit card required · Set up in ~10 minutes
               </p>
             </div>
@@ -322,7 +322,7 @@ export default function HomePage() {
       {/* ─── 2. Social proof strip ─── */}
       <section className="border-y border-[#1a2236] px-5 py-10" style={{ background: '#0b1018' }}>
         <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-center text-[13px] font-semibold text-[#8b98b4]">
+          <p className="mb-6 text-center text-[14px] font-semibold text-[#8b98b4]">
             Built for indie hackers who’d rather ship than manage — the first early-access cohort is open
           </p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-5 lg:grid-cols-4">
@@ -336,7 +336,7 @@ export default function HomePage() {
                 <span className="mt-0.5 flex-shrink-0 text-[#a78bfa]">
                   <CheckIcon />
                 </span>
-                <span className="text-[13px] leading-snug text-[#8b98b4]">{item}</span>
+                <span className="text-[14px] leading-snug text-[#8b98b4]">{item}</span>
               </div>
             ))}
           </div>
@@ -367,7 +367,7 @@ export default function HomePage() {
                 style={{ background: '#0b1018' }}
               >
                 <div
-                  className="mb-5 inline-flex h-10 items-center justify-center rounded-xl px-3 text-[13px] font-bold text-[#a78bfa]"
+                  className="mb-5 inline-flex h-10 items-center justify-center rounded-xl px-3 text-[14px] font-bold text-[#a78bfa]"
                   style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)', fontFamily: 'var(--font-bricolage, sans-serif)' }}
                   aria-hidden="true"
                 >
@@ -426,7 +426,7 @@ export default function HomePage() {
                 >
                   {agent.name}
                 </h3>
-                <p className="text-[13px] leading-relaxed text-[#8b98b4]">{agent.role}</p>
+                <p className="text-[14px] leading-relaxed text-[#8b98b4]">{agent.role}</p>
               </div>
             ))}
           </div>
@@ -495,7 +495,7 @@ export default function HomePage() {
                       aria-hidden="true"
                     />
                     {/* Label */}
-                    <span className="text-[10px] font-semibold tracking-wide text-[#8b98b4]">{desk.label}</span>
+                    <span className="text-[12px] font-semibold tracking-wide text-[#8b98b4]">{desk.label}</span>
                     {/* Status light */}
                     <span
                       className="landing-dot-pulse h-1 w-1 rounded-full"
@@ -518,7 +518,7 @@ export default function HomePage() {
                       aria-hidden="true"
                     />
                     <span className="min-w-0 flex-1 truncate text-[12px] text-[#8b98b4]">{item.text}</span>
-                    <span className="flex-shrink-0 text-[11px] text-[#8b98b4]">{item.time}</span>
+                    <span className="flex-shrink-0 text-[12px] text-[#8b98b4]">{item.time}</span>
                   </li>
                 ))}
               </ul>
@@ -573,7 +573,7 @@ export default function HomePage() {
                 {plan.badge && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                     <span
-                      className="rounded-full px-3 py-1 text-[11px] font-bold tracking-wide text-[#a78bfa]"
+                      className="rounded-full px-3 py-1 text-[12px] font-bold tracking-wide text-[#a78bfa]"
                       style={{ background: 'rgba(20,12,40,1)', border: '1px solid rgba(167,139,250,0.3)' }}
                     >
                       {plan.badge}
@@ -582,7 +582,7 @@ export default function HomePage() {
                 )}
 
                 <div>
-                  <div className="mb-3 text-[13px] font-semibold text-[#8b98b4]">{plan.name}</div>
+                  <div className="mb-3 text-[14px] font-semibold text-[#8b98b4]">{plan.name}</div>
                   <div className="flex items-baseline gap-1">
                     <span
                       className="text-5xl font-extrabold text-[#eef2f8]"
@@ -590,7 +590,7 @@ export default function HomePage() {
                     >
                       ${plan.price.usd}
                     </span>
-                    <span className="text-[13px] text-[#8b98b4]">/mo</span>
+                    <span className="text-[14px] text-[#8b98b4]">/mo</span>
                   </div>
                   <div className="mt-1 text-[12px] text-[#8b98b4]">
                     ₹{plan.price.inr.toLocaleString('en-IN')}/mo
@@ -599,7 +599,7 @@ export default function HomePage() {
 
                 <ul className="flex flex-1 flex-col gap-3">
                   {plan.features.map(f => (
-                    <li key={f} className="flex items-start gap-2.5 text-[13px] leading-snug text-[#8b98b4]">
+                    <li key={f} className="flex items-start gap-2.5 text-[14px] leading-snug text-[#8b98b4]">
                       <span className="mt-0.5 flex-shrink-0 text-[#a78bfa]">
                         <CheckIcon />
                       </span>
@@ -671,7 +671,7 @@ export default function HomePage() {
                 while you do the work only you can do.
               </p>
               <CtaButton className="w-full sm:w-auto">Start free trial</CtaButton>
-              <p className="mt-4 text-[13px] text-[#8b98b4]">No credit card required</p>
+              <p className="mt-4 text-[14px] text-[#8b98b4]">No credit card required</p>
             </div>
           </div>
         </div>
@@ -696,15 +696,15 @@ export default function HomePage() {
                 Sangam<span className="text-[#a78bfa]">.ai</span>
               </span>
             </Link>
-            <p className="text-[13px] leading-relaxed text-[#8b98b4]">
+            <p className="text-[14px] leading-relaxed text-[#8b98b4]">
               Your AI team runs the company while you build.
             </p>
           </div>
 
           {/* Links */}
-          <div className="flex gap-14 text-[13px]">
+          <div className="flex gap-14 text-[14px]">
             <div className="flex flex-col">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8b98b4]">
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8b98b4]">
                 Product
               </div>
               {[
@@ -724,7 +724,7 @@ export default function HomePage() {
               ))}
             </div>
             <div className="flex flex-col">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8b98b4]">
+              <div className="mb-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8b98b4]">
                 Legal
               </div>
               {[
