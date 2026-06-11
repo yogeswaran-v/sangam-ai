@@ -85,8 +85,17 @@ test.describe('Onboarding wizard', () => {
       }
     }
 
-    await expect(page.getByRole('button', { name: /launch my team/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /launch my team/i })).toBeEnabled()
+    // Final form step shows "Review & Launch →" which leads to the review screen
+    const reviewBtn = page.getByRole('button', { name: /review & launch/i })
+    await expect(reviewBtn).toBeVisible()
+    await expect(reviewBtn).toBeEnabled()
+    await reviewBtn.click()
+
+    // Review screen has the final "Activate your team →" button
+    const activateBtn = page.getByRole('button', { name: /activate your team/i })
+    await expect(activateBtn).toBeVisible()
+    await expect(activateBtn).toBeEnabled()
+    await expect(page.getByText('Your team is assembled.')).toBeVisible()
   })
 
   test('back button works to go to previous step', async ({ page, context }) => {
@@ -138,7 +147,9 @@ test.describe('Onboarding wizard', () => {
         await nextBtn(page).click()
         await page.waitForTimeout(300)
       } else {
-        await page.getByRole('button', { name: /launch my team/i }).click()
+        // Last step: go to the review screen, then activate
+        await page.getByRole('button', { name: /review & launch/i }).click()
+        await page.getByRole('button', { name: /activate your team/i }).click()
       }
     }
 

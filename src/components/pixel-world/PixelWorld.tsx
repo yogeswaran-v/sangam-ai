@@ -642,7 +642,7 @@ export function PixelWorld() {
         <p className="text-sm font-semibold text-[#eef2f8]">The live office view needs a bigger screen</p>
         <p className="text-[13px] leading-relaxed text-[#8b98b4] max-w-xs">
           Open Sangam on a tablet or desktop to watch your agents move around HQ.
-          Their latest activity is in the feed below.
+          You can still read their latest updates below.
         </p>
       </div>
 

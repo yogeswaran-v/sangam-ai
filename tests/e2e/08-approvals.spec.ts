@@ -17,39 +17,47 @@ test.describe('Approvals center', () => {
     await expect(page.getByText(/third-party API/i)).toBeVisible()
   })
 
-  test('shows agent name on each approval card', async ({ page, context }) => {
+  // The current ApprovalCard no longer renders an agent name (the
+  // approval_requests table has no agent_name column). The closest
+  // equivalent is the description + status badge on each card.
+  test('shows description and status on each approval card', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/approvals')
 
-    await expect(page.getByText(/CEO Agent/i)).toBeVisible({ timeout: 8000 })
-    await expect(page.getByText(/Engineering Agent/i)).toBeVisible()
+    await expect(page.getByText(/marketing team needs \$5,000/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/integrate Stripe for payments/i)).toBeVisible()
+    // Status badge on pending cards (filter tab is also named "Pending", so .first()
+    // scoped check on the badge text)
+    await expect(page.getByText('Pending', { exact: true }).first()).toBeVisible()
   })
 
   test('approve button is present on pending requests', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/approvals')
 
-    await expect(page.getByRole('button', { name: /approve/i }).first()).toBeVisible({ timeout: 8000 })
+    // exact: true — /approve/i would also match the "Approved" filter tab
+    await expect(page.getByRole('button', { name: 'Approve', exact: true }).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('reject button is present on pending requests', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/approvals')
 
-    await expect(page.getByRole('button', { name: /reject|decline/i }).first()).toBeVisible({ timeout: 8000 })
+    // exact: true — /reject/i would also match the "Rejected" filter tab
+    await expect(page.getByRole('button', { name: 'Reject', exact: true }).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('approving a request updates its status', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/approvals')
 
-    // Click approve on first pending request
-    await page.getByRole('button', { name: /approve/i }).first().click()
+    // Click approve on first pending request ("Approve" exact — avoids the "Approved" filter tab)
+    await page.getByRole('button', { name: 'Approve', exact: true }).first().click()
 
-    // The card should either disappear or show "approved" status
-    await expect(
-      page.getByText(/approved/i).or(page.getByText(/Q1 marketing budget/i).locator('..').getByText(/approved/i))
-    ).toBeVisible({ timeout: 8000 })
+    // Approved requests move out of the default "Pending" filter —
+    // switch to the Approved tab and verify the resolved state renders
+    await page.getByRole('button', { name: 'Approved', exact: true }).click()
+    await expect(page.getByText(/you approved this/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('shows empty state when no pending approvals', async ({ page, context }) => {

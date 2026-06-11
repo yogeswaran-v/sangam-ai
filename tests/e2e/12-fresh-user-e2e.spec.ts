@@ -64,7 +64,9 @@ test.describe('Fresh user end-to-end journey', () => {
         await nextBtn.click()
         await page.waitForTimeout(300)
       } else {
-        await page.getByRole('button', { name: /launch my team/i }).click()
+        // Last step shows "Review & Launch →" → review screen → "Activate your team →"
+        await page.getByRole('button', { name: /review & launch/i }).click()
+        await page.getByRole('button', { name: /activate your team/i }).click()
       }
     }
 

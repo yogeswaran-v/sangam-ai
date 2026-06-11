@@ -7,27 +7,30 @@ test.describe('Team chat', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await expect(page.getByText('CEO Updates')).toBeVisible({ timeout: 8000 })
-    await expect(page.getByText('Engineering')).toBeVisible()
-    await expect(page.getByText('Product')).toBeVisible()
-    await expect(page.getByText('Marketing')).toBeVisible()
-    await expect(page.getByText('Sales')).toBeVisible()
-    await expect(page.getByText('Finance')).toBeVisible()
+    // Channels render as buttons in the channel list. Use role+exact name —
+    // the active channel name also appears in the feed header, and the sidebar
+    // has links like "Product Demo".
+    await expect(page.getByRole('button', { name: 'CEO Updates', exact: true })).toBeVisible({ timeout: 8000 })
+    await expect(page.getByRole('button', { name: 'Engineering', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Product', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Marketing', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Sales', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Finance', exact: true })).toBeVisible()
   })
 
   test('CEO Updates channel has welcome message from agent', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('CEO Updates').click()
-    await expect(page.getByText(/Mission briefing received|assembled and ready/i)).toBeVisible({ timeout: 8000 })
+    await page.getByRole('button', { name: 'CEO Updates', exact: true }).click()
+    await expect(page.getByText(/Mission briefing received|assembled and ready/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('clicking a channel loads its messages', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('Engineering').click()
+    await page.getByRole('button', { name: 'Engineering', exact: true }).click()
     // Message input should be visible when a channel is selected
     await expect(page.getByPlaceholder(/message|type/i)).toBeVisible({ timeout: 5000 })
   })
@@ -36,7 +39,7 @@ test.describe('Team chat', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('CEO Updates').click()
+    await page.getByRole('button', { name: 'CEO Updates', exact: true }).click()
     const input = page.getByPlaceholder(/message|type/i)
     await expect(input).toBeVisible({ timeout: 5000 })
   })
@@ -45,7 +48,7 @@ test.describe('Team chat', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('CEO Updates').click()
+    await page.getByRole('button', { name: 'CEO Updates', exact: true }).click()
     const input = page.getByPlaceholder(/message|type/i)
     await expect(input).toBeVisible({ timeout: 5000 })
     await input.fill('Hello, this is a test message')
@@ -59,10 +62,10 @@ test.describe('Team chat', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('CEO Updates').click()
+    await page.getByRole('button', { name: 'CEO Updates', exact: true }).click()
     await expect(page.getByPlaceholder(/message|type/i)).toBeVisible({ timeout: 5000 })
 
-    const sendBtn = page.getByRole('button', { name: /send/i })
+    const sendBtn = page.getByRole('button', { name: 'Send message', exact: true })
     if (await sendBtn.isVisible()) {
       await expect(sendBtn).toBeDisabled()
     }
@@ -72,7 +75,7 @@ test.describe('Team chat', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard/chat')
 
-    await page.getByText('CEO Updates').click()
-    await expect(page.getByText(/CEO Agent/i)).toBeVisible({ timeout: 8000 })
+    await page.getByRole('button', { name: 'CEO Updates', exact: true }).click()
+    await expect(page.getByText(/CEO Agent/i).first()).toBeVisible({ timeout: 8000 })
   })
 })

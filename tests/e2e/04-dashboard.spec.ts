@@ -7,31 +7,33 @@ test.describe('Dashboard', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
 
-    await expect(page.getByText(/mission control/i)).toBeVisible()
-    // Stats cards
-    await expect(page.getByText(/tasks active/i)).toBeVisible()
-    await expect(page.getByText(/pending approvals/i)).toBeVisible()
-    await expect(page.getByText(/messages today/i)).toBeVisible()
-    await expect(page.getByText(/tokens this month/i)).toBeVisible()
+    // TopBar heading (sidebar also has a "Mission Control" link — scope to the heading)
+    await expect(page.getByRole('heading', { name: 'Mission Control' })).toBeVisible()
+    // Stats cards (labels from LiveStats)
+    await expect(page.getByText('Tasks Active')).toBeVisible()
+    await expect(page.getByText('Pending Approvals')).toBeVisible()
+    await expect(page.getByText('Messages Today')).toBeVisible()
+    await expect(page.getByText('Spend / Month')).toBeVisible()
   })
 
   test('displays mission data from onboarding', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
 
-    await expect(page.getByText(/AI SaaS platform/i)).toBeVisible({ timeout: 8000 })
+    await expect(page.getByText(/AI SaaS platform/i).first()).toBeVisible({ timeout: 8000 })
   })
 
   test('sidebar is visible with all nav links', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
 
-    await expect(page.getByRole('link', { name: /kanban/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /chat/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /pixel world/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /approvals/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /usage/i })).toBeVisible()
-    await expect(page.getByRole('link', { name: /settings/i })).toBeVisible()
+    // Exact names — the stat cards are also links (e.g. "Pending Approvals")
+    await expect(page.getByRole('link', { name: 'Kanban', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Team Chat', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Pixel World', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Approvals', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Usage & Billing', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Settings', exact: true })).toBeVisible()
   })
 
   test('stats link to their respective pages', async ({ page, context }) => {
@@ -39,12 +41,12 @@ test.describe('Dashboard', () => {
     await page.goto('/dashboard')
 
     // Click "Tasks Active" stat card
-    await page.getByText(/tasks active/i).click()
+    await page.getByText('Tasks Active').click()
     await expect(page).toHaveURL(/\/kanban/)
     await page.goBack()
 
     // Click "Messages Today" stat card
-    await page.getByText(/messages today/i).click()
+    await page.getByText('Messages Today').click()
     await expect(page).toHaveURL(/\/chat/)
   })
 
@@ -52,13 +54,15 @@ test.describe('Dashboard', () => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
 
-    await page.getByRole('link', { name: /edit mission/i }).click()
+    // The Mission Brief card has an "Edit" link to settings
+    await page.getByRole('link', { name: 'Edit', exact: true }).click()
     await expect(page).toHaveURL(/\/settings/)
   })
 
   test('plan badge is displayed', async ({ page, context }) => {
     await injectSession(context, SHARED_EMAIL, SHARED_PASSWORD)
     await page.goto('/dashboard')
-    await expect(page.getByText(/starter|pro|scale/i)).toBeVisible()
+    // Shared test user is on the starter plan — badge renders "Starter"
+    await expect(page.getByText('Starter', { exact: true })).toBeVisible()
   })
 })
