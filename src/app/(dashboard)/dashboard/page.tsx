@@ -159,11 +159,19 @@ export default async function DashboardPage() {
                 className="text-[18px] font-bold text-[#eef2f8] mb-2"
                 style={{ fontFamily: 'var(--font-bricolage, sans-serif)' }}
               >
-                Agents initialising
+                Your team is getting set up
               </h3>
-              <p className="text-[13px] max-w-sm mx-auto leading-relaxed" style={{ color: '#4a566e' }}>
-                Your vision is being processed. Agents will begin working on your mission shortly.
+              <p className="text-[13px] max-w-sm mx-auto leading-relaxed mb-5" style={{ color: '#4a566e' }}>
+                Agents run on a daily work cycle — the first one kicks off within 24 hours
+                of onboarding. In the meantime, review the starter tasks they&apos;ll pick up first.
               </p>
+              <Link
+                href="/dashboard/kanban"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all duration-200"
+                style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
+              >
+                View starter tasks
+              </Link>
             </div>
           )}
 

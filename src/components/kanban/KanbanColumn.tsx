@@ -64,8 +64,12 @@ export function KanbanColumn({ column, cards, onMoveCard }: Props) {
         }}
       >
         {cards.length === 0 && (
-          <div className="text-center text-[#374151] text-xs py-8 border border-dashed border-[#1e1e2e] rounded-lg">
-            Empty
+          <div className="text-center text-xs py-8 px-3 border border-dashed border-[#1e1e2e] rounded-lg leading-relaxed text-[#4a566e]">
+            {column === 'backlog'
+              ? 'Your agents add tasks here as they plan work — or drag cards in yourself.'
+              : column === 'done'
+                ? 'Completed work lands here.'
+                : 'Cards move here as agents make progress.'}
           </div>
         )}
         {cards.map(card => (

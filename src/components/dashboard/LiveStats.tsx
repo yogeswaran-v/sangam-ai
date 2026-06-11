@@ -88,12 +88,12 @@ export function LiveStats() {
   }, [supabase, fetchStats])
 
   const cards = [
-    { label: 'Tasks Active', value: stats.activeTasks || '—', Icon: KanbanIcon, href: '/dashboard/kanban', accent: '#a78bfa', accentDim: 'rgba(124,58,237,0.08)', accentBorder: 'rgba(167,139,250,0.2)' },
-    { label: 'Pending Approvals', value: stats.pendingApprovals || '—', Icon: ApprovalIcon, href: '/dashboard/approvals', accent: '#fb923c', accentDim: 'rgba(251,146,60,0.08)', accentBorder: 'rgba(251,146,60,0.2)' },
-    { label: 'Messages Today', value: stats.messagesToday || '—', Icon: ChatIcon, href: '/dashboard/chat', accent: '#38bdf8', accentDim: 'rgba(56,189,248,0.08)', accentBorder: 'rgba(56,189,248,0.2)' },
+    { label: 'Tasks Active', value: stats.activeTasks, Icon: KanbanIcon, href: '/dashboard/kanban', accent: '#a78bfa', accentDim: 'rgba(124,58,237,0.08)', accentBorder: 'rgba(167,139,250,0.2)' },
+    { label: 'Pending Approvals', value: stats.pendingApprovals, Icon: ApprovalIcon, href: '/dashboard/approvals', accent: '#fb923c', accentDim: 'rgba(251,146,60,0.08)', accentBorder: 'rgba(251,146,60,0.2)' },
+    { label: 'Messages Today', value: stats.messagesToday, Icon: ChatIcon, href: '/dashboard/chat', accent: '#38bdf8', accentDim: 'rgba(56,189,248,0.08)', accentBorder: 'rgba(56,189,248,0.2)' },
     {
       label: 'Spend / Month',
-      value: stats.costThisMonth > 0 ? `$${stats.costThisMonth.toFixed(2)}` : '—',
+      value: `$${stats.costThisMonth.toFixed(2)}`,
       Icon: ZapIcon,
       href: '/dashboard/usage',
       accent: '#4ade80',

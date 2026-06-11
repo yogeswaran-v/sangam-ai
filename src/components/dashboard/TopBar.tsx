@@ -52,7 +52,7 @@ export function TopBar({ title }: { title?: string }) {
         {/* Sign out */}
         <button
           onClick={signOut}
-          className="flex items-center gap-1.5 text-[12px] transition-colors duration-200 cursor-pointer px-3 py-1.5 rounded-lg"
+          className="flex items-center justify-center gap-1.5 text-[12px] transition-colors duration-200 cursor-pointer px-3 rounded-lg min-h-11 min-w-11"
           style={{ color: '#4a566e', border: '1px solid transparent' }}
           onMouseEnter={e => {
             (e.currentTarget as HTMLButtonElement).style.color = '#eef2f8'

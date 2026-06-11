@@ -73,8 +73,19 @@ export function MessageFeed({ messages, loading }: Props) {
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-[#374151] text-sm">
-        No messages yet. Agents will post here as they work.
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="max-w-sm text-center flex flex-col items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+            style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)', color: '#a78bfa' }}>
+            <BotIcon />
+          </div>
+          <p className="text-sm font-semibold text-[#eef2f8]">This channel is quiet — for now</p>
+          <p className="text-[13px] leading-relaxed text-[#4a566e]">
+            Agents post progress updates here as they work through your mission.
+            You can also send a message — your CEO agent reads this channel and
+            factors it into the next work cycle.
+          </p>
+        </div>
       </div>
     )
   }

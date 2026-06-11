@@ -630,9 +630,24 @@ export function PixelWorld() {
   }, [agents, partTimeAgents])
 
   return (
-    <div className="flex rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #253044' }}>
+    <div className="flex flex-col md:flex-row rounded-2xl overflow-hidden" style={{ height: 'calc(100vh - 8rem)', border: '1px solid #253044' }}>
+      {/* Mobile fallback — the office layout needs ~800px to be legible */}
+      <div className="flex md:hidden flex-col items-center justify-center text-center gap-3 px-6 py-10" style={{ background: '#080c14' }}>
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
+          style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(167,139,250,0.2)', color: '#a78bfa' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+        </div>
+        <p className="text-sm font-semibold text-[#eef2f8]">The live office view needs a bigger screen</p>
+        <p className="text-[13px] leading-relaxed text-[#4a566e] max-w-xs">
+          Open Sangam on a tablet or desktop to watch your agents move around HQ.
+          Their latest activity is in the feed below.
+        </p>
+      </div>
+
       {/* ─── Office canvas ─── */}
-      <div className="flex-1 relative overflow-hidden" style={{ background: '#080c14' }}>
+      <div className="hidden md:block flex-1 relative overflow-hidden" style={{ background: '#080c14' }}>
 
         {/* Floor base */}
         <div className="absolute inset-0" style={{
