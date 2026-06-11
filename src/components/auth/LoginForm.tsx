@@ -51,7 +51,13 @@ export function LoginForm() {
   const [otpStep, setOtpStep] = useState<'initial' | 'otp'>('initial')
 
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // Surface errors passed back from the OAuth callback redirect (?error=...)
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const err = new URLSearchParams(window.location.search).get('error')
+    if (!err) return null
+    return err === 'auth_failed' ? 'Sign-in failed. Please try again.' : err
+  })
   const [copied, setCopied] = useState(false)
 
   const [inApp] = useState(() => detectInAppBrowser())
