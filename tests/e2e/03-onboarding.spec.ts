@@ -136,10 +136,9 @@ test.describe('Onboarding wizard', () => {
       'MVP in 4 weeks, beta launch in 8 weeks, GA in 3 months',
     ]
 
-    // Intercept the API call to verify it's made correctly
-    const apiPromise = page.waitForResponse(resp =>
-      resp.url().includes('/api/onboarding') && resp.request().method() === 'POST'
-    )
+    // Armed right before the activate click — the activation screen
+    // animates ~4s before POSTing, so arming earlier eats the timeout
+    let apiPromise: ReturnType<typeof page.waitForResponse> | undefined
 
     for (let i = 0; i < answers.length; i++) {
       await page.getByRole('textbox').fill(answers[i])
@@ -149,12 +148,16 @@ test.describe('Onboarding wizard', () => {
       } else {
         // Last step: go to the review screen, then activate
         await page.getByRole('button', { name: /review & launch/i }).click()
+        apiPromise = page.waitForResponse(resp =>
+          resp.url().includes('/api/onboarding') && resp.request().method() === 'POST',
+          { timeout: 30000 }
+        )
         await page.getByRole('button', { name: /activate your team/i }).click()
       }
     }
 
     // Verify the API call succeeds
-    const apiResponse = await apiPromise
+    const apiResponse = await apiPromise!
     expect(apiResponse.status()).toBe(200)
     const apiBody = await apiResponse.json()
     expect(apiBody.success).toBe(true)

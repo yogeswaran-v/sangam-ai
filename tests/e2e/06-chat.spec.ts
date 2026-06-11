@@ -54,8 +54,10 @@ test.describe('Team chat', () => {
     await input.fill('Hello, this is a test message')
     await page.keyboard.press('Enter')
 
-    // Message should appear in feed
-    await expect(page.getByText('Hello, this is a test message')).toBeVisible({ timeout: 5000 })
+    // Message should appear in feed — .first() because prior runs may
+    // have left the same message in the channel, and the textarea
+    // briefly holds the same text while the send is in flight
+    await expect(page.getByText('Hello, this is a test message').first()).toBeVisible({ timeout: 5000 })
   })
 
   test('send button is disabled when input is empty', async ({ page, context }) => {

@@ -77,6 +77,8 @@ export function ChatInterface() {
       }, payload => {
         const incoming = payload.new as ChatMessage
         setMessages(prev => {
+          // Already have this message (e.g. from a refetch) — don't duplicate
+          if (prev.some(m => m.id === incoming.id)) return prev
           // Replace matching temp message or just append
           const withoutTemp = prev.filter(m => !(m.id.startsWith('temp-') && m.content === incoming.content && m.sender_type === incoming.sender_type))
           return [...withoutTemp, incoming]
