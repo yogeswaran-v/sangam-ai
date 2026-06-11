@@ -57,6 +57,18 @@ export default async function DashboardPage() {
       <main className="p-6 lg:p-8">
         <div className="max-w-5xl mx-auto">
 
+          {/* Early access banner */}
+          <div
+            className="mb-6 flex items-center gap-3 px-4 py-3 rounded-xl text-[13px]"
+            style={{ background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)' }}
+          >
+            <span className="text-base">🚀</span>
+            <p style={{ color: '#a78bfa' }}>
+              <span className="font-semibold">You&apos;re in early access.</span>
+              {' '}Your AI team is being activated. Agents will start executing tasks and posting updates here soon.
+            </p>
+          </div>
+
           {/* Page header */}
           <div className="mb-8 flex items-start justify-between gap-4">
             <div>
