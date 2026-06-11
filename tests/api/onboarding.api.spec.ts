@@ -57,6 +57,9 @@ test.describe('POST /api/onboarding', () => {
 
     const res = await context.request.post('/api/onboarding', {
       data: VALID_PAYLOAD,
+      // The route performs ~8 sequential Supabase writes; 10s default is
+      // too tight on slow CI + remote DB round-trips
+      timeout: 30000,
     })
 
     expect(res.status()).toBe(200)
