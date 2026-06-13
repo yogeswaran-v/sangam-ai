@@ -107,10 +107,11 @@ export async function seedOnboardedUser(userId: string) {
     .single()
 
   if (board) {
+    // Titles mirror the starter cards seeded by /api/onboarding
     await admin.from('kanban_cards').insert([
-      { board_id: board.id, title: 'Define MVP scope', column_name: 'backlog', priority: 'high', assigned_agent: 'Product Agent' },
-      { board_id: board.id, title: 'Set up architecture', column_name: 'in_progress', priority: 'high', assigned_agent: 'Engineering Agent' },
-      { board_id: board.id, title: 'Go-to-market strategy', column_name: 'review', priority: 'medium', assigned_agent: 'Marketing Agent' },
+      { board_id: board.id, title: 'Define MVP feature scope', column_name: 'backlog', priority: 'high', assigned_agent: 'Product Agent' },
+      { board_id: board.id, title: 'Set up project architecture', column_name: 'in_progress', priority: 'high', assigned_agent: 'Engineering Agent' },
+      { board_id: board.id, title: 'Create go-to-market strategy', column_name: 'review', priority: 'medium', assigned_agent: 'Marketing Agent' },
     ])
   }
 

@@ -5,10 +5,10 @@ import type { KanbanCard, KanbanColumn } from '@/types/kanban'
 import { KanbanCardModal } from './KanbanCardModal'
 
 const PRIORITY_STYLES: Record<string, { text: string; bg: string; border: string }> = {
-  low: { text: 'text-[#4b5563]', bg: 'bg-[#4b5563]/10', border: 'border-[#4b5563]/30' },
+  low: { text: 'text-[#9ca3af]', bg: 'bg-[#4b5563]/10', border: 'border-[#4b5563]/30' },
   medium: { text: 'text-[#f59e0b]', bg: 'bg-[#f59e0b]/10', border: 'border-[#f59e0b]/30' },
   high: { text: 'text-[#ef4444]', bg: 'bg-[#ef4444]/10', border: 'border-[#ef4444]/30' },
-  critical: { text: 'text-[#dc2626]', bg: 'bg-[#dc2626]/10', border: 'border-[#dc2626]/40' },
+  critical: { text: 'text-[#f87171]', bg: 'bg-[#dc2626]/10', border: 'border-[#dc2626]/40' },
 }
 
 const COLUMN_LABELS: Record<KanbanColumn, string> = {
@@ -59,12 +59,12 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
           <span className="text-sm text-white font-medium leading-snug">{card.title}</span>
           <div className="flex items-center gap-1 flex-shrink-0">
             {card.requires_approval && !card.approved_by_ceo && (
-              <span className="text-[10px] bg-red-500/15 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full font-medium">
+              <span className="text-[12px] bg-red-500/15 text-red-400 border border-red-500/30 px-1.5 py-0.5 rounded-full font-medium">
                 Approval
               </span>
             )}
             {card.approved_by_ceo && (
-              <span className="text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full font-medium">
+              <span className="text-[12px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded-full font-medium">
                 Approved
               </span>
             )}
@@ -72,17 +72,17 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
         </div>
 
         {card.description && (
-          <p className="text-xs text-[#4b5563] mb-3 line-clamp-2 leading-relaxed">{card.description}</p>
+          <p className="text-xs text-[#9ca3af] mb-3 line-clamp-2 leading-relaxed">{card.description}</p>
         )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {card.assigned_agent && (
-              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.1)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.2)' }}>
+              <span className="text-[12px] font-semibold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(167,139,250,0.1)', color: '#a78bfa', border: '1px solid rgba(167,139,250,0.2)' }}>
                 {card.assigned_agent.replace(' Agent', '')}
               </span>
             )}
-            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${priority.text} ${priority.bg} ${priority.border}`}>
+            <span className={`text-[12px] font-semibold px-1.5 py-0.5 rounded-full border ${priority.text} ${priority.bg} ${priority.border}`}>
               {card.priority}
             </span>
           </div>
@@ -90,7 +90,7 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
           <div className="relative" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="text-[11px] text-[#374151] hover:text-[#818cf8] transition-colors px-1.5 py-0.5 rounded cursor-pointer"
+              className="text-[12px] text-[#9ca3af] hover:text-[#818cf8] transition-colors px-1.5 py-0.5 rounded cursor-pointer"
             >
               Move ▾
             </button>
@@ -102,7 +102,7 @@ export function KanbanCardItem({ card, currentColumn, allColumns, onMove }: Prop
                     <button
                       key={col}
                       onClick={() => move(col)}
-                      className="w-full text-left px-3 py-2 text-xs text-[#6b7280] hover:bg-[#6366f1]/10 hover:text-white transition-colors cursor-pointer"
+                      className="w-full text-left px-3 py-2 text-xs text-[#9ca3af] hover:bg-[#6366f1]/10 hover:text-white transition-colors cursor-pointer"
                     >
                       → {COLUMN_LABELS[col]}
                     </button>

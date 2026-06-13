@@ -120,12 +120,12 @@ function KPIBar({ label, sublabel, currentLabel, totalLabel, color, pct, note }:
     <div className="rounded-2xl p-5" style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
       <div className="flex items-center justify-between mb-3">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: '#4a566e' }}>{label}</div>
-          <div className="text-[11px] mt-0.5 line-clamp-1" style={{ color: '#2e3b52' }}>{sublabel}</div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.14em]" style={{ color: '#8b98b4' }}>{label}</div>
+          <div className="text-[12px] mt-0.5 line-clamp-1" style={{ color: '#7c8aa5' }}>{sublabel}</div>
         </div>
         <div className="text-right">
           <div className="text-[18px] font-bold" style={{ color, fontFamily: 'var(--font-bricolage)' }}>{currentLabel}</div>
-          <div className="text-[10px]" style={{ color: '#4a566e' }}>of {totalLabel}</div>
+          <div className="text-[12px]" style={{ color: '#8b98b4' }}>of {totalLabel}</div>
         </div>
       </div>
       {/* Bar */}
@@ -135,7 +135,7 @@ function KPIBar({ label, sublabel, currentLabel, totalLabel, color, pct, note }:
           style={{ width: `${Math.max(2, pct)}%`, background: color, boxShadow: `0 0 8px ${color}60` }}
         />
       </div>
-      <div className="text-[11px] mt-2" style={{ color: '#4a566e' }}>{note}</div>
+      <div className="text-[12px] mt-2" style={{ color: '#8b98b4' }}>{note}</div>
     </div>
   )
 }

@@ -27,7 +27,7 @@ const input = {
     borderRadius: 12,
     color: '#eef2f8',
     padding: '10px 14px',
-    fontSize: 13,
+    fontSize: 14,
     outline: 'none',
     width: '100%',
   } as React.CSSProperties,
@@ -88,7 +88,7 @@ function SectionCard({ title, subtitle, children }: { title: string; subtitle?: 
         <h3 style={{ fontFamily: 'var(--font-bricolage)', fontSize: 15, fontWeight: 700, color: '#eef2f8', margin: 0 }}>
           {title}
         </h3>
-        {subtitle && <p style={{ fontSize: 12, color: '#4a566e', marginTop: 4 }}>{subtitle}</p>}
+        {subtitle && <p style={{ fontSize: 12, color: '#8b98b4', marginTop: 4 }}>{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -96,13 +96,13 @@ function SectionCard({ title, subtitle, children }: { title: string; subtitle?: 
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <div style={{ fontSize: 11, fontWeight: 600, color: '#4a566e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>{children}</div>
+  return <div style={{ fontSize: 12, fontWeight: 600, color: '#8b98b4', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>{children}</div>
 }
 
 function SaveButton({ onClick, loading, label = 'Save' }: { onClick: () => void; loading: boolean; label?: string }) {
   return (
     <button onClick={onClick} disabled={loading}
-      style={{ background: '#7c3aed', color: 'white', border: 'none', borderRadius: 10, padding: '9px 20px', fontSize: 13, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
+      style={{ background: '#7c3aed', color: 'white', border: 'none', borderRadius: 10, padding: '9px 20px', fontSize: 14, fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1 }}>
       {loading ? 'Saving\u2026' : label}
     </button>
   )
@@ -110,7 +110,7 @@ function SaveButton({ onClick, loading, label = 'Save' }: { onClick: () => void;
 
 function StatusBadge({ connected }: { connected: boolean }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: connected ? '#22c55e' : '#4a566e' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: connected ? '#22c55e' : '#4a566e' }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: connected ? '#22c55e' : '#253044', display: 'inline-block', boxShadow: connected ? '0 0 5px rgba(34,197,94,0.6)' : 'none' }} />
       {connected ? 'Connected' : 'Not connected'}
     </div>
@@ -216,8 +216,8 @@ export function SettingsForm() {
     setResetting(false)
   }
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '64px 0', fontSize: 13, color: '#4a566e' }}>Loading\u2026</div>
-  if (!customer) return <div style={{ textAlign: 'center', padding: '64px 0', fontSize: 13, color: '#4a566e' }}>Complete onboarding first.</div>
+  if (loading) return <div style={{ textAlign: 'center', padding: '64px 0', fontSize: 14, color: '#8b98b4' }}>Loading\u2026</div>
+  if (!customer) return <div style={{ textAlign: 'center', padding: '64px 0', fontSize: 14, color: '#8b98b4' }}>Complete onboarding first.</div>
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 640 }}>
@@ -225,7 +225,7 @@ export function SettingsForm() {
       {/* Global save message */}
       {saveMsg && (
         <div style={{
-          padding: '10px 14px', borderRadius: 10, fontSize: 13,
+          padding: '10px 14px', borderRadius: 10, fontSize: 14,
           background: saveMsg.type === 'success' ? 'rgba(34,197,94,0.08)' : 'rgba(244,63,94,0.08)',
           border: `1px solid ${saveMsg.type === 'success' ? 'rgba(34,197,94,0.2)' : 'rgba(244,63,94,0.2)'}`,
           color: saveMsg.type === 'success' ? '#22c55e' : '#f43f5e',
@@ -275,8 +275,8 @@ export function SettingsForm() {
                   <TelegramIcon />
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>Telegram</div>
-                  <div style={{ fontSize: 11, color: '#4a566e' }}>Bot notifications</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>Telegram</div>
+                  <div style={{ fontSize: 12, color: '#8b98b4' }}>Bot notifications</div>
                 </div>
               </div>
               <StatusBadge connected={!!(customer.telegram_chat_id && customer.telegram_bot_token)} />
@@ -286,14 +286,14 @@ export function SettingsForm() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {[
                 { n: '1', text: <>Open Telegram and search for <strong style={{ color: '#29b6f6' }}>@BotFather</strong></> },
-                { n: '2', text: <>Send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/newbot</code> and follow the prompts to create your bot. Choose any name and username.</> },
-                { n: '3', text: <>BotFather gives you a <strong style={{ color: '#eef2f8' }}>Bot Token</strong> (looks like <code style={{ fontSize: 11, color: '#8b98b4' }}>123456:ABC-DEF...</code>). Copy and paste it below.</> },
+                { n: '2', text: <>Send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 12 }}>/newbot</code> and follow the prompts to create your bot. Choose any name and username.</> },
+                { n: '3', text: <>BotFather gives you a <strong style={{ color: '#eef2f8' }}>Bot Token</strong> (looks like <code style={{ fontSize: 12, color: '#8b98b4' }}>123456:ABC-DEF...</code>). Copy and paste it below.</> },
                 { n: '4', text: <>Search for your new bot by username in Telegram and tap <strong style={{ color: '#29b6f6' }}>Start</strong>. This activates the bot so it can message you.</> },
-                { n: '5', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 11 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
+                { n: '5', text: <>Search for <strong style={{ color: '#29b6f6' }}>@userinfobot</strong> on Telegram and send <code style={{ background: 'rgba(41,182,246,0.1)', color: '#29b6f6', padding: '1px 5px', borderRadius: 4, fontSize: 12 }}>/start</code>. It replies with your <strong style={{ color: '#eef2f8' }}>Chat ID</strong>.</> },
                 { n: '6', text: <>Paste both below and click <strong style={{ color: '#eef2f8' }}>Test</strong>. Your CEO Agent will message you.</> },
               ].map(s => (
                 <div key={s.n} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                  <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#29b6f6', flexShrink: 0 }}>{s.n}</span>
+                  <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(41,182,246,0.12)', border: '1px solid rgba(41,182,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#29b6f6', flexShrink: 0 }}>{s.n}</span>
                   <span style={{ fontSize: 12, color: '#8b98b4', lineHeight: 1.6 }}>{s.text}</span>
                 </div>
               ))}
@@ -301,7 +301,7 @@ export function SettingsForm() {
 
             {/* Bot token input */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#4a566e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Bot Token</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#8b98b4', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Bot Token</div>
               <Input
                 value={customer.telegram_bot_token ?? ''}
                 onChange={v => setCustomer(p => p ? { ...p, telegram_bot_token: v } : p)}
@@ -311,7 +311,7 @@ export function SettingsForm() {
 
             {/* Chat ID input + test */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#4a566e', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Your Chat ID</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#8b98b4', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Your Chat ID</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <div style={{ flex: 1 }}>
                   <Input
@@ -372,7 +372,7 @@ export function SettingsForm() {
             onClick={resetAll}
             disabled={resetting}
             style={{
-              padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
+              padding: '9px 20px', borderRadius: 10, fontSize: 14, fontWeight: 600,
               cursor: resetting ? 'not-allowed' : 'pointer', opacity: resetting ? 0.6 : 1,
               background: resetConfirm ? 'rgba(244,63,94,0.15)' : 'transparent',
               border: `1px solid ${resetConfirm ? 'rgba(244,63,94,0.5)' : '#253044'}`,
@@ -383,7 +383,7 @@ export function SettingsForm() {
             {resetting ? 'Resetting\u2026' : resetConfirm ? 'Confirm \u2014 delete everything' : 'Reset All & Start Fresh'}
           </button>
           {resetConfirm && !resetting && (
-            <p style={{ fontSize: 11, color: '#f43f5e' }}>
+            <p style={{ fontSize: 12, color: '#f43f5e' }}>
               Click again to confirm. This cannot be undone.
             </p>
           )}

@@ -115,9 +115,9 @@ export function Sidebar() {
         <button
           onClick={() => setMobileOpen(false)}
           className="lg:hidden transition-colors cursor-pointer p-1 rounded-lg"
-          style={{ color: '#4a566e' }}
+          style={{ color: '#8b98b4' }}
           onMouseEnter={e => (e.currentTarget as HTMLButtonElement).style.color = '#eef2f8'}
-          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = '#4a566e'}
+          onMouseLeave={e => (e.currentTarget as HTMLButtonElement).style.color = '#8b98b4'}
           aria-label="Close menu"
         >
           <Icons.Close />
@@ -138,13 +138,13 @@ export function Sidebar() {
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
                 aria-current={active ? 'page' : undefined}
-                className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-200 cursor-pointer group overflow-hidden"
+                className="relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[14px] transition-all duration-200 cursor-pointer group overflow-hidden"
                 style={active ? {
                   background: 'rgba(124,58,237,0.1)',
                   color: '#eef2f8',
                   border: '1px solid rgba(167,139,250,0.15)',
                 } : {
-                  color: '#4a566e',
+                  color: '#8b98b4',
                   border: '1px solid transparent',
                 }}
                 onMouseEnter={e => {
@@ -156,7 +156,7 @@ export function Sidebar() {
                 onMouseLeave={e => {
                   if (!active) {
                     (e.currentTarget as HTMLAnchorElement).style.background = 'transparent'
-                    ;(e.currentTarget as HTMLAnchorElement).style.color = '#4a566e'
+                    ;(e.currentTarget as HTMLAnchorElement).style.color = '#8b98b4'
                   }
                 }}
               >
@@ -177,7 +177,7 @@ export function Sidebar() {
 
       {/* Status footer */}
       <div className="px-4 py-4 flex-shrink-0" style={{ borderTop: '1px solid #1a2236' }}>
-        <div className="flex items-center gap-2 text-[12px]" style={{ color: '#4a566e' }}>
+        <div className="flex items-center gap-2 text-[12px]" style={{ color: '#8b98b4' }}>
           <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inset-0 rounded-full bg-emerald-400 opacity-60" />
             <span className="relative block h-1.5 w-1.5 rounded-full bg-emerald-500" />

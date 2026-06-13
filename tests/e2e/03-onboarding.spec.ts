@@ -85,8 +85,17 @@ test.describe('Onboarding wizard', () => {
       }
     }
 
-    await expect(page.getByRole('button', { name: /launch my team/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /launch my team/i })).toBeEnabled()
+    // Final form step shows "Review & Launch →" which leads to the review screen
+    const reviewBtn = page.getByRole('button', { name: /review & launch/i })
+    await expect(reviewBtn).toBeVisible()
+    await expect(reviewBtn).toBeEnabled()
+    await reviewBtn.click()
+
+    // Review screen has the final "Activate your team →" button
+    const activateBtn = page.getByRole('button', { name: /activate your team/i })
+    await expect(activateBtn).toBeVisible()
+    await expect(activateBtn).toBeEnabled()
+    await expect(page.getByText('Your team is assembled.')).toBeVisible()
   })
 
   test('back button works to go to previous step', async ({ page, context }) => {
@@ -127,10 +136,9 @@ test.describe('Onboarding wizard', () => {
       'MVP in 4 weeks, beta launch in 8 weeks, GA in 3 months',
     ]
 
-    // Intercept the API call to verify it's made correctly
-    const apiPromise = page.waitForResponse(resp =>
-      resp.url().includes('/api/onboarding') && resp.request().method() === 'POST'
-    )
+    // Armed right before the activate click — the activation screen
+    // animates ~4s before POSTing, so arming earlier eats the timeout
+    let apiPromise: ReturnType<typeof page.waitForResponse> | undefined
 
     for (let i = 0; i < answers.length; i++) {
       await page.getByRole('textbox').fill(answers[i])
@@ -138,12 +146,18 @@ test.describe('Onboarding wizard', () => {
         await nextBtn(page).click()
         await page.waitForTimeout(300)
       } else {
-        await page.getByRole('button', { name: /launch my team/i }).click()
+        // Last step: go to the review screen, then activate
+        await page.getByRole('button', { name: /review & launch/i }).click()
+        apiPromise = page.waitForResponse(resp =>
+          resp.url().includes('/api/onboarding') && resp.request().method() === 'POST',
+          { timeout: 30000 }
+        )
+        await page.getByRole('button', { name: /activate your team/i }).click()
       }
     }
 
     // Verify the API call succeeds
-    const apiResponse = await apiPromise
+    const apiResponse = await apiPromise!
     expect(apiResponse.status()).toBe(200)
     const apiBody = await apiResponse.json()
     expect(apiBody.success).toBe(true)

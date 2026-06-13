@@ -63,7 +63,7 @@ export function ActivityFeed({ events, agents }: Props) {
       {/* Header */}
       <div className="px-4 py-3.5 flex-shrink-0" style={{ borderBottom: '1px solid #1a2236' }}>
         <div className="flex items-center justify-between">
-          <h3 className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.12em]" style={{ color: '#8b98b4', fontFamily: 'var(--font-bricolage)' }}>
             Live Activity
           </h3>
           {workingAgents.length > 0 && (
@@ -97,10 +97,10 @@ export function ActivityFeed({ events, agents }: Props) {
       <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
         {events.length === 0 && (
           <div className="px-2 py-8 text-center">
-            <div className="text-[11px] font-semibold mb-1" style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+            <div className="text-[11px] font-semibold mb-1" style={{ color: '#8b98b4', fontFamily: 'var(--font-bricolage)' }}>
               No activity yet
             </div>
-            <p className="text-[11px]" style={{ color: '#2e3b52' }}>
+            <p className="text-[11px]" style={{ color: '#7c8aa5' }}>
               Waiting for agents to start working on your mission.
             </p>
           </div>
@@ -123,7 +123,7 @@ export function ActivityFeed({ events, agents }: Props) {
                     {event.agent_name}
                   </span>
                 </div>
-                <span className="text-[10px] flex-shrink-0" style={{ color: '#2e3b52' }}>
+                <span className="text-[10px] flex-shrink-0" style={{ color: '#7c8aa5' }}>
                   {timeAgo(event.created_at)}
                 </span>
               </div>
@@ -138,7 +138,7 @@ export function ActivityFeed({ events, agents }: Props) {
 
       {/* Footer */}
       <div className="px-4 py-3 flex-shrink-0" style={{ borderTop: '1px solid #1a2236' }}>
-        <div className="flex items-center gap-2 text-[11px]" style={{ color: '#2e3b52' }}>
+        <div className="flex items-center gap-2 text-[11px]" style={{ color: '#7c8aa5' }}>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
           </svg>

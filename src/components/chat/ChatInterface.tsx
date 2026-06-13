@@ -77,6 +77,8 @@ export function ChatInterface() {
       }, payload => {
         const incoming = payload.new as ChatMessage
         setMessages(prev => {
+          // Already have this message (e.g. from a refetch) — don't duplicate
+          if (prev.some(m => m.id === incoming.id)) return prev
           // Replace matching temp message or just append
           const withoutTemp = prev.filter(m => !(m.id.startsWith('temp-') && m.content === incoming.content && m.sender_type === incoming.sender_type))
           return [...withoutTemp, incoming]
@@ -127,7 +129,7 @@ export function ChatInterface() {
   const activeChannel = channels.find(c => c.id === activeChannelId)
 
   if (loadingChannels) {
-    return <div className="flex-1 flex items-center justify-center text-[#6b7280]">Loading...</div>
+    return <div className="flex-1 flex items-center justify-center text-[#9ca3af]">Loading...</div>
   }
 
   return (
@@ -141,9 +143,9 @@ export function ChatInterface() {
         {activeChannel && (
           <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center gap-3">
             <h3 className="text-sm font-semibold text-white">{activeChannel.name}</h3>
-            <span className="text-xs text-[#4b5563]">#{activeChannel.department}</span>
+            <span className="text-xs text-[#9ca3af]">#{activeChannel.department}</span>
             <button onClick={clearChannel}
-              style={{ marginLeft: 'auto', fontSize: 11, color: '#4a566e', background: 'transparent', border: '1px solid #1a2236', borderRadius: 8, padding: '4px 10px', cursor: 'pointer' }}>
+              style={{ marginLeft: 'auto', fontSize: 12, color: '#8b98b4', background: 'transparent', border: '1px solid #1a2236', borderRadius: 8, padding: '4px 10px', cursor: 'pointer' }}>
               Clear
             </button>
           </div>

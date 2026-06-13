@@ -51,7 +51,7 @@ export function ChannelList({ channels, activeChannelId, onSelect }: Props) {
   return (
     <aside className="w-56 flex-shrink-0 border-r border-[#1e1e2e] flex flex-col bg-[#07070a]">
       <div className="p-4 border-b border-[#1e1e2e]">
-        <h3 className="text-[10px] font-bold text-[#374151] uppercase tracking-[0.15em]">Channels</h3>
+        <h3 className="text-[12px] font-bold text-[#9ca3af] uppercase tracking-[0.15em]">Channels</h3>
       </div>
       <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
         {channels.map(ch => {
@@ -64,10 +64,10 @@ export function ChannelList({ channels, activeChannelId, onSelect }: Props) {
               className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 cursor-pointer group ${
                 active
                   ? 'bg-[#6366f1]/15 text-white border border-[#6366f1]/30 shadow-[0_0_8px_rgba(99,102,241,0.1)]'
-                  : 'text-[#4b5563] hover:bg-[#12121a] hover:text-[#d1d5db] border border-transparent'
+                  : 'text-[#9ca3af] hover:bg-[#12121a] hover:text-[#d1d5db] border border-transparent'
               }`}
             >
-              <span className={`flex-shrink-0 transition-colors ${active ? 'text-[#818cf8]' : 'text-[#374151] group-hover:text-[#818cf8]'}`}>
+              <span className={`flex-shrink-0 transition-colors ${active ? 'text-[#818cf8]' : 'text-[#9ca3af] group-hover:text-[#818cf8]'}`}>
                 <Icon />
               </span>
               <span className="truncate font-medium">{ch.name}</span>
@@ -75,7 +75,7 @@ export function ChannelList({ channels, activeChannelId, onSelect }: Props) {
           )
         })}
         {channels.length === 0 && (
-          <p className="text-xs text-[#374151] px-3 py-4 leading-relaxed">
+          <p className="text-xs text-[#9ca3af] px-3 py-4 leading-relaxed">
             No channels yet. Complete onboarding to activate your team.
           </p>
         )}

@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <h2 className="text-lg font-semibold text-white">
             {this.props.fallbackMessage ?? 'Something went wrong'}
           </h2>
-          <p className="text-sm text-[#6b7280] text-center max-w-md">
+          <p className="text-sm text-[#9ca3af] text-center max-w-md">
             This section encountered an error. Try refreshing the page.
           </p>
           <button

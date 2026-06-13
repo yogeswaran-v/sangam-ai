@@ -55,7 +55,7 @@ export function MessageInput({ onSend, disabled }: Props) {
           <SendIcon />
         </button>
       </div>
-      <p className="text-[#374151] text-[11px] mt-1.5 px-1">Shift+Enter for new line</p>
+      <p className="text-[#9ca3af] text-[12px] mt-1.5 px-1">Shift+Enter for new line</p>
     </div>
   )
 }

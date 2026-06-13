@@ -52,10 +52,9 @@ test.describe('Fresh user end-to-end journey', () => {
       .or(page.getByRole('button', { name: 'Next →' }))
       .last()
 
-    // Intercept the API call
-    const apiPromise = page.waitForResponse(resp =>
-      resp.url().includes('/api/onboarding') && resp.request().method() === 'POST'
-    )
+    // Armed right before the activate click — the activation screen
+    // animates ~4s before POSTing, so arming earlier eats the timeout
+    let apiPromise: ReturnType<typeof page.waitForResponse> | undefined
 
     for (let i = 0; i < answers.length; i++) {
       await expect(page.getByText(`Step ${i + 1} of 4`)).toBeVisible()
@@ -64,12 +63,18 @@ test.describe('Fresh user end-to-end journey', () => {
         await nextBtn.click()
         await page.waitForTimeout(300)
       } else {
-        await page.getByRole('button', { name: /launch my team/i }).click()
+        // Last step shows "Review & Launch →" → review screen → "Activate your team →"
+        await page.getByRole('button', { name: /review & launch/i }).click()
+        apiPromise = page.waitForResponse(resp =>
+          resp.url().includes('/api/onboarding') && resp.request().method() === 'POST',
+          { timeout: 30000 }
+        )
+        await page.getByRole('button', { name: /activate your team/i }).click()
       }
     }
 
     // Verify API succeeded
-    const apiResponse = await apiPromise
+    const apiResponse = await apiPromise!
     expect(apiResponse.status()).toBe(200)
 
     // Should land on dashboard

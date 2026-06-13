@@ -9,7 +9,6 @@ function detectInAppBrowser(): { isInApp: boolean; isAndroid: boolean; name: str
   if (typeof navigator === 'undefined') return { isInApp: false, isAndroid: false, name: '' }
   const ua = navigator.userAgent || ''
   const isAndroid = /Android/i.test(ua)
-  // Named in-app browsers
   if (/LinkedInApp|\[LinkedInApp\]/i.test(ua)) return { isInApp: true, isAndroid, name: 'LinkedIn' }
   if (/LinkedIn/i.test(ua))                    return { isInApp: true, isAndroid, name: 'LinkedIn' }
   if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua))      return { isInApp: true, isAndroid, name: 'Facebook' }
@@ -20,7 +19,6 @@ function detectInAppBrowser(): { isInApp: boolean; isAndroid: boolean; name: str
   if (/GSA\//i.test(ua))                       return { isInApp: true, isAndroid, name: 'Google App' }
   if (/Snapchat/i.test(ua))                    return { isInApp: true, isAndroid, name: 'Snapchat' }
   if (/BytedanceWebview|TikTok/i.test(ua))     return { isInApp: true, isAndroid, name: 'TikTok' }
-  // Generic WebView signals — wv in parens is Android WebView marker
   if (/\bwv\b/i.test(ua) && isAndroid)         return { isInApp: true, isAndroid, name: 'in-app browser' }
   return { isInApp: false, isAndroid, name: '' }
 }
@@ -34,21 +32,40 @@ const GoogleIcon = () => (
   </svg>
 )
 
+type AuthTab = 'email' | 'phone'
+type EmailStep = 'form' | 'check_email'
+type FormMode = 'signin' | 'signup'
+
 export function LoginForm() {
+  const [tab, setTab] = useState<AuthTab>('email')
+
+  // Email/password state
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [formMode, setFormMode] = useState<FormMode>('signin')
+  const [emailStep, setEmailStep] = useState<EmailStep>('form')
+
+  // Phone OTP state
   const [phone, setPhone] = useState('')
   const [otp, setOtp] = useState('')
-  const [step, setStep] = useState<'initial' | 'otp'>('initial')
+  const [otpStep, setOtpStep] = useState<'initial' | 'otp'>('initial')
+
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // Surface errors passed back from the OAuth callback redirect (?error=...)
+  const [error, setError] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const err = new URLSearchParams(window.location.search).get('error')
+    if (!err) return null
+    return err === 'auth_failed' ? 'Sign-in failed. Please try again.' : err
+  })
   const [copied, setCopied] = useState(false)
-  // Lazy initializer — runs synchronously on first render, no flash of wrong state
+
   const [inApp] = useState(() => detectInAppBrowser())
   const supabase = createClient()
 
   const pageUrl = typeof window !== 'undefined' ? window.location.href : 'https://sangam-ai-pi.vercel.app/login'
 
   function openInChrome() {
-    // Android: intent URI forces Chrome to open the URL
     window.location.href = `intent://${pageUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;package=com.android.chrome;end`
   }
 
@@ -59,13 +76,33 @@ export function LoginForm() {
   }
 
   async function signInWithGoogle() {
-    // Double-check — in case detection ran late or UA changed
     if (detectInAppBrowser().isInApp) return
     setError(null)
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
+  }
+
+  async function handleEmailAuth() {
+    setError(null)
+    setLoading(true)
+    if (formMode === 'signup') {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) {
+        setError(error.message)
+      } else {
+        setEmailStep('check_email')
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) setError(error.message)
+    }
+    setLoading(false)
   }
 
   async function sendOtp() {
@@ -75,7 +112,7 @@ export function LoginForm() {
     if (error) {
       setError(error.message)
     } else {
-      setStep('otp')
+      setOtpStep('otp')
     }
     setLoading(false)
   }
@@ -88,13 +125,28 @@ export function LoginForm() {
     setLoading(false)
   }
 
+  const inputStyle = {
+    background: '#101620',
+    border: '1px solid #1a2236',
+    color: '#eef2f8',
+  }
+
+  const inputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'
+    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
+  }
+  const inputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.currentTarget.style.borderColor = '#1a2236'
+    e.currentTarget.style.boxShadow = 'none'
+  }
+
   return (
     <div className="w-full max-w-sm">
       <div className="rounded-2xl p-6 flex flex-col gap-4"
         style={{ background: '#0b1018', border: '1px solid #1a2236', boxShadow: '0 16px 48px rgba(0,0,0,0.4)' }}>
 
         {error && (
-          <div className="px-4 py-3 rounded-xl text-[13px] text-[#f87171]"
+          <div className="px-4 py-3 rounded-xl text-[14px] text-[#f87171]"
             style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)' }}>
             {error}
           </div>
@@ -103,15 +155,14 @@ export function LoginForm() {
         {/* In-app browser gate */}
         {inApp.isInApp ? (
           <div className="flex flex-col gap-3">
-            <div className="px-4 py-3 rounded-xl text-[13px]"
+            <div className="px-4 py-3 rounded-xl text-[14px]"
               style={{ background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.25)' }}>
-              <p className="font-semibold text-[#fb923c] mb-1">Google sign-in blocked</p>
+              <p className="font-semibold text-[#fb923c] mb-1">Open in your browser</p>
               <p className="text-[#8b98b4] leading-relaxed">
-                {inApp.name}&apos;s browser doesn&apos;t allow Google sign-in.
+                {inApp.name}&apos;s browser doesn&apos;t support sign-in.
                 Open this page in Chrome or Safari.
               </p>
             </div>
-
             {inApp.isAndroid ? (
               <button
                 onClick={openInChrome}
@@ -121,120 +172,186 @@ export function LoginForm() {
                 Open in Chrome
               </button>
             ) : (
-              <p className="text-[12px] text-[#4a566e] text-center leading-relaxed">
+              <p className="text-[12px] text-[#8b98b4] text-center leading-relaxed">
                 Tap <span className="text-[#8b98b4]">&#8943;</span> or the share icon → <span className="text-[#8b98b4]">Open in Browser</span>
               </p>
             )}
-
             <button
               onClick={copyUrl}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-medium cursor-pointer transition-colors"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl text-[14px] font-medium cursor-pointer transition-colors"
               style={{ background: '#101620', border: '1px solid #1a2236', color: copied ? '#4ade80' : '#8b98b4' }}
             >
               {copied ? '✓ Copied' : 'Copy link'}
             </button>
           </div>
         ) : (
-          <button
-            onClick={signInWithGoogle}
-            className="flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium text-[#eef2f8] transition-all duration-200 cursor-pointer"
-            style={{ background: '#101620', border: '1px solid #1a2236' }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = '#253044'
-              ;(e.currentTarget as HTMLButtonElement).style.background = '#141c26'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = '#1a2236'
-              ;(e.currentTarget as HTMLButtonElement).style.background = '#101620'
-            }}
-          >
-            <GoogleIcon />
-            Continue with Google
-          </button>
-        )}
-
-        {/* Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
-          <span className="text-[12px] text-[#2e3b52] font-medium">or</span>
-          <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
-        </div>
-
-        {/* OTP flow */}
-        {step === 'initial' ? (
-          <div className="flex flex-col gap-3">
-            <input
-              type="tel"
-              placeholder="+91 9999 999999"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              className="px-4 py-3 rounded-xl text-[14px] text-[#eef2f8] outline-none transition-all duration-200"
-              style={{
-                background: '#101620',
-                border: '1px solid #1a2236',
-                color: '#eef2f8',
-              }}
-              onFocus={e => {
-                e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
-              }}
-              onBlur={e => {
-                e.currentTarget.style.borderColor = '#1a2236'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            />
+          <>
+            {/* Google */}
             <button
-              onClick={sendOtp}
-              disabled={loading || !phone.trim()}
-              className="py-3 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
-            >
-              {loading ? 'Sending…' : 'Send OTP'}
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <p className="text-[12px] text-[#4a566e]">OTP sent to <span className="text-[#8b98b4]">{phone}</span></p>
-            <input
-              type="text"
-              placeholder="000000"
-              value={otp}
-              onChange={e => setOtp(e.target.value)}
-              maxLength={6}
-              className="px-4 py-3 rounded-xl text-[20px] font-mono text-[#eef2f8] text-center tracking-[0.4em] outline-none transition-all duration-200"
+              onClick={signInWithGoogle}
+              className="flex items-center justify-center gap-2.5 py-3 rounded-xl text-[14px] font-medium text-[#eef2f8] transition-all duration-200 cursor-pointer"
               style={{ background: '#101620', border: '1px solid #1a2236' }}
-              onFocus={e => {
-                e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)'
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.08)'
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#253044'
+                ;(e.currentTarget as HTMLButtonElement).style.background = '#141c26'
               }}
-              onBlur={e => {
-                e.currentTarget.style.borderColor = '#1a2236'
-                e.currentTarget.style.boxShadow = 'none'
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#1a2236'
+                ;(e.currentTarget as HTMLButtonElement).style.background = '#101620'
               }}
-            />
-            <button
-              onClick={verifyOtp}
-              disabled={loading || otp.length !== 6}
-              className="py-3 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
             >
-              {loading ? 'Verifying…' : 'Verify OTP'}
+              <GoogleIcon />
+              Continue with Google
             </button>
-            <button
-              onClick={() => { setStep('initial'); setOtp(''); setError(null) }}
-              className="text-[12px] text-[#4a566e] hover:text-[#8b98b4] transition-colors cursor-pointer"
-            >
-              ← Change number
-            </button>
-          </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
+              <span className="text-[12px] text-[#7c8aa5] font-medium">or</span>
+              <div className="flex-1 h-px" style={{ background: '#1a2236' }} />
+            </div>
+
+            {/* Tab switcher */}
+            <div className="flex rounded-xl p-1 gap-1" style={{ background: '#101620', border: '1px solid #1a2236' }}>
+              {(['email', 'phone'] as AuthTab[]).map(t => (
+                <button
+                  key={t}
+                  onClick={() => { setTab(t); setError(null) }}
+                  className="flex-1 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-150 cursor-pointer capitalize"
+                  style={{
+                    background: tab === t ? '#1a2236' : 'transparent',
+                    color: tab === t ? '#eef2f8' : '#4a566e',
+                  }}
+                >
+                  {t === 'email' ? 'Email' : 'Phone'}
+                </button>
+              ))}
+            </div>
+
+            {/* Email / Password */}
+            {tab === 'email' && (
+              emailStep === 'check_email' ? (
+                <div className="flex flex-col gap-3 py-2 text-center">
+                  <div className="text-3xl">📬</div>
+                  <p className="text-[14px] font-semibold text-[#eef2f8]">Check your inbox</p>
+                  <p className="text-[14px] leading-relaxed" style={{ color: '#8b98b4' }}>
+                    We sent a confirmation link to <span className="text-[#8b98b4]">{email}</span>.
+                    Click it to activate your account.
+                  </p>
+                  <button
+                    onClick={() => { setEmailStep('form'); setError(null) }}
+                    className="text-[12px] text-[#a78bfa] hover:text-[#a78bfa] transition-colors cursor-pointer mt-1"
+                  >
+                    ← Back
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="px-4 py-3 rounded-xl text-[14px] outline-none transition-all duration-200"
+                    style={inputStyle}
+                    onFocus={inputFocus}
+                    onBlur={inputBlur}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
+                    className="px-4 py-3 rounded-xl text-[14px] outline-none transition-all duration-200"
+                    style={inputStyle}
+                    onFocus={inputFocus}
+                    onBlur={inputBlur}
+                  />
+                  <button
+                    onClick={handleEmailAuth}
+                    disabled={loading || !email.trim() || password.length < 6}
+                    className="py-3 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
+                  >
+                    {loading ? (formMode === 'signup' ? 'Creating account…' : 'Signing in…') : (formMode === 'signup' ? 'Create account' : 'Sign in')}
+                  </button>
+                  <button
+                    onClick={() => { setFormMode(m => m === 'signin' ? 'signup' : 'signin'); setError(null) }}
+                    className="text-[12px] transition-colors cursor-pointer"
+                    style={{ color: '#8b98b4' }}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#8b98b4')}
+                    onMouseLeave={e => (e.currentTarget.style.color = '#8b98b4')}
+                  >
+                    {formMode === 'signin' ? "Don't have an account? Create one" : 'Already have an account? Sign in'}
+                  </button>
+                </div>
+              )
+            )}
+
+            {/* Phone OTP */}
+            {tab === 'phone' && (
+              otpStep === 'initial' ? (
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="tel"
+                    placeholder="+91 9999 999999"
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    className="px-4 py-3 rounded-xl text-[14px] text-[#eef2f8] outline-none transition-all duration-200"
+                    style={inputStyle}
+                    onFocus={inputFocus}
+                    onBlur={inputBlur}
+                  />
+                  <button
+                    onClick={sendOtp}
+                    disabled={loading || !phone.trim()}
+                    className="py-3 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
+                  >
+                    {loading ? 'Sending…' : 'Send OTP'}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[12px] text-[#8b98b4]">OTP sent to <span className="text-[#8b98b4]">{phone}</span></p>
+                  <input
+                    type="text"
+                    placeholder="000000"
+                    value={otp}
+                    onChange={e => setOtp(e.target.value)}
+                    maxLength={6}
+                    className="px-4 py-3 rounded-xl text-[20px] font-mono text-[#eef2f8] text-center tracking-[0.4em] outline-none transition-all duration-200"
+                    style={{ background: '#101620', border: '1px solid #1a2236' }}
+                    onFocus={inputFocus}
+                    onBlur={inputBlur}
+                  />
+                  <button
+                    onClick={verifyOtp}
+                    disabled={loading || otp.length !== 6}
+                    className="py-3 rounded-xl text-[14px] font-semibold text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                    style={{ background: '#7c3aed', boxShadow: '0 0 20px rgba(124,58,237,0.35)' }}
+                  >
+                    {loading ? 'Verifying…' : 'Verify OTP'}
+                  </button>
+                  <button
+                    onClick={() => { setOtpStep('initial'); setOtp(''); setError(null) }}
+                    className="text-[12px] text-[#8b98b4] hover:text-[#8b98b4] transition-colors cursor-pointer"
+                  >
+                    ← Change number
+                  </button>
+                </div>
+              )
+            )}
+          </>
         )}
       </div>
 
-      <p className="text-[12px] text-[#2e3b52] text-center mt-4">
+      <p className="text-[12px] text-[#7c8aa5] text-center mt-4">
         By continuing, you agree to our{' '}
-        <a href="/terms" className="text-[#4a566e] hover:text-[#8b98b4] transition-colors">Terms</a>
+        <a href="/terms" className="text-[#8b98b4] hover:text-[#8b98b4] transition-colors">Terms</a>
         {' & '}
-        <a href="/privacy" className="text-[#4a566e] hover:text-[#8b98b4] transition-colors">Privacy Policy</a>
+        <a href="/privacy" className="text-[#8b98b4] hover:text-[#8b98b4] transition-colors">Privacy Policy</a>
       </p>
     </div>
   )

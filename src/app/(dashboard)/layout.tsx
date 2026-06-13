@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/dashboard/Sidebar'
 import { ErrorBoundary } from '@/components/dashboard/ErrorBoundary'
+import { FeedbackWidget } from '@/components/feedback/FeedbackWidget'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -33,6 +34,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           {children}
         </ErrorBoundary>
       </div>
+      <FeedbackWidget />
     </div>
   )
 }

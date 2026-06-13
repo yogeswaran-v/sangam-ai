@@ -3,10 +3,10 @@
 import type { KanbanCard } from '@/types/kanban'
 
 const PRIORITY_COLORS: Record<string, string> = {
-  low: 'text-[#4b5563] bg-[#4b5563]/10 border-[#4b5563]/30',
+  low: 'text-[#9ca3af] bg-[#4b5563]/10 border-[#4b5563]/30',
   medium: 'text-[#f59e0b] bg-[#f59e0b]/10 border-[#f59e0b]/30',
   high: 'text-[#ef4444] bg-[#ef4444]/10 border-[#ef4444]/30',
-  critical: 'text-[#dc2626] bg-[#dc2626]/10 border-[#dc2626]/40',
+  critical: 'text-[#f87171] bg-[#dc2626]/10 border-[#dc2626]/40',
 }
 
 interface Props {
@@ -34,7 +34,7 @@ export function KanbanCardModal({ card, onClose }: Props) {
           <h2 className="text-white font-semibold text-base leading-snug">{card.title}</h2>
           <button
             onClick={onClose}
-            className="text-[#374151] hover:text-white transition-colors flex-shrink-0 mt-0.5 cursor-pointer"
+            className="text-[#9ca3af] hover:text-white transition-colors flex-shrink-0 mt-0.5 cursor-pointer"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6 6 18M6 6l12 12" />
@@ -46,26 +46,26 @@ export function KanbanCardModal({ card, onClose }: Props) {
         {card.description ? (
           <p className="text-sm text-[#9ca3af] leading-relaxed mb-5">{card.description}</p>
         ) : (
-          <p className="text-sm text-[#374151] italic mb-5">No description</p>
+          <p className="text-sm text-[#9ca3af] italic mb-5">No description</p>
         )}
 
         {/* Metadata grid */}
         <div className="grid grid-cols-2 gap-3 mb-5">
           <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-xl p-3">
-            <p className="text-[10px] text-[#4b5563] uppercase tracking-wide mb-1">Priority</p>
+            <p className="text-[12px] text-[#9ca3af] uppercase tracking-wide mb-1">Priority</p>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${priority}`}>
               {card.priority}
             </span>
           </div>
 
           <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-xl p-3">
-            <p className="text-[10px] text-[#4b5563] uppercase tracking-wide mb-1">Status</p>
+            <p className="text-[12px] text-[#9ca3af] uppercase tracking-wide mb-1">Status</p>
             <span className="text-xs text-[#9ca3af] capitalize">{card.column_name.replace('_', ' ')}</span>
           </div>
 
           {card.assigned_agent && (
             <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-xl p-3">
-              <p className="text-[10px] text-[#4b5563] uppercase tracking-wide mb-1">Assigned</p>
+              <p className="text-[12px] text-[#9ca3af] uppercase tracking-wide mb-1">Assigned</p>
               <span className="text-xs font-semibold" style={{ color: '#a78bfa' }}>
                 {card.assigned_agent}
               </span>
@@ -73,7 +73,7 @@ export function KanbanCardModal({ card, onClose }: Props) {
           )}
 
           <div className="bg-[#0d0d15] border border-[#1e1e2e] rounded-xl p-3">
-            <p className="text-[10px] text-[#4b5563] uppercase tracking-wide mb-1">Created</p>
+            <p className="text-[12px] text-[#9ca3af] uppercase tracking-wide mb-1">Created</p>
             <span className="text-xs text-[#9ca3af]">{createdAt}</span>
           </div>
         </div>

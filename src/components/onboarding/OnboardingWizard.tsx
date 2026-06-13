@@ -168,15 +168,15 @@ export function OnboardingWizard() {
                     background: done ? agent.color : active ? agent.color : '#253044',
                     boxShadow: (done || active) ? `0 0 6px ${agent.color}80` : 'none',
                   }} />
-                <span className="text-[13px] font-medium flex-1"
+                <span className="text-[14px] font-medium flex-1"
                   style={{ color: done || active ? '#eef2f8' : '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
                   {agent.name}
                 </span>
                 {done && (
-                  <span className="text-[11px] font-semibold" style={{ color: agent.color }}>Online</span>
+                  <span className="text-[12px] font-semibold" style={{ color: agent.color }}>Online</span>
                 )}
                 {active && (
-                  <span className="text-[11px]" style={{ color: '#4a566e' }}>
+                  <span className="text-[12px]" style={{ color: '#8b98b4' }}>
                     <span className="animate-pulse">Initialising…</span>
                   </span>
                 )}
@@ -186,11 +186,11 @@ export function OnboardingWizard() {
         </div>
 
         {error && (
-          <div className="w-full px-4 py-3 rounded-xl text-[13px]"
+          <div className="w-full px-4 py-3 rounded-xl text-[14px]"
             style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)', color: '#f87171' }}>
             {error}
             <button onClick={() => setActivating(false)}
-              className="block mt-2 underline text-[11px] cursor-pointer">
+              className="block mt-2 underline text-[12px] cursor-pointer">
               Go back and try again
             </button>
           </div>
@@ -221,18 +221,18 @@ export function OnboardingWizard() {
         {/* Mission summary */}
         <div className="rounded-2xl p-5 mb-5"
           style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
-          <div className="text-[11px] font-bold uppercase tracking-[0.12em] mb-4"
-            style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+          <div className="text-[12px] font-bold uppercase tracking-[0.12em] mb-4"
+            style={{ color: '#8b98b4', fontFamily: 'var(--font-bricolage)' }}>
             Mission Brief
           </div>
           <div className="grid grid-cols-1 gap-3">
             {STEPS.map(s => (
               <div key={s.id} className="rounded-xl p-3" style={{ background: '#101620', border: '1px solid #1a2236' }}>
-                <div className="text-[10px] font-bold uppercase tracking-[0.12em] mb-1.5" style={{ color: '#4a566e' }}>
+                <div className="text-[12px] font-bold uppercase tracking-[0.12em] mb-1.5" style={{ color: '#8b98b4' }}>
                   {s.title.replace('?', '')}
                 </div>
-                <p className="text-[13px] leading-relaxed line-clamp-2" style={{ color: values[s.field] ? '#8b98b4' : '#2e3b52' }}>
-                  {values[s.field] || <span style={{ color: '#2e3b52' }}>Not provided</span>}
+                <p className="text-[14px] leading-relaxed line-clamp-2" style={{ color: values[s.field] ? '#8b98b4' : '#2e3b52' }}>
+                  {values[s.field] || <span style={{ color: '#7c8aa5' }}>Not provided</span>}
                 </p>
               </div>
             ))}
@@ -242,8 +242,8 @@ export function OnboardingWizard() {
         {/* Agent team */}
         <div className="rounded-2xl p-5 mb-6"
           style={{ background: '#0b1018', border: '1px solid #1a2236' }}>
-          <div className="text-[11px] font-bold uppercase tracking-[0.12em] mb-4"
-            style={{ color: '#4a566e', fontFamily: 'var(--font-bricolage)' }}>
+          <div className="text-[12px] font-bold uppercase tracking-[0.12em] mb-4"
+            style={{ color: '#8b98b4', fontFamily: 'var(--font-bricolage)' }}>
             Your 6-agent team
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -256,7 +256,7 @@ export function OnboardingWizard() {
                   <div className="text-[12px] font-semibold" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
                     {agent.name}
                   </div>
-                  <div className="text-[10px]" style={{ color: '#4a566e' }}>{agent.role}</div>
+                  <div className="text-[12px]" style={{ color: '#8b98b4' }}>{agent.role}</div>
                 </div>
               </div>
             ))}
@@ -277,7 +277,7 @@ export function OnboardingWizard() {
         {/* Actions */}
         <div className="flex items-center gap-3">
           <button onClick={handleBack}
-            className="px-5 py-3 text-[13px] font-medium transition-colors cursor-pointer rounded-xl"
+            className="px-5 py-3 text-[14px] font-medium transition-colors cursor-pointer rounded-xl"
             style={{ color: '#8b98b4', border: '1px solid #1a2236', background: 'transparent' }}>
             ← Edit answers
           </button>
@@ -296,7 +296,7 @@ export function OnboardingWizard() {
     <div className="w-full max-w-xl">
       {/* Progress */}
       <div className="mb-10">
-        <div className="flex items-center justify-between text-[12px] mb-3 font-medium" style={{ color: '#4a566e' }}>
+        <div className="flex items-center justify-between text-[12px] mb-3 font-medium" style={{ color: '#8b98b4' }}>
           <span>Step {step + 1} of {STEPS.length}</span>
           <span className="tabular-nums">{Math.round(progress)}%</span>
         </div>
@@ -351,13 +351,13 @@ export function OnboardingWizard() {
               e.currentTarget.style.boxShadow = 'none'
             }}
           />
-          <span className="absolute bottom-3 right-3 text-[11px] tabular-nums" style={{ color: '#2e3b52' }}>
+          <span className="absolute bottom-3 right-3 text-[12px] tabular-nums" style={{ color: '#7c8aa5' }}>
             {currentValue.length}/{MAX_LENGTH}
           </span>
         </div>
 
         {error && (
-          <div className="mt-3 px-4 py-3 rounded-xl text-[13px]"
+          <div className="mt-3 px-4 py-3 rounded-xl text-[14px]"
             style={{ background: 'rgba(248,65,65,0.08)', border: '1px solid rgba(248,65,65,0.2)', color: '#f87171' }}>
             {error}
           </div>
@@ -365,7 +365,7 @@ export function OnboardingWizard() {
 
         <div className="flex items-center justify-between mt-6">
           <button onClick={handleBack}
-            className={`px-4 py-2 text-[13px] transition-colors cursor-pointer ${step === 0 ? 'invisible' : ''}`}
+            className={`px-4 py-2 text-[14px] transition-colors cursor-pointer ${step === 0 ? 'invisible' : ''}`}
             style={{ color: '#8b98b4' }}>
             ← Back
           </button>
@@ -380,7 +380,7 @@ export function OnboardingWizard() {
         </div>
       </div>
 
-      <p className="text-center text-[12px] mt-5" style={{ color: '#2e3b52' }}>
+      <p className="text-center text-[12px] mt-5" style={{ color: '#7c8aa5' }}>
         Your answers help the CEO Agent understand your mission.
       </p>
     </div>

@@ -102,20 +102,20 @@ export function ApprovalsCenter() {
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className="relative px-4 py-2 rounded-xl text-[13px] font-medium transition-all duration-200 cursor-pointer"
+              className="relative px-4 py-2 rounded-xl text-[14px] font-medium transition-all duration-200 cursor-pointer"
               style={active ? {
                 background: 'rgba(124,58,237,0.1)',
                 color: '#eef2f8',
                 border: '1px solid rgba(167,139,250,0.2)',
               } : {
-                color: '#4a566e',
+                color: '#8b98b4',
                 border: '1px solid transparent',
                 background: 'transparent',
               }}
             >
               {f.label}
               {f.value === 'pending' && pendingCount > 0 && (
-                <span className="ml-2 text-[11px] font-bold px-1.5 py-0.5 rounded-full"
+                <span className="ml-2 text-[12px] font-bold px-1.5 py-0.5 rounded-full"
                   style={{ background: 'rgba(245,158,11,0.15)', color: '#f59e0b' }}>
                   {pendingCount}
                 </span>
@@ -127,7 +127,7 @@ export function ApprovalsCenter() {
 
       {/* Content */}
       {loading ? (
-        <div className="flex justify-center py-16 text-[13px]" style={{ color: '#4a566e' }}>
+        <div className="flex justify-center py-16 text-[14px]" style={{ color: '#8b98b4' }}>
           Loading…
         </div>
       ) : requests.length === 0 ? (
@@ -143,7 +143,7 @@ export function ApprovalsCenter() {
           <p className="text-[14px] font-semibold mb-1" style={{ color: '#eef2f8', fontFamily: 'var(--font-bricolage)' }}>
             {filter === 'pending' ? 'All clear' : 'Nothing here'}
           </p>
-          <p className="text-[13px]" style={{ color: '#4a566e' }}>
+          <p className="text-[14px]" style={{ color: '#8b98b4' }}>
             {filter === 'pending'
               ? 'No pending approvals. Agents are working autonomously.'
               : `No ${filter} requests found.`}
