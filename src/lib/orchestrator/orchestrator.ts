@@ -42,7 +42,7 @@ async function ensureChatChannels(customerId: string): Promise<void> {
   }
 }
 
-async function getActiveCustomers(): Promise<AgentContext[]> {
+export async function getActiveCustomers(): Promise<AgentContext[]> {
   const { data: teams, error } = await supabaseAdmin
     .from('agent_teams')
     .select('customer_id')
@@ -71,6 +71,38 @@ async function getActiveCustomers(): Promise<AgentContext[]> {
     })
   }
   return contexts
+}
+
+type AgentName = 'ceo' | 'product' | 'engineering' | 'marketing' | 'sales' | 'finance'
+
+export async function runSingleAgent(agentName: AgentName): Promise<{ processed: number }> {
+  const customers = await getActiveCustomers()
+  console.log(`[orchestrator/${agentName}] ${customers.length} active customer(s)`)
+
+  let processed = 0
+  for (const ctx of customers) {
+    try {
+      await ensureChatChannels(ctx.customerId)
+      switch (agentName) {
+        case 'ceo':         await ceoAgent.runDailyBriefing(ctx); break
+        case 'product':     await productAgent.runProductCycle(ctx); break
+        case 'engineering': await engineeringAgent.runEngineeringUpdate(ctx); break
+        case 'marketing':   await marketingAgent.runMarketingBriefing(ctx); break
+        case 'sales':       await salesAgent.runSalesUpdate(ctx); break
+        case 'finance':     await financeAgent.runFinanceBriefing(ctx); break
+      }
+      processed++
+      console.log(`[orchestrator/${agentName}] ✓ ${ctx.customerId}`)
+    } catch (err: any) {
+      if (err?.name === 'SpendCapError') {
+        console.warn(`[orchestrator/${agentName}] Spend cap: ${err.message}`)
+        break
+      }
+      console.error(`[orchestrator/${agentName}] Error for ${ctx.customerId}:`, err)
+    }
+  }
+
+  return { processed }
 }
 
 export async function runOrchestrationCycle(): Promise<{ processed: number }> {

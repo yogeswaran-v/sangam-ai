@@ -1,0 +1,47 @@
+name: Run AI Agents
+
+on:
+  schedule:
+    - cron: '0 9 * * *'   # 9 AM UTC daily
+  workflow_dispatch:        # Manual trigger from GitHub UI → Actions tab
+
+jobs:
+  orchestrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: CEO Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/ceo"
+
+      - name: Product Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/product"
+
+      - name: Engineering Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/engineering"
+
+      - name: Marketing Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/marketing"
+
+      - name: Sales Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/sales"
+
+      - name: Finance Agent
+        run: |
+          curl -fsS --max-time 25 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.APP_URL }}/api/cron/agents/finance"
