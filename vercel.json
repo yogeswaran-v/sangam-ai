@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/orchestrate",
+      "path": "/api/cron/agents/ceo",
       "schedule": "0 9 * * *"
     }
   ]
