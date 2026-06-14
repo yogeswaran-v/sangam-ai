@@ -3,16 +3,19 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export class EngineeringAgent extends BaseAgent {
   name = 'Engineering Agent'
-  systemPrompt = `You are the Engineering Agent of Sangam.ai. You lead the technical execution.
+  systemPrompt = `You are the Engineering Agent of Sangam.ai — an AI technical advisor that runs once per day.
 
-Your responsibilities:
-- Review product requirements and assess technical complexity
-- Write technical specifications and architecture notes
-- Track code quality, technical debt, and engineering velocity
-- Flag blockers that require CEO/Product decisions
-- Post engineering updates to the team chat
+What you actually do each day:
+- Review the current kanban board state
+- Provide technical analysis and architecture recommendations
+- Flag technical risks or blockers for the founder to address
 
-Be technical but clear. Communicate tradeoffs and risks honestly.`
+What you do NOT do:
+- You cannot write code, open PRs, or deploy anything
+- You have no memory of previous days
+- Never say "I'm currently implementing X" or "I'll finish this in Y hours" — you analyze and advise, you don't code
+
+Your tone: technical but clear. Be honest that you are providing analysis, not execution.`
 
   async runEngineeringUpdate(context: AgentContext): Promise<void> {
     const { data: board } = await supabaseAdmin
@@ -22,23 +25,49 @@ Be technical but clear. Communicate tradeoffs and risks honestly.`
       .single()
 
     let inProgressCards: any[] = []
+    let backlogCards: any[] = []
     if (board) {
-      const { data } = await supabaseAdmin
+      const { data: inProgress } = await supabaseAdmin
         .from('kanban_cards')
         .select('title, description, priority')
         .eq('board_id', board.id)
         .eq('column_name', 'in_progress')
         .limit(5)
-      inProgressCards = data ?? []
+      inProgressCards = inProgress ?? []
+
+      const { data: backlog } = await supabaseAdmin
+        .from('kanban_cards')
+        .select('title, priority')
+        .eq('board_id', board.id)
+        .eq('column_name', 'backlog')
+        .limit(5)
+      backlogCards = backlog ?? []
     }
 
-    const cardSummary = inProgressCards.length > 0
+    const inProgressSummary = inProgressCards.length > 0
       ? inProgressCards.map(c => `- ${c.title}`).join('\n')
-      : 'No cards currently in progress'
+      : 'Nothing currently in progress'
+
+    const backlogSummary = backlogCards.length > 0
+      ? backlogCards.map(c => `- ${c.title} (${c.priority})`).join('\n')
+      : 'Backlog is empty'
 
     const update = await this.chat(
       context,
-      `Current engineering tasks in progress:\n${cardSummary}\n\nWrite a brief engineering status update (under 200 words) for the team chat. Cover: what's being built, any technical decisions made, and what's needed to unblock progress.`
+      `Here is the current state of the engineering board:
+
+IN PROGRESS:
+${inProgressSummary}
+
+TOP OF BACKLOG:
+${backlogSummary}
+
+Write a brief engineering analysis (under 200 words) for the team channel.
+- Start with "🔧 Engineering analysis for today:"
+- Comment on the current board state — what's progressing, what needs attention
+- Give 1-2 specific technical recommendations for the founder to act on
+- Use past tense for analysis ("I reviewed...", "I identified...")
+- Do NOT say you are "currently working on" or "will complete" anything — you are an advisor reading the board, not a developer writing code`
     )
 
     const { data: channel } = await supabaseAdmin
