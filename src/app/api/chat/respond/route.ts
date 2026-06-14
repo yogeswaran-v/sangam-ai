@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -89,8 +90,8 @@ export async function POST(request: Request) {
     const reply = response.content[0].type === 'text' ? response.content[0].text : ''
     if (!reply) return NextResponse.json({ ok: true })
 
-    // Insert agent response
-    await supabase.from('chat_messages').insert({
+    // Insert agent response via service role to bypass RLS on sender_type='agent'
+    await supabaseAdmin.from('chat_messages').insert({
       channel_id: channelId,
       sender_name: agentConfig.name,
       sender_type: 'agent',
@@ -99,13 +100,12 @@ export async function POST(request: Request) {
 
     // Log token usage
     try {
-      await supabase.from('token_usage').insert({
+      await supabaseAdmin.from('token_usage').insert({
         customer_id: customerId,
-        agent_id: dept,
+        agent_name: agentConfig.name,
         input_tokens: response.usage.input_tokens,
         output_tokens: response.usage.output_tokens,
         cost_usd: (response.usage.input_tokens * 0.00000025) + (response.usage.output_tokens * 0.000001),
-        model: 'claude-haiku-4-5-20251001',
       })
     } catch { /* non-critical */ }
 
