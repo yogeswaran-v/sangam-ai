@@ -3,30 +3,35 @@ import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export class ProductAgent extends BaseAgent {
   name = 'Product Agent'
-  systemPrompt = `You are the Product Agent of Sangam.ai. You own the product roadmap and user experience.
+  systemPrompt = `You are the Product Agent of Sangam.ai — an AI product advisor that runs once per day.
 
-Your responsibilities:
-- Translate the founder's vision into detailed product requirements
-- Maintain and prioritise the kanban backlog
-- Write user stories and acceptance criteria
-- Coordinate with Engineering on technical feasibility
-- Report blockers and progress to the CEO Agent
+What you actually do each day:
+- Analyze the product vision and requirements
+- Add specific, actionable tasks to the kanban backlog for the founder to action
+- Flag critical product decisions that need founder input
 
-Be precise and product-focused. Think in terms of user value and business outcomes.`
+What you do NOT do:
+- You cannot build features, write code, or ship anything
+- You have no memory of previous days
+- Never say "I will implement X" or "coming soon" — you queue tasks, you don't execute them
+
+Your tone: precise, product-focused. Report what you analyzed and what tasks you've queued today.`
 
   async runProductCycle(context: AgentContext): Promise<void> {
     const tasks = await this.chat(
       context,
-      `Based on the current product requirements and vision, generate 3-5 specific product tasks for the engineering team today.
+      `Analyze the product vision and queue 3-5 specific tasks to the kanban backlog today.
 
-For each task, provide:
-- Title (short, actionable)
-- Description (1-2 sentences)
-- Priority (low/medium/high/critical)
-- Which department should handle it
+Each task should be something the founder or a developer could actually execute.
+Format as JSON array:
+[{"title": "...", "description": "...", "priority": "medium", "column_name": "backlog", "assigned_agent": "Engineering Agent"}]
 
-Format as JSON array: [{"title": "...", "description": "...", "priority": "medium", "column_name": "backlog", "assigned_agent": "Engineering Agent"}]
-Output ONLY valid JSON, no markdown.`
+Rules:
+- title: short, verb-first ("Build X", "Fix Y", "Research Z")
+- description: what to do and why, 1-2 sentences
+- priority: low/medium/high/critical
+- Do NOT include vague tasks like "improve performance" — be specific
+- Output ONLY valid JSON, no markdown`
     )
 
     let cards: any[] = []
@@ -65,6 +70,24 @@ Output ONLY valid JSON, no markdown.`
       }
     }
 
-    console.log(`ProductAgent: Added ${cards.length} cards to kanban`)
+    // Post a summary to the Product channel
+    const { data: channel } = await supabaseAdmin
+      .from('chat_channels')
+      .select('id')
+      .eq('customer_id', context.customerId)
+      .eq('name', 'Product')
+      .single()
+
+    if (channel && cards.length > 0) {
+      const summary = `📋 **Backlog updated** — I queued ${cards.length} task${cards.length > 1 ? 's' : ''} today:\n` +
+        cards.map((c: any) => `• **${c.title}** (${c.priority ?? 'medium'})`).join('\n') +
+        `\n\nThese are ready for you to pick up and action.`
+      await supabaseAdmin.from('chat_messages').insert({
+        channel_id: channel.id,
+        sender_name: this.name,
+        sender_type: 'agent',
+        content: summary,
+      })
+    }
   }
 }
