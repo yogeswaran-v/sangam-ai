@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { ChatChannel, ChatMessage } from '@/types/chat'
 import { ChannelList } from './ChannelList'
@@ -14,7 +14,10 @@ export function ChatInterface() {
   const [loadingChannels, setLoadingChannels] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
   const [customer, setCustomer] = useState<{ id: string } | null>(null)
-  const supabase = createClient()
+  // Stable reference — createClient() returns a new object each call, so wrap in useMemo
+  // to prevent the real-time useEffect from tearing down/recreating the subscription
+  // on every render (which causes incoming agent messages to be missed).
+  const supabase = useMemo(() => createClient(), [])
 
   const fetchChannels = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
