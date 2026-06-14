@@ -75,6 +75,15 @@ export async function getActiveCustomers(): Promise<AgentContext[]> {
 
 type AgentName = 'ceo' | 'product' | 'engineering' | 'marketing' | 'sales' | 'finance'
 
+const AGENT_MAP = {
+  ceo: ceoAgent,
+  product: productAgent,
+  engineering: engineeringAgent,
+  marketing: marketingAgent,
+  sales: salesAgent,
+  finance: financeAgent,
+} as const
+
 export async function runSingleAgent(agentName: AgentName): Promise<{ processed: number }> {
   const customers = await getActiveCustomers()
   console.log(`[orchestrator/${agentName}] ${customers.length} active customer(s)`)
@@ -83,21 +92,10 @@ export async function runSingleAgent(agentName: AgentName): Promise<{ processed:
   for (const ctx of customers) {
     try {
       await ensureChatChannels(ctx.customerId)
-      switch (agentName) {
-        case 'ceo':         await ceoAgent.runDailyBriefing(ctx); break
-        case 'product':     await productAgent.runProductCycle(ctx); break
-        case 'engineering': await engineeringAgent.runEngineeringUpdate(ctx); break
-        case 'marketing':   await marketingAgent.runMarketingBriefing(ctx); break
-        case 'sales':       await salesAgent.runSalesUpdate(ctx); break
-        case 'finance':     await financeAgent.runFinanceBriefing(ctx); break
-      }
+      await AGENT_MAP[agentName].tick(ctx)
       processed++
       console.log(`[orchestrator/${agentName}] ✓ ${ctx.customerId}`)
     } catch (err: any) {
-      if (err?.name === 'SpendCapError') {
-        console.warn(`[orchestrator/${agentName}] Spend cap: ${err.message}`)
-        break
-      }
       console.error(`[orchestrator/${agentName}] Error for ${ctx.customerId}:`, err)
     }
   }
@@ -113,19 +111,12 @@ export async function runOrchestrationCycle(): Promise<{ processed: number }> {
   for (const ctx of customers) {
     try {
       await ensureChatChannels(ctx.customerId)
-      await ceoAgent.runDailyBriefing(ctx)
-      await productAgent.runProductCycle(ctx)
-      await engineeringAgent.runEngineeringUpdate(ctx)
-      await marketingAgent.runMarketingBriefing(ctx)
-      await salesAgent.runSalesUpdate(ctx)
-      await financeAgent.runFinanceBriefing(ctx)
+      for (const agent of Object.values(AGENT_MAP)) {
+        await agent.tick(ctx)
+      }
       processed++
       console.log(`[orchestrator] ✓ ${ctx.customerId}`)
     } catch (err: any) {
-      if (err?.name === 'SpendCapError') {
-        console.warn(`[orchestrator] Spend cap: ${err.message}`)
-        break
-      }
       console.error(`[orchestrator] Error for ${ctx.customerId}:`, err)
     }
   }

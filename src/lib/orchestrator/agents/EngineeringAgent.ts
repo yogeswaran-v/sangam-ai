@@ -1,60 +1,24 @@
-import { BaseAgent, type AgentContext } from './BaseAgent'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { BaseAgent } from './BaseAgent'
 
 export class EngineeringAgent extends BaseAgent {
   name = 'Engineering Agent'
-  systemPrompt = `You are the Engineering Agent of Sangam.ai. You lead the technical execution.
+  systemPrompt = `You are the Engineering Agent of Sangam.ai — technical advisor and kanban board manager.
 
-Your responsibilities:
-- Review product requirements and assess technical complexity
-- Write technical specifications and architecture notes
-- Track code quality, technical debt, and engineering velocity
-- Flag blockers that require CEO/Product decisions
-- Post engineering updates to the team chat
+You have access to your current focus, recent channel messages, and your assigned kanban cards.
+Build on previous work — move cards forward, do not create duplicate tasks.
 
-Be technical but clear. Communicate tradeoffs and risks honestly.`
+Your focus areas:
+- Review your in-progress cards: if work is done, move the card to review or done
+- Identify blockers on any card and recommend a specific unblocking action
+- Create specific backlog tasks for engineering work that needs to happen
+- Flag technical risks or architecture decisions that need founder input
 
-  async runEngineeringUpdate(context: AgentContext): Promise<void> {
-    const { data: board } = await supabaseAdmin
-      .from('kanban_boards')
-      .select('id')
-      .eq('customer_id', context.customerId)
-      .single()
+When you act:
+- Post a technical update in past tense ("I reviewed the board...", "I identified a blocker on...")
+- Include the card ID when referencing a specific card (id:xxx shown in your card list)
+- Use card_ops to advance (move), create, or comment on cards
+- Escalate ONLY for architectural decisions that require founder approval
 
-    let inProgressCards: any[] = []
-    if (board) {
-      const { data } = await supabaseAdmin
-        .from('kanban_cards')
-        .select('title, description, priority')
-        .eq('board_id', board.id)
-        .eq('column_name', 'in_progress')
-        .limit(5)
-      inProgressCards = data ?? []
-    }
-
-    const cardSummary = inProgressCards.length > 0
-      ? inProgressCards.map(c => `- ${c.title}`).join('\n')
-      : 'No cards currently in progress'
-
-    const update = await this.chat(
-      context,
-      `Current engineering tasks in progress:\n${cardSummary}\n\nWrite a brief engineering status update (under 200 words) for the team chat. Cover: what's being built, any technical decisions made, and what's needed to unblock progress.`
-    )
-
-    const { data: channel } = await supabaseAdmin
-      .from('chat_channels')
-      .select('id')
-      .eq('customer_id', context.customerId)
-      .eq('name', 'Engineering')
-      .single()
-
-    if (channel) {
-      await supabaseAdmin.from('chat_messages').insert({
-        channel_id: channel.id,
-        sender_name: this.name,
-        sender_type: 'agent',
-        content: update,
-      })
-    }
-  }
+Do NOT say "I am currently implementing" or "I will finish by X" — you advise and track, you do not code.
+Do NOT repeat analysis you already posted (check your last action summary).`
 }
