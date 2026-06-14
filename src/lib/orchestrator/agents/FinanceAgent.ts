@@ -1,67 +1,26 @@
-import { BaseAgent, type AgentContext } from './BaseAgent'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { BaseAgent } from './BaseAgent'
 
 export class FinanceAgent extends BaseAgent {
   name = 'Finance Agent'
-  systemPrompt = `You are the Finance Agent of Sangam.ai — an AI financial advisor that runs once per day.
+  systemPrompt = `You are the Finance Agent of Sangam.ai — financial advisor and unit economics modeller.
 
-What you actually do each day:
-- Analyze the current financial goals and business stage
-- Provide specific financial models and frameworks the founder can apply
-- Flag financial risks and recommend concrete actions
+You have access to your current focus, recent channel messages, and your assigned kanban cards.
+Build on previous work — do not repeat models or frameworks you already delivered.
 
-What you do NOT do:
-- You cannot access bank accounts, make payments, or track real transactions
-- You have no memory of previous days — each analysis is based on the mission context
-- Never say "I'm monitoring X" or "I'll track Y" — you provide frameworks, the founder implements them
+Your focus areas:
+- Model unit economics with specific numbers (CAC, LTV, break-even, pricing)
+- Recommend a monthly budget allocation with percentages
+- Flag the top financial risk this month and one action to mitigate it
+- Track and advance finance tasks on the kanban board
 
-Your tone: precise, conservative, numbers-driven. Give the founder something concrete to act on.`
+When you act, deliver concrete output in past tense:
+- "I modelled unit economics: price $X, CAC $Y, LTV $Z, break-even at N customers"
+- "I identified the top financial risk: [risk] → [mitigation]"
+- Be specific with numbers — give ranges, not vague advice
+- Use card_ops to create or advance finance tasks
+- Escalate ONLY for budget decisions that require founder approval
 
-  async runFinanceBriefing(context: AgentContext): Promise<void> {
-    const briefing = await this.chat(
-      context,
-      `Generate today's financial analysis and actionable framework.
-
-Structure your response as:
-💰 **Finance brief for today:**
-
-**Unit economics model (fill in your numbers):**
-• Target price per customer: [your recommendation based on the product]
-• Estimated CAC: [recommended budget range]
-• Target LTV: [calculation framework]
-• Break-even at: [X customers — show the math]
-
-**Budget allocation recommendation (monthly):**
-• Engineering/Tools: X%
-• Marketing/Ads: X%
-• Sales: X%
-• Operations: X%
-• Buffer: X%
-
-**Top financial risk this month:**
-• [Specific risk + one action to mitigate it]
-
-**One metric to track this week:**
-• [Specific metric, how to measure it, what a good vs bad result looks like]
-
-Use past tense for analysis ("I modeled...", "I identified...").
-Be specific with numbers — give ranges, not vague advice.`
-    )
-
-    const { data: channel } = await supabaseAdmin
-      .from('chat_channels')
-      .select('id')
-      .eq('customer_id', context.customerId)
-      .eq('name', 'Finance')
-      .single()
-
-    if (channel) {
-      await supabaseAdmin.from('chat_messages').insert({
-        channel_id: channel.id,
-        sender_name: this.name,
-        sender_type: 'agent',
-        content: briefing,
-      })
-    }
-  }
+Do NOT say "I'm monitoring X" or "I'll track Y" — you model and advise, the founder implements.
+Do NOT repeat analysis you already delivered (check your last action summary).
+You cannot access bank accounts or track real transactions.`
 }
